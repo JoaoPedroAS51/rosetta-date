@@ -12,8 +12,10 @@
 - **`unicode`** — the [Unicode Technical Standard #35 / LDML](https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table)
   date field symbols (e.g. `dd/MM/yyyy`), with literals in `'...'`.
 
-Conversion is **bidirectional** and built on a neutral canonical model: each dialect maps to and from a shared
-semantic vocabulary, so directions stay consistent and new dialects can be added without touching the engine.
+Conversion is **bidirectional** and routes through a neutral canonical model: each dialect maps to and from a
+shared semantic vocabulary, so directions stay consistent and new dialects can be added without touching the
+engine. This is what keeps the case-sensitive traps straight — moment `DD` (day of month) becomes unicode `dd`,
+never `DD` (which in LDML is day of *year*).
 
 - **Zero runtime dependencies**
 - **ESM-only**, ships with types
@@ -33,26 +35,156 @@ variant of it. `rosetta-date` converts between **dialects**; the libraries below
 So translating a Day.js format to a date-fns format is, in this library's terms, converting from the `moment`
 dialect to the `unicode` dialect.
 
-## Status
-
-🚧 **Work in progress.** The repository is scaffolded; the conversion engine, dialect tables, and public API are
-being designed. Usage docs and full token tables will land here as the implementation progresses.
-
 ## Install
 
 ```bash
 pnpm add rosetta-date
 ```
 
-## Token mapping tables
+## Usage
 
-> _To be documented._ Full `moment` ↔ `unicode` token tables (both directions), plus the canonical model they
-> map through.
+```ts
+import { convert, createConverter } from 'rosetta-date'
+
+// One-off, direction travels with the call:
+convert('DD/MM/YYYY', { from: 'moment', to: 'unicode' }) // 'dd/MM/yyyy'
+convert('yyyy-MM-dd', { from: 'unicode', to: 'moment' }) // 'YYYY-MM-DD'
+
+// Fixed direction reused many times — resolve once, call often:
+const toDateFns = createConverter('moment', 'unicode')
+toDateFns('YYYY-MM-DD') // 'yyyy-MM-dd'
+toDateFns('hh:mm A') // 'hh:mm a'
+```
+
+`createConverter` returns a plain `(format: string) => string`, handy to store or pass around as a callback.
+
+### Dialect names
+
+`from` and `to` take dialect names — `'moment'` or `'unicode'` (the `DialectName` type). Library names like
+`'dayjs'` / `'date-fns'` are intentionally **not** accepted yet: they're reserved for a future per-library
+profile layer, so the name can carry the library-precise semantics it implies rather than being a bare alias.
+
+## Token mapping
+
+The tables below list the tokens that round-trip between dialects. `rosetta-date` is **permissive**: it never
+throws. A token with no equivalent in the target dialect, or any unrecognized letter run, is emitted as an
+**escaped literal** so it can never be silently re-read as a different token.
+
+### Year
+
+| Meaning | `moment` | `unicode` |
+| --- | --- | --- |
+| Calendar year | `YYYY` | `yyyy` |
+| Calendar year, 2-digit | `YY` | `yy` |
+| Local week-numbering year | `gggg` | `YYYY` |
+| Local week-numbering year, 2-digit | `gg` | `YY` |
+| ISO week-numbering year | `GGGG` | `RRRR` |
+| ISO week-numbering year, 2-digit | `GG` | `RR` |
+
+### Month & quarter
+
+| Meaning | `moment` | `unicode` |
+| --- | --- | --- |
+| Quarter | `Q` | `Q` |
+| Quarter, ordinal | `Qo` | `Qo` |
+| Month | `M` | `M` |
+| Month, 2-digit | `MM` | `MM` |
+| Month, ordinal | `Mo` | `Mo` |
+| Month, abbreviated | `MMM` | `MMM` |
+| Month, wide | `MMMM` | `MMMM` |
+
+### Week & day
+
+| Meaning | `moment` | `unicode` |
+| --- | --- | --- |
+| Week of year | `w` | `w` |
+| Week of year, 2-digit | `ww` | `ww` |
+| ISO week of year | `W` | `I` |
+| ISO week of year, 2-digit | `WW` | `II` |
+| Day of month | `D` | `d` |
+| Day of month, 2-digit | `DD` | `dd` |
+| Day of month, ordinal | `Do` | `do` |
+| Day of year | `DDD` | `D` |
+| Day of year, 3-digit | `DDDD` | `DDD` |
+
+### Weekday
+
+| Meaning | `moment` | `unicode` |
+| --- | --- | --- |
+| Weekday, abbreviated | `ddd` | `EEE` |
+| Weekday, wide | `dddd` | `EEEE` |
+| Weekday, short | `dd` | `EEEEEE` |
+| Weekday, number | `d` | `e` |
+| ISO weekday, number | `E` | `i` |
+
+### Time
+
+| Meaning | `moment` | `unicode` |
+| --- | --- | --- |
+| AM/PM | `A` | `a` |
+| Hour 1–12 | `h` | `h` |
+| Hour 1–12, 2-digit | `hh` | `hh` |
+| Hour 0–23 | `H` | `H` |
+| Hour 0–23, 2-digit | `HH` | `HH` |
+| Hour 1–24 | `k` | `k` |
+| Hour 1–24, 2-digit | `kk` | `kk` |
+| Minute | `m` | `m` |
+| Minute, 2-digit | `mm` | `mm` |
+| Second | `s` | `s` |
+| Second, 2-digit | `ss` | `ss` |
+| Fractional second (1–3 digits) | `S` `SS` `SSS` | `S` `SS` `SSS` |
+
+### Time zone & epoch
+
+| Meaning | `moment` | `unicode` |
+| --- | --- | --- |
+| Time-zone name | `z` | `zzz` |
+| Offset, `±hh:mm` | `Z` | `xxx` |
+| Offset, `±hhmm` | `ZZ` | `xx` |
+| Unix timestamp, seconds | `X` | `t` |
+| Unix timestamp, milliseconds | `x` | `T` |
+
+### Aliases
+
+A few extra spellings are **parsed** but normalize to the primary token above when rendered:
+
+- `moment` `Y` → calendar year (like `YYYY`).
+- `unicode` `y` / `yyy` → calendar year; `R` → ISO week-year; `EE` → abbreviated weekday;
+  `aa` / `aaa` → AM/PM; `z` / `zz` → time-zone name.
 
 ## Non-round-trippable tokens
 
-> _To be documented._ Some tokens are not bijective (ISO week-year, narrow weekday names, localized macro
-> tokens, and tokens that exist in only one dialect). The canonical reverse choice for each will be listed here.
+These exist only in `unicode` (date-fns); `moment` has no equivalent, so converting them **to `moment`**
+produces an escaped literal (e.g. `MMMMM` → `[MMMMM]`) rather than a wrong guess:
+
+| `unicode` | Meaning |
+| --- | --- |
+| `G` `GG` `GGG` `GGGG` `GGGGG` | Era (abbreviated / wide / narrow) |
+| `MMMMM` | Narrow month |
+| `EEEEE` | Narrow weekday |
+| `aaaa` `aaaaa` | Wide / narrow day period |
+| `K` `KK` | Hour 0–11 |
+| `DD` | Day of year, 2-digit |
+
+Also note: `moment` `d` (weekday number, `0`–`6`) and `unicode` `e` (locale-dependent) map to each other but use
+different numbering, and the AM/PM marker loses its moment casing (`A`/`a` both become `a`).
+
+## date-fns gotchas
+
+When the output uses `unicode` tokens that date-fns guards by default, you must opt in:
+
+- Day of year (`D`, `DD`) requires `useAdditionalDayOfYearTokens: true`.
+- Local week-year (`Y`, `YYYY`) requires `useAdditionalWeekYearTokens: true`.
+
+`rosetta-date` produces the standards-correct token; enabling these flags is the caller's responsibility.
+
+## Literals
+
+Literal (verbatim) text is preserved across dialects:
+
+- `moment` brackets `[...]` ↔ `unicode` quotes `'...'`.
+- A literal apostrophe is `''` in `unicode` (e.g. `'o''clock'` → `o'clock`).
+- Only the letter-bearing span is escaped, so separators stay clean: `DD/MM` ↔ `dd/MM`, not `dd'/'MM`.
 
 ## License
 
