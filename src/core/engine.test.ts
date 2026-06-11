@@ -30,6 +30,15 @@ describe('moment → unicode', () => {
     // keeps the ISO separator from becoming a timestamp in date-fns.
     expect(m2u('YYYY-MM-DDTHH:mm:ss')).toBe('yyyy-MM-dd\'T\'HH:mm:ss')
   })
+
+  it('drops an empty literal', () => {
+    expect(m2u('[]')).toBe('')
+  })
+
+  it('literalizes a run of unrecognized letters', () => {
+    // moment has no localized `L` token, so `LL` is unknown and becomes a literal.
+    expect(m2u('LL')).toBe('\'LL\'')
+  })
 })
 
 describe('unicode → moment', () => {
