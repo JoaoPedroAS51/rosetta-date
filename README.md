@@ -45,24 +45,39 @@ pnpm add rosetta-date
 
 ```ts
 import { convert, createConverter } from 'rosetta-date'
+import { moment, unicode } from 'rosetta-date/dialects'
 
 // One-off, direction travels with the call:
-convert('DD/MM/YYYY', { from: 'moment', to: 'unicode' }) // 'dd/MM/yyyy'
-convert('yyyy-MM-dd', { from: 'unicode', to: 'moment' }) // 'YYYY-MM-DD'
+convert('DD/MM/YYYY', { from: moment, to: unicode }) // 'dd/MM/yyyy'
+convert('yyyy-MM-dd', { from: unicode, to: moment }) // 'YYYY-MM-DD'
 
-// Fixed direction reused many times — resolve once, call often:
-const toDateFns = createConverter('moment', 'unicode')
+// Fixed direction reused many times — bind once, call often:
+const toDateFns = createConverter(moment, unicode)
 toDateFns('YYYY-MM-DD') // 'yyyy-MM-dd'
 toDateFns('hh:mm A') // 'hh:mm a'
 ```
 
 `createConverter` returns a plain `(format: string) => string`, handy to store or pass around as a callback.
 
-### Dialect names
+### Dialects are objects (tree-shakeable)
 
-`from` and `to` take dialect names — `'moment'` or `'unicode'` (the `DialectName` type). Library names like
-`'dayjs'` / `'date-fns'` are intentionally **not** accepted yet: they're reserved for a future per-library
-profile layer, so the name can carry the library-precise semantics it implies rather than being a bare alias.
+The conversion API lives at `rosetta-date`; the dialects live at `rosetta-date/dialects`. `from` and `to` take
+**dialect objects** you import (`moment`, `unicode`). Passing the dialects in keeps the conversion functions free
+of a central registry, so a bundle that uses only one pair tree-shakes the unused dialect tables — and you can
+pass a **custom `Dialect`** of your own.
+
+For a name-driven path (e.g. a dialect chosen from config), `getDialect` resolves a `DialectName` to its object.
+By design this reference pulls in every built-in dialect, so reach for it only when the direction is dynamic:
+
+```ts
+import { convert } from 'rosetta-date'
+import { getDialect } from 'rosetta-date/dialects'
+
+convert(format, { from: getDialect(config.from), to: getDialect(config.to) })
+```
+
+Library names like `'dayjs'` / `'date-fns'` are intentionally **not** accepted: they're reserved for a future
+per-library profile layer, so the name can carry the library-precise semantics it implies.
 
 ## Token mapping
 

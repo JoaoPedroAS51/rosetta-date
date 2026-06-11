@@ -31,6 +31,10 @@
     ".": {
       "types": "./dist/index.d.mts",
       "import": "./dist/index.mjs"
+    },
+    "./dialects": {
+      "types": "./dist/dialects/index.d.mts",
+      "import": "./dist/dialects/index.mjs"
     }
   },
   "main": "./dist/index.mjs",

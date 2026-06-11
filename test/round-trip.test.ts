@@ -2,6 +2,7 @@ import type { CanonicalToken } from '../src/core/canonical'
 import type { DialectName } from '../src/dialects/registry'
 import { describe, expect, it } from 'vitest'
 import { convert } from '../src'
+import { dialects } from '../src/dialects/registry'
 import { composites, expectations } from './fixtures'
 
 const names = Object.keys(expectations) as DialectName[]
@@ -10,7 +11,8 @@ const pairs: ReadonlyArray<readonly [DialectName, DialectName]> = names.flatMap(
 )
 
 function roundTrip(format: string, from: DialectName, to: DialectName): string {
-  return convert(convert(format, { from, to }), { from: to, to: from })
+  const forward = convert(format, { from: dialects[from], to: dialects[to] })
+  return convert(forward, { from: dialects[to], to: dialects[from] })
 }
 
 describe('single-token round trips (canonicals shared by both dialects)', () => {

@@ -55,7 +55,7 @@ describe('cross-dialect conversion matrix', () => {
     describe(`${from} → ${to}`, () => {
       const shared = canonicalsOf(from).filter(canonical => toMap[canonical] !== undefined)
       it.each(shared)('%s', (canonical) => {
-        expect(convert(fromMap[canonical]!, { from, to })).toBe(toMap[canonical])
+        expect(convert(fromMap[canonical]!, { from: dialects[from], to: dialects[to] })).toBe(toMap[canonical])
       })
 
       // Symbols the source can express but the target cannot must become escaped
@@ -64,7 +64,7 @@ describe('cross-dialect conversion matrix', () => {
       if (oneSided.length > 0) {
         it.each(oneSided)('%s has no %s token → escaped literal', (canonical) => {
           const token = fromMap[canonical]!
-          expect(convert(token, { from, to })).toBe(escapeLiteral(token, dialects[to].literal))
+          expect(convert(token, { from: dialects[from], to: dialects[to] })).toBe(escapeLiteral(token, dialects[to].literal))
         })
       }
     })
