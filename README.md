@@ -189,9 +189,9 @@ convert('gggg', { from: momentjs, to: dateFns, assume: { flags: [] }, onUnsuppor
 // throws — reason 'requires-flag', requires 'useAdditionalWeekYearTokens'
 ```
 
-With no `assume`, none of this triggers — it is purely opt-in strictness. But providing `assume` at all switches
-optimism off for *every* kind: an omitted (or empty) list means no condition of that kind is met, so
-`{ plugins: ['advancedFormat'] }` still flags every flag- and env-gated token.
+Optimism is **per kind**. Omitting `assume`, or omitting one of its lists, leaves that kind assumed met — so
+`{ plugins: ['advancedFormat'] }` constrains only plugins while flags and env stay optimistic. A *present* list
+(even empty) is the explicit set you have, so `{ plugins: [], flags: [], env: [] }` flags every gated token.
 
 ## Token mapping
 

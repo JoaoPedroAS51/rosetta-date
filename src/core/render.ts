@@ -50,11 +50,13 @@ function compile(target: Dialect | Library): CompiledTarget {
 /**
  * Conditions the caller guarantees the *target* library has — which plugins,
  * options, or environment features are loaded. A token whose capability needs a
- * condition not listed here is routed through `onUnsupportedToken`. Omitting
- * `assume` entirely is optimistic: every declared condition is treated as met.
- * Providing it switches off that optimism for **every** kind — an omitted (or
- * empty) list means no condition of that kind is met, so `{ plugins: ['x'] }`
- * still flags every flag- and env-gated token.
+ * condition not met here is routed through `onUnsupportedToken`.
+ *
+ * Optimism is **per kind**: omitting `assume`, or omitting one of its lists,
+ * assumes every condition of that kind is met. A *present* list — even an empty
+ * one — is the explicit set of met conditions for that kind. So
+ * `{ plugins: ['advancedFormat'] }` constrains only plugins (flags and env stay
+ * optimistic), while `{ plugins: [], flags: [], env: [] }` flags every gated token.
  */
 export interface Assume {
   readonly plugins?: readonly string[]
@@ -74,8 +76,9 @@ export interface RenderOptions {
   readonly assume?: Assume | undefined
 }
 
-function contains(list: readonly string[] | undefined, value: string): boolean {
-  return list !== undefined && list.includes(value)
+/** A condition is met when its kind is left optimistic (list omitted) or it is listed. */
+function met(list: readonly string[] | undefined, value: string): boolean {
+  return list === undefined || list.includes(value)
 }
 
 /** Whether the target renders a token of this capability given `assume`, else why not. */
@@ -86,10 +89,10 @@ function availability(
   if (capability === 'supported' || assume === undefined)
     return true
   if ('plugin' in capability)
-    return contains(assume.plugins, capability.plugin) ? true : { reason: 'requires-plugin', requires: capability.plugin }
+    return met(assume.plugins, capability.plugin) ? true : { reason: 'requires-plugin', requires: capability.plugin }
   if ('flag' in capability)
-    return contains(assume.flags, capability.flag) ? true : { reason: 'requires-flag', requires: capability.flag }
-  return contains(assume.env, capability.env) ? true : { reason: 'requires-env', requires: capability.env }
+    return met(assume.flags, capability.flag) ? true : { reason: 'requires-flag', requires: capability.flag }
+  return met(assume.env, capability.env) ? true : { reason: 'requires-env', requires: capability.env }
 }
 
 /** How an unsupported token resolves into output. */

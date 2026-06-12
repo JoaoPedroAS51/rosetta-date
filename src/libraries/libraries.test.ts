@@ -218,11 +218,17 @@ describe('per-token capability status (assume)', () => {
     expect(convert('z', { from: momentjs, to: momentjs, assume: { env: ['moment-timezone'] } })).toBe('z')
   })
 
-  it('flags a conditional token when its condition is not assumed', () => {
+  it('flags a conditional token when its kind is present but does not list the condition', () => {
     expect(convert('Q', { from: momentjs, to: dayjs, assume: { plugins: [] } })).toBe('[Q]')
-    expect(convert('Q', { from: momentjs, to: dayjs, assume: {} })).toBe('[Q]') // the relevant list is absent
     expect(convert('gggg', { from: momentjs, to: dateFns, assume: { flags: [] } })).toBe('\'gggg\'')
     expect(convert('z', { from: momentjs, to: momentjs, assume: { env: [] } })).toBe('[z]')
+  })
+
+  it('is optimistic per kind — an omitted list leaves that kind assumed met', () => {
+    // Empty object: every kind omitted → fully optimistic, same as no `assume`.
+    expect(convert('Q', { from: momentjs, to: dayjs, assume: {} })).toBe('Q')
+    // Plugins constrained, flags omitted → the flag-gated `gggg` still renders.
+    expect(convert('gggg', { from: momentjs, to: dateFns, assume: { plugins: [] } })).toBe('YYYY')
   })
 
   it('flags only the unmet condition, leaving the rest', () => {
