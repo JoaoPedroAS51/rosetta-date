@@ -24,7 +24,6 @@ LDML `DD`, which is day of *year*.
 - [Usage](#usage)
   - [Dialects and libraries are objects (tree-shakeable)](#dialects-and-libraries-are-objects-tree-shakeable)
   - [Unsupported tokens](#unsupported-tokens)
-  - [Capabilities & `assume`](#capabilities--assume)
 - [Token mapping](#token-mapping)
 - [date-fns extensions](#date-fns-extensions)
 - [Non-round-trippable tokens](#non-round-trippable-tokens)
@@ -133,10 +132,9 @@ convert(format, { from: getDialect(config.from), to: getLibrary(config.to) })
 ### Unsupported tokens
 
 A token can lack a clean conversion: it is **unrecognized** (the source dialect does not define it), **unmappable**
-(a valid source field with no token in the target dialect), **unsupported-by-target** (the target dialect has the
-field, but the target *library* does not render it), or **requires-plugin / -flag / -env** (the library renders it
-only under a condition you did not [`assume`](#capabilities--assume)). The `onUnsupportedToken` option decides what
-happens:
+(a valid source field with no token in the target dialect), or **unsupported-by-target** (the target dialect has the
+field, but the target *library* does not render it — e.g. Day.js mangling `Mo`). The `onUnsupportedToken` option
+decides what happens:
 
 ```ts
 import { convert, Unsupported, UnsupportedTokenError } from 'rosetta-date'
@@ -163,35 +161,11 @@ accepted as equivalents.)
 
 The default never throws — every token is preserved, as a literal at worst.
 
-### Capabilities & `assume`
-
-A library renders some tokens only under a condition — Day.js needs a plugin for `Q`/`L`, date-fns needs an option
-for `YYYY`/`D`, Moment.js needs `moment-timezone` for `z`. Each token carries a *capability*. Conversion is
-**optimistic** by default (every condition is assumed met, so output is unchanged); pass `assume` to declare what
-the target actually has, and a token whose condition is missing is routed through `onUnsupportedToken`:
-
-```ts
-import { convert } from 'rosetta-date'
-import { dayjs, momentjs } from 'rosetta-date/libraries'
-
-convert('Q L', { from: momentjs, to: dayjs }) // 'Q L' (both plugins assumed)
-convert('Q L', { from: momentjs, to: dayjs, assume: { plugins: ['advancedFormat'] } }) // 'Q [L]' — L needs LocalizedFormat
-```
-
-`assume` has three lists, `{ plugins, flags, env }`. An unmet condition surfaces as a `requires-plugin`,
-`requires-flag`, or `requires-env` reason, with `info.requires` (and `UnsupportedTokenError.requires`) naming it:
-
-```ts
-import { convert } from 'rosetta-date'
-import { dateFns, momentjs } from 'rosetta-date/libraries'
-
-convert('gggg', { from: momentjs, to: dateFns, assume: { flags: [] }, onUnsupportedToken: 'throw' })
-// throws — reason 'requires-flag', requires 'useAdditionalWeekYearTokens'
-```
-
-Optimism is **per kind**. Omitting `assume`, or omitting one of its lists, leaves that kind assumed met — so
-`{ plugins: ['advancedFormat'] }` constrains only plugins while flags and env stay optimistic. A *present* list
-(even empty) is the explicit set you have, so `{ plugins: [], flags: [], env: [] }` flags every gated token.
+A `Library`'s `supports` set is "what tokens this tool can render" (used to flag `unsupported-by-target`). It
+does **not** model the consumer's runtime configuration: a token a library renders only with a plugin or option
+loaded (Day.js's `Q`, date-fns's `D`) is emitted as-is. Whether that plugin or option is actually enabled is the
+target library's concern, and it signals the problem itself at format time — date-fns throws, Day.js mangles. See
+[date-fns gotchas](#date-fns-gotchas).
 
 ## Token mapping
 
@@ -361,8 +335,8 @@ date-fns guards a few tokens behind options you must enable in its `format()` ca
 - Local week-year (`YY`, `YYYY`) requires `useAdditionalWeekYearTokens: true`.
 
 `rosetta-date` produces the standards-correct token; enabling these options is the caller's responsibility. The
-`dateFns` library carries them as [capabilities](#capabilities--assume), so converting with `assume: { flags: [] }`
-makes `rosetta-date` flag the tokens that would otherwise need an option.
+converter does not track which options you enabled — if a token needs one you did not pass, date-fns throws at
+`format()` time, which is the authoritative signal for your exact version.
 
 ## Literals
 

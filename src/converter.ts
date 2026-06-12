@@ -1,4 +1,3 @@
-import type { Assume } from './core/render'
 import type { Dialect, Library } from './core/types'
 import type { UnsupportedTokenPolicy } from './core/unsupported'
 import { resolveDialect } from './core/library'
@@ -21,12 +20,6 @@ export interface ConverterOptions {
    * (default), `'throw'`, or a handler. See {@link UnsupportedTokenPolicy}.
    */
   readonly onUnsupportedToken?: UnsupportedTokenPolicy
-  /**
-   * Which of a *library* target's conditions (plugins, options, environment) the
-   * caller has. Tokens needing a condition not listed here are routed through
-   * `onUnsupportedToken`. Omit to assume every condition the target declares.
-   */
-  readonly assume?: Assume
 }
 
 /**
@@ -71,7 +64,6 @@ export function convert(format: string, options: ConvertOptions): string {
   return render(parse(format, from), options.to, {
     from,
     onUnsupportedToken: options.onUnsupportedToken,
-    assume: options.assume,
   })
 }
 
@@ -100,6 +92,6 @@ export function convert(format: string, options: ConvertOptions): string {
  */
 export function createConverter(from: Dialect | Library, to: Dialect | Library, options?: ConverterOptions): Converter {
   const fromDialect = resolveDialect(from)
-  const renderOptions = { from: fromDialect, onUnsupportedToken: options?.onUnsupportedToken, assume: options?.assume }
+  const renderOptions = { from: fromDialect, onUnsupportedToken: options?.onUnsupportedToken }
   return format => render(parse(format, fromDialect), to, renderOptions)
 }

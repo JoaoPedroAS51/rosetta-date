@@ -37,11 +37,6 @@
           </select>
         </div>
 
-        <fieldset id="assume-box" disabled>
-          <legend><label><input type="checkbox" id="assume-on" /> assume — declare what the target library has</label></legend>
-          <div class="assume" id="assume-grid"></div>
-        </fieldset>
-
         <div class="chips">
           <span>try:</span>
           <button data-from="momentjs (library)" data-to="date-fns (library)" data-fmt="DD/MM/YYYY">DD/MM/YYYY</button>
@@ -49,15 +44,14 @@
           <button data-from="momentjs (library)" data-to="date-fns (library)" data-fmt="LLL">LLL (preset)</button>
           <button data-from="momentjs (library)" data-to="date-fns (library)" data-fmt="[week] WW, GGGG">ISO week (ext)</button>
           <button data-from="momentjs (library)" data-to="date-fns (library)" data-fmt="X">X (epoch)</button>
-          <button data-from="momentjs (library)" data-to="dayjs (library)" data-fmt="Q [—] dddd">Q (dayjs plugin)</button>
-          <button data-from="dayjs (library)" data-to="momentjs (library)" data-fmt="HH:mm z">z (env)</button>
+          <button data-from="momentjs (library)" data-to="dayjs (library)" data-fmt="Mo">Mo (dayjs can't)</button>
+          <button data-from="dayjs (library)" data-to="momentjs (library)" data-fmt="HH:mm z">z (zone)</button>
         </div>
       </div>
 
       <footer>
         Imports the live <code>src/</code> — edit the library and reload. Pick a <code>dialect</code> for the pure
-        spec, a <code>library</code> for the tool (extensions + capabilities). Enable <code>assume</code> to flag
-        tokens a target needs a plugin/flag/env for.
+        spec, a <code>library</code> for the tool (its extensions plus the subset of tokens it renders).
       </footer>
     </main>
     <script type="module" src="./main.ts"></script>

@@ -1,4 +1,3 @@
-import type { Assume, Library } from '../index'
 import { describe, expect, it } from 'vitest'
 import { Canonical } from '../core/canonical'
 import { ldml, moment } from '../dialects'
@@ -91,7 +90,7 @@ describe('mismatched-width localized presets (garbage-in, via dateFns)', () => {
   })
 })
 
-describe('target-capability awareness (the dayjs subset)', () => {
+describe('target-support awareness (the dayjs subset)', () => {
   it('renders a supported token identically to the bare dialect', () => {
     expect(convert('YYYY-MM-DD', { from: momentjs, to: dayjs })).toBe('YYYY-MM-DD')
     expect(convert('Do MMMM', { from: momentjs, to: dayjs })).toBe('Do MMMM')
@@ -178,23 +177,6 @@ describe('defineLibrary validation', () => {
       supports: new Set(['M', 'tt']),
     })).not.toThrow()
   })
-
-  it('rejects a capability for a token outside the supported set', () => {
-    expect(() => defineLibrary({
-      name: 'cap',
-      dialect: moment,
-      supports: new Set(['MM']),
-      capabilities: new Map([['YYYY', { plugin: 'x' }]]),
-    })).toThrowError(/not among its supported tokens/)
-  })
-
-  it('rejects a capability for a token not in the grammar', () => {
-    expect(() => defineLibrary({
-      name: 'cap2',
-      dialect: moment,
-      capabilities: new Map([['NOPE', { env: 'x' }]]),
-    })).toThrowError(/not among its supported tokens/)
-  })
 })
 
 describe('getLibrary', () => {
@@ -205,77 +187,13 @@ describe('getLibrary', () => {
   })
 })
 
-describe('per-token capability status (assume)', () => {
-  it('is optimistic by default — conditional tokens render without assume', () => {
-    expect(convert('Q L', { from: momentjs, to: dayjs })).toBe('Q L') // plugins
-    expect(convert('gggg', { from: momentjs, to: dateFns })).toBe('YYYY') // flag
-    expect(convert('z', { from: momentjs, to: momentjs })).toBe('z') // env
-  })
-
-  it('renders a conditional token when its condition is assumed', () => {
-    expect(convert('Q', { from: momentjs, to: dayjs, assume: { plugins: ['advancedFormat'] } })).toBe('Q')
-    expect(convert('gggg', { from: momentjs, to: dateFns, assume: { flags: ['useAdditionalWeekYearTokens'] } })).toBe('YYYY')
-    expect(convert('z', { from: momentjs, to: momentjs, assume: { env: ['moment-timezone'] } })).toBe('z')
-  })
-
-  it('flags a conditional token when its kind is present but does not list the condition', () => {
-    expect(convert('Q', { from: momentjs, to: dayjs, assume: { plugins: [] } })).toBe('[Q]')
-    expect(convert('gggg', { from: momentjs, to: dateFns, assume: { flags: [] } })).toBe('\'gggg\'')
-    expect(convert('z', { from: momentjs, to: momentjs, assume: { env: [] } })).toBe('[z]')
-  })
-
-  it('is optimistic per kind — an omitted list leaves that kind assumed met', () => {
-    // Empty object: every kind omitted → fully optimistic, same as no `assume`.
-    expect(convert('Q', { from: momentjs, to: dayjs, assume: {} })).toBe('Q')
-    // Plugins constrained, flags omitted → the flag-gated `gggg` still renders.
-    expect(convert('gggg', { from: momentjs, to: dateFns, assume: { plugins: [] } })).toBe('YYYY')
-  })
-
-  it('flags only the unmet condition, leaving the rest', () => {
-    // AdvancedFormat assumed, LocalizedFormat not → `Q` renders, `L` is flagged.
-    expect(convert('Q L', { from: momentjs, to: dayjs, assume: { plugins: ['advancedFormat'] } })).toBe('Q [L]')
-  })
-
-  it('reports the requires-* reason and condition name to a handler', () => {
-    const seen: Array<{ reason: string, requires: string | undefined }> = []
-    const grab = (to: Library, assume: Assume, format: string): void => {
-      convert(format, {
-        from: momentjs,
-        to,
-        assume,
-        onUnsupportedToken: (_token, info) => {
-          seen.push({ reason: info.reason, requires: info.requires })
-          return undefined
-        },
-      })
-    }
-    grab(dayjs, { plugins: [] }, 'Q')
-    grab(dateFns, { flags: [] }, 'gggg')
-    grab(momentjs, { env: [] }, 'z')
-    expect(seen).toEqual([
-      { reason: 'requires-plugin', requires: 'advancedFormat' },
-      { reason: 'requires-flag', requires: 'useAdditionalWeekYearTokens' },
-      { reason: 'requires-env', requires: 'moment-timezone' },
-    ])
-  })
-
-  it('throws an UnsupportedTokenError carrying the reason and condition', () => {
-    const cases: Array<{ format: string, to: Library, assume: Assume, reason: string, requires: string }> = [
-      { format: 'Q', to: dayjs, assume: { plugins: [] }, reason: 'requires-plugin', requires: 'advancedFormat' },
-      { format: 'gggg', to: dateFns, assume: { flags: [] }, reason: 'requires-flag', requires: 'useAdditionalWeekYearTokens' },
-      { format: 'z', to: momentjs, assume: { env: [] }, reason: 'requires-env', requires: 'moment-timezone' },
-    ]
-    for (const c of cases) {
-      let error: unknown
-      try {
-        convert(c.format, { from: momentjs, to: c.to, assume: c.assume, onUnsupportedToken: 'throw' })
-      }
-      catch (caughtError) {
-        error = caughtError
-      }
-      expect(error).toBeInstanceOf(UnsupportedTokenError)
-      expect((error as UnsupportedTokenError).reason).toBe(c.reason)
-      expect((error as UnsupportedTokenError).requires).toBe(c.requires)
-    }
+describe('plugin-gated tokens render unconditionally', () => {
+  it('emits tokens a library renders only under a plugin/option/env, unflagged', () => {
+    // `supports` lists what a library can render with its common plugins; the
+    // converter does not model whether the consumer enabled them — the target
+    // library signals that itself at format time.
+    expect(convert('Q L', { from: momentjs, to: dayjs })).toBe('Q L') // AdvancedFormat + LocalizedFormat
+    expect(convert('gggg', { from: momentjs, to: dateFns })).toBe('YYYY') // useAdditionalWeekYearTokens
+    expect(convert('z', { from: momentjs, to: momentjs })).toBe('z') // moment-timezone
   })
 })

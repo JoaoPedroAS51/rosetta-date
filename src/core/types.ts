@@ -53,19 +53,6 @@ export interface Dialect {
 }
 
 /**
- * Whether — and under what condition — a {@link Library} renders a token:
- * - `'supported'` — unconditionally.
- * - `{ plugin }` — only with a named plugin loaded (e.g. `'advancedFormat'`).
- * - `{ flag }` — only with a named option enabled (e.g. `'useAdditionalDayOfYearTokens'`).
- * - `{ env }` — only in a capable environment (e.g. `'moment-timezone'`).
- */
-export type TokenCapability
-  = | 'supported'
-    | { readonly plugin: string }
-    | { readonly flag: string }
-    | { readonly env: string }
-
-/**
  * A concrete date library: the {@link Dialect} (grammar) it speaks paired with
  * the subset of that grammar it actually renders. Where a `Dialect` answers
  * "does this token exist, and what does it mean?", a `Library` answers "does this
@@ -100,13 +87,6 @@ export interface Library {
    * `extends`.
    */
   readonly supports?: ReadonlySet<string>
-  /**
-   * Per-token conditions that *refine* {@link supports}: a token mapped here is
-   * renderable only under its {@link TokenCapability} (a plugin, flag, or
-   * environment). Tokens in the supported set but absent here are unconditionally
-   * `'supported'`. Keys must be within the supported set.
-   */
-  readonly capabilities?: ReadonlyMap<string, TokenCapability>
 }
 
 /**

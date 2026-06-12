@@ -1,4 +1,4 @@
-import type { Dialect, Library, TokenCapability } from './types'
+import type { Dialect, Library } from './types'
 
 /**
  * A library's effective grammar as a {@link Dialect}: its base dialect plus any
@@ -34,35 +34,30 @@ export function resolveDialect(target: Dialect | Library): Dialect {
 }
 
 /**
- * Narrow a render target to its effective {@link Dialect} and a per-token
- * capability lookup. A bare `Dialect` renders every token unconditionally; a
- * {@link Library} returns each token's {@link TokenCapability}, or `undefined`
- * when the token is outside its supported set (not rendered at all).
+ * Narrow a render target to its effective {@link Dialect} and a predicate for
+ * whether a token is rendered. A bare `Dialect` renders every token; a
+ * {@link Library} renders only its supported subset (its whole grammar when
+ * {@link Library.supports} is omitted).
  */
 export function resolveTarget(target: Dialect | Library): {
   readonly dialect: Dialect
-  readonly capability: (token: string) => TokenCapability | undefined
+  readonly renders: (token: string) => boolean
 } {
   if (!('dialect' in target))
-    return { dialect: target, capability: () => 'supported' }
+    return { dialect: target, renders: () => true }
 
-  const { supports, capabilities } = target
+  const { supports } = target
   return {
     dialect: effectiveDialect(target),
-    capability: (token) => {
-      if (supports !== undefined && !supports.has(token))
-        return undefined
-      return capabilities?.get(token) ?? 'supported'
-    },
+    renders: supports === undefined ? () => true : token => supports.has(token),
   }
 }
 
 /**
- * Build a {@link Library}, validating that its extensions, supported tokens, and
- * capabilities are coherent. Throws at definition time — instead of failing
- * silently later — when an `extends` token collides with a dialect token or is
- * listed twice, a `supports` token is not in the effective grammar, or a
- * `capabilities` key is not among the supported tokens.
+ * Build a {@link Library}, validating that its extensions and supported tokens
+ * are coherent. Throws at definition time — instead of failing silently later —
+ * when an `extends` token collides with a dialect token or is listed twice, or a
+ * `supports` token is not in the effective grammar.
  */
 export function defineLibrary(library: Library): Library {
   const dialectTokens = new Set(library.dialect.tokens.map(rule => rule.token))
@@ -91,17 +86,6 @@ export function defineLibrary(library: Library): Library {
       if (!known.has(token)) {
         throw new Error(
           `Library "${library.name}" lists token "${token}", which the "${library.dialect.name}" dialect and its extensions do not define`,
-        )
-      }
-    }
-  }
-
-  if (library.capabilities !== undefined) {
-    for (const token of library.capabilities.keys()) {
-      const renderable = library.supports === undefined ? known.has(token) : library.supports.has(token)
-      if (!renderable) {
-        throw new Error(
-          `Library "${library.name}" sets a capability for "${token}", which is not among its supported tokens`,
         )
       }
     }

@@ -1,4 +1,4 @@
-import type { Library, TokenCapability } from '../core/types'
+import type { Library } from '../core/types'
 import { defineLibrary } from '../core/library'
 import { moment } from '../dialects/moment'
 
@@ -72,16 +72,11 @@ const localizedFormat = [
  * numbers (`e`, `E`), sub-`SSS` fractions (`S`, `SS`), and 2-digit week-years
  * (`gg`, `GG`).
  *
- * `supports` is everything Day.js can render with the common plugins; the
- * `capabilities` map records which plugin each non-core token needs (AdvancedFormat
- * or LocalizedFormat).
+ * `supports` is everything Day.js can render with the common plugins (the core
+ * formatter plus AdvancedFormat and LocalizedFormat).
  */
 export const dayjs: Library = defineLibrary({
   name: 'dayjs',
   dialect: moment,
   supports: new Set([...core, ...advancedFormat, ...localizedFormat]),
-  capabilities: new Map<string, TokenCapability>([
-    ...advancedFormat.map(token => [token, { plugin: 'advancedFormat' }] as const),
-    ...localizedFormat.map(token => [token, { plugin: 'localizedFormat' }] as const),
-  ]),
 })

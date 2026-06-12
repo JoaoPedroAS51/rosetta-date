@@ -1,5 +1,5 @@
 import type { CanonicalToken } from './canonical'
-import type { Dialect, Library, Segment, TokenCapability } from './types'
+import type { Dialect, Library, Segment } from './types'
 import type { UnsupportedTokenInfo, UnsupportedTokenPolicy, UnsupportedTokenReason } from './unsupported'
 import { UnsupportedTokenError } from './errors'
 import { resolveTarget } from './library'
@@ -15,11 +15,10 @@ interface CompiledTarget {
   /** The dialect tokens are rendered into (a {@link Library} resolves to its dialect). */
   readonly dialect: Dialect
   /**
-   * Canonical → the primary renderable spelling and the condition (if any) under
-   * which the target renders it. The first non-absent spelling listed wins, so
-   * dialect tables put the preferred spelling first.
+   * Canonical → the primary renderable spelling. The first spelling the target
+   * library renders wins, so dialect tables put the preferred spelling first.
    */
-  readonly tokens: ReadonlyMap<CanonicalToken, { readonly token: string, readonly capability: TokenCapability }>
+  readonly tokens: ReadonlyMap<CanonicalToken, string>
   /** Every canonical the dialect defines, ignoring library support. */
   readonly canonicals: ReadonlySet<CanonicalToken>
 }
@@ -30,16 +29,15 @@ const cache = new WeakMap<Dialect | Library, CompiledTarget>()
 function compile(target: Dialect | Library): CompiledTarget {
   let compiled = cache.get(target)
   if (compiled === undefined) {
-    const { dialect, capability } = resolveTarget(target)
-    const tokens = new Map<CanonicalToken, { token: string, capability: TokenCapability }>()
+    const { dialect, renders } = resolveTarget(target)
+    const tokens = new Map<CanonicalToken, string>()
     const canonicals = new Set<CanonicalToken>()
     for (const { token, canonical } of dialect.tokens) {
       canonicals.add(canonical)
       if (tokens.has(canonical))
         continue
-      const cap = capability(token)
-      if (cap !== undefined)
-        tokens.set(canonical, { token, capability: cap })
+      if (renders(token))
+        tokens.set(canonical, token)
     }
     compiled = { dialect, tokens, canonicals }
     cache.set(target, compiled)
@@ -48,51 +46,13 @@ function compile(target: Dialect | Library): CompiledTarget {
 }
 
 /**
- * Conditions the caller guarantees the *target* library has — which plugins,
- * options, or environment features are loaded. A token whose capability needs a
- * condition not met here is routed through `onUnsupportedToken`.
- *
- * Optimism is **per kind**: omitting `assume`, or omitting one of its lists,
- * assumes every condition of that kind is met. A *present* list — even an empty
- * one — is the explicit set of met conditions for that kind. So
- * `{ plugins: ['advancedFormat'] }` constrains only plugins (flags and env stay
- * optimistic), while `{ plugins: [], flags: [], env: [] }` flags every gated token.
- */
-export interface Assume {
-  readonly plugins?: readonly string[]
-  readonly flags?: readonly string[]
-  readonly env?: readonly string[]
-}
-
-/**
  * Options controlling how a render handles tokens with no clean conversion.
  */
 export interface RenderOptions {
   /** The dialect the segments were parsed from (for handler context). */
   readonly from: Dialect
-  /** Policy for unrecognized, unmappable, or condition-gated tokens. Defaults to `'literalize'`. */
+  /** Policy for unrecognized or unmappable tokens. Defaults to `'literalize'`. */
   readonly onUnsupportedToken?: UnsupportedTokenPolicy | undefined
-  /** Which of the target library's conditions (plugins/flags/env) the caller has. */
-  readonly assume?: Assume | undefined
-}
-
-/** A condition is met when its kind is left optimistic (list omitted) or it is listed. */
-function met(list: readonly string[] | undefined, value: string): boolean {
-  return list === undefined || list.includes(value)
-}
-
-/** Whether the target renders a token of this capability given `assume`, else why not. */
-function availability(
-  capability: TokenCapability,
-  assume: Assume | undefined,
-): true | { readonly reason: UnsupportedTokenReason, readonly requires: string } {
-  if (capability === 'supported' || assume === undefined)
-    return true
-  if ('plugin' in capability)
-    return met(assume.plugins, capability.plugin) ? true : { reason: 'requires-plugin', requires: capability.plugin }
-  if ('flag' in capability)
-    return met(assume.flags, capability.flag) ? true : { reason: 'requires-flag', requires: capability.flag }
-  return met(assume.env, capability.env) ? true : { reason: 'requires-env', requires: capability.env }
 }
 
 /** How an unsupported token resolves into output. */
@@ -105,12 +65,11 @@ type Resolution
  * Render canonical segments into a format string for `to`.
  *
  * Literals are escaped minimally; fields become the dialect's primary token for
- * their canonical symbol. A field whose canonical has no token in `to`, whose
- * spelling the target library does not render, or whose capability needs a
- * condition not in `assume`, plus any `unknown` segment, is handed to the
- * {@link RenderOptions.onUnsupportedToken} policy — by default escaped as a
- * literal, so its characters can never be silently re-read as a token in the
- * target dialect (e.g. an ISO `T` must not become the epoch token).
+ * their canonical symbol. A field whose canonical has no token in `to`, or whose
+ * spelling the target library does not render, plus any `unknown` segment, is
+ * handed to the {@link RenderOptions.onUnsupportedToken} policy — by default
+ * escaped as a literal, so its characters can never be silently re-read as a
+ * token in the target dialect (e.g. an ISO `T` must not become the epoch token).
  *
  * Adjacent literal output is accumulated and escaped together: escaping pieces
  * separately could emit a stray delimiter between them (e.g. `'L'` + `'T'` would
@@ -151,22 +110,16 @@ export function render(segments: readonly Segment[], to: Dialect | Library, opti
         apply(resolveUnsupported(segment.value, 'unrecognized', dialect, options))
         break
       case 'field': {
-        const entry = tokens.get(segment.canonical)
-        if (entry === undefined) {
+        const token = tokens.get(segment.canonical)
+        if (token === undefined) {
           const reason: UnsupportedTokenReason = canonicals.has(segment.canonical)
             ? 'unsupported-by-target'
             : 'unmappable'
           apply(resolveUnsupported(segment.raw, reason, dialect, options))
         }
         else {
-          const avail = availability(entry.capability, options?.assume)
-          if (avail === true) {
-            flush()
-            output += entry.token
-          }
-          else {
-            apply(resolveUnsupported(segment.raw, avail.reason, dialect, options, avail.requires))
-          }
+          flush()
+          output += token
         }
         break
       }
@@ -182,15 +135,14 @@ function resolveUnsupported(
   reason: UnsupportedTokenReason,
   to: Dialect,
   options?: RenderOptions,
-  requires?: string,
 ): Resolution {
   const policy = options?.onUnsupportedToken
 
   if (policy === 'throw')
-    throw new UnsupportedTokenError(token, reason, requires)
+    throw new UnsupportedTokenError(token, reason)
 
   if (typeof policy === 'function' && options !== undefined) {
-    const info: UnsupportedTokenInfo = { reason, from: options.from, to, ...(requires !== undefined ? { requires } : {}) }
+    const info: UnsupportedTokenInfo = { reason, from: options.from, to }
     const replacement = policy(token, info)
     if (replacement === Unsupported.drop || replacement === '')
       return { kind: 'drop' }
