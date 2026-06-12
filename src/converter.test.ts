@@ -36,7 +36,7 @@ describe('getDialect', () => {
 describe('onUnsupportedToken policy', () => {
   it('literalizes by default', () => {
     expect(convert('K', { from: ldml, to: moment })).toBe('[K]') // unmappable field
-    expect(convert('LLLL', { from: moment, to: ldml })).toBe('\'LLLL\'') // unrecognized run
+    expect(convert('JJJJ', { from: moment, to: ldml })).toBe('\'JJJJ\'') // unrecognized run
   })
 
   it('throws an UnsupportedTokenError carrying the token and reason', () => {
@@ -51,7 +51,7 @@ describe('onUnsupportedToken policy', () => {
     expect((error as UnsupportedTokenError).token).toBe('K')
     expect((error as UnsupportedTokenError).reason).toBe('unmappable')
 
-    expect(() => convert('LLLL', { from: moment, to: ldml, onUnsupportedToken: 'throw' }))
+    expect(() => convert('JJJJ', { from: moment, to: ldml, onUnsupportedToken: 'throw' }))
       .toThrowError(UnsupportedTokenError)
   })
 

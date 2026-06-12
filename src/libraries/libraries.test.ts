@@ -20,6 +20,14 @@ describe('library as a conversion endpoint', () => {
     // `Mo`/`Qo` are unsupported by Day.js but fine for the full moment grammar.
     expect(convert('Mo Qo', { from: ldml, to: momentjs })).toBe('Mo Qo')
   })
+
+  it('renders localized presets to Day.js (its LocalizedFormat tokens)', () => {
+    // `localizedFormat` is in dayjs.supports, so these map cleanly rather than
+    // being flagged. The compound `PPPppp` stays one token (`LLL`), not a sequence.
+    expect(convert('PPP', { from: dateFns, to: dayjs })).toBe('LL')
+    expect(convert('PPPppp', { from: dateFns, to: dayjs })).toBe('LLL')
+    expect(convert('LLL', { from: momentjs, to: dayjs })).toBe('LLL')
+  })
 })
 
 describe('target-capability awareness (the dayjs subset)', () => {

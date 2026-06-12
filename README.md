@@ -35,7 +35,7 @@ flag tokens the target tool would mishandle — both are importable objects, and
 | Library | Speaks | Coverage |
 | --- | --- | --- |
 | `momentjs` ([Moment.js](https://momentjs.com/docs/#/displaying/format/)) | `moment` | the full grammar |
-| `dayjs` ([Day.js](https://day.js.org/docs/en/display/format)) | `moment` | a core subset, `+` plugins such as AdvancedFormat |
+| `dayjs` ([Day.js](https://day.js.org/docs/en/display/format)) | `moment` | a core subset + the common plugins (AdvancedFormat, LocalizedFormat) |
 | `dateFns` ([date-fns](https://date-fns.org/docs/format)) | `ldml` | the full grammar (some tokens gated behind date-fns options) |
 
 So translating a Day.js format to a date-fns format is converting from the `moment` dialect to the `ldml`
@@ -217,6 +217,36 @@ The tables below list the tokens that round-trip between dialects.
 | Unix timestamp, seconds | `X` | `t` |
 | Unix timestamp, milliseconds | `x` | `T` |
 
+### Localized presets
+
+`L…` (moment) and `P…`/`p…` (date-fns) render **per the library's loaded locale**.
+`rosetta-date` maps them **preset → preset** (never to a concrete pattern), so the
+token stays locale-deferred and the target library applies its own locale —
+including the compound connector (`" at "`, `", "`, …) it picks for that locale.
+
+| Meaning | `moment` | `ldml` |
+| --- | --- | --- |
+| Date, short | `L` | `P` |
+| Date, medium | `ll` | `PP` |
+| Date, long | `LL` | `PPP` |
+| Time, short | `LT` | `p` |
+| Time, with seconds | `LTS` | `pp` |
+| Date + time, medium | `lll` | `PPpp` |
+| Date + time, long | `LLL` | `PPPppp` |
+| Date + time, full | `LLLL` | `PPPPpppp` |
+
+> **Locale caveat:** conversion rewrites the token, not the date. Matching *output*
+> needs equivalent locales loaded in both libraries; the conversion only guarantees
+> the token stays the locale's preset, never a hardcoded pattern. Samples are en-US
+> — e.g. `LL` vs `PPP` differ only as `June 7, 2024` vs `June 7th, 2024`, which is
+> each library's en locale data, not a conversion error.
+>
+> **Match widths:** for date + time, use a matched compound preset (`PPpp`,
+> `PPPppp`) or a separator (`PP p`). moment has no mismatched-width compound, so
+> gluing different widths (`PPPp`) drops the locale connector and can re-lex into a
+> different token — `rosetta-date` maps each preset faithfully, but the glued input
+> is "garbage in".
+
 ### Aliases
 
 A few extra spellings are **parsed** but normalize to the primary token above when rendered:
@@ -237,6 +267,9 @@ produces an escaped literal (e.g. `MMMMM` → `[MMMMM]`) rather than a wrong gue
 | `aaaa` `aaaaa` | Wide / narrow day period |
 | `K` `KK` | Hour 0–11 |
 | `DD` | Day of year, 2-digit |
+| `PPPP` | Localized full date (with weekday) |
+| `ppp` `pppp` | Localized time with time zone |
+| `Pp` | Localized short date + time |
 
 Also note: `moment` `d` (weekday number, `0`–`6`) and `ldml` `e` (locale-dependent) map to each other but use
 different numbering; the AM/PM marker loses its moment casing (`A`/`a` both become `a`); and moment's narrow era

@@ -36,8 +36,8 @@ describe('moment → ldml', () => {
   })
 
   it('literalizes a run of unrecognized letters', () => {
-    // moment has no localized `L` token, so `LL` is unknown and becomes a literal.
-    expect(m2u('LL')).toBe('\'LL\'')
+    // moment has no `J` token, so the whole run is unknown and becomes a literal.
+    expect(m2u('JJJ')).toBe('\'JJJ\'')
   })
 })
 
@@ -51,9 +51,55 @@ describe('unsupported same-letter runs and adjacent literals', () => {
   })
 
   it('coalesces adjacent unrecognized letters so no stray delimiter appears', () => {
-    // `L` and `T` are both unknown to moment; escaping them separately would read
-    // back as the apostrophe `L'T` instead of the literal `LT`.
-    expect(m2u('LT')).toBe('\'LT\'')
+    // `J` and `b` are both unknown to moment; escaping them separately would read
+    // back as the apostrophe `J'b` instead of the literal `Jb`.
+    expect(m2u('Jb')).toBe('\'Jb\'')
+  })
+})
+
+describe('localized presets (mapped preset ↔ preset, locale-deferred)', () => {
+  it('maps atomic date and time presets to their counterpart token', () => {
+    expect(m2u('L')).toBe('P')
+    expect(m2u('LL')).toBe('PPP')
+    expect(m2u('LT')).toBe('p')
+    expect(u2m('PP')).toBe('ll')
+  })
+
+  it('maps a compound date-time preset to a single counterpart token', () => {
+    // Not expanded to a sequence: the token stays one locale-aware preset, so each
+    // library applies its own locale connector ("at" / ", " / …) at format time.
+    expect(m2u('LLL')).toBe('PPPppp')
+    expect(u2m('PPPppp')).toBe('LLL')
+  })
+
+  it('literalizes an ldml-only preset that moment cannot express', () => {
+    // Full date (with weekday) — no moment token, so it is non-round-trippable.
+    expect(u2m('PPPP')).toBe('[PPPP]')
+  })
+})
+
+describe('adjacent localized presets of mismatched width (garbage-in)', () => {
+  // date-fns combines consecutive presets with the locale connector even at
+  // mismatched widths (`PPPp` → "June 7th, 2024 at 3:04 PM"). moment only has
+  // matched-width compounds (`lll`/`LLL`/`LLLL`), so the correct input is a matched
+  // compound token or a separator; gluing different widths is "garbage in".
+  it('is clean for matched-width compounds and separated presets', () => {
+    expect(u2m('PPpp')).toBe('lll') // matched widths → one compound token
+    expect(u2m('PPPppp')).toBe('LLL')
+    expect(u2m('PP p')).toBe('ll LT') // a separator is preserved verbatim
+  })
+
+  it('is lossy when widths differ but the tokens do not merge', () => {
+    // `PP`→`ll`, `p`→`LT`: structurally fine (`ll`+`LT` re-lexes back), but the
+    // locale connector date-fns would add (`", "`) is dropped.
+    expect(u2m('PPp')).toBe('llLT')
+  })
+
+  it('is garbage when the moment presets merge into a different token', () => {
+    // `PPP`→`LL` and the time token starts with `L`, so `LL`+`LT` glues to `LLLT`,
+    // which moment re-reads as `LLL` (date-time) + a stray `T`. Not supported.
+    expect(u2m('PPPp')).toBe('LLLT')
+    expect(u2m('PPPpp')).toBe('LLLTS')
   })
 })
 

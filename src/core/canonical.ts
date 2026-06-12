@@ -114,6 +114,24 @@ export const Canonical = {
   // Unix epoch
   EpochSeconds: 'epoch/seconds',
   EpochMilliseconds: 'epoch/milliseconds',
+
+  // Localized presets — deferred to the library's locale at format time, so they
+  // are mapped preset ↔ preset (never expanded to a concrete pattern, which would
+  // hardcode one locale). Date-only, time-only, and date+time, each short→full.
+  LocalizedDateShort: 'localized-date/short',
+  LocalizedDateMedium: 'localized-date/medium',
+  LocalizedDateLong: 'localized-date/long',
+  LocalizedDateFull: 'localized-date/full',
+
+  LocalizedTimeShort: 'localized-time/short',
+  LocalizedTimeMedium: 'localized-time/medium',
+  LocalizedTimeLong: 'localized-time/long',
+  LocalizedTimeFull: 'localized-time/full',
+
+  LocalizedDateTimeShort: 'localized-date-time/short',
+  LocalizedDateTimeMedium: 'localized-date-time/medium',
+  LocalizedDateTimeLong: 'localized-date-time/long',
+  LocalizedDateTimeFull: 'localized-date-time/full',
 } as const
 
 /**

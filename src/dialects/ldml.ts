@@ -8,8 +8,12 @@ import { Canonical } from '../core/canonical'
  * stands for one literal apostrophe.
  *
  * This is the grammar, not any one library: date-fns is a {@link Library} of it,
- * not its namesake. Mind the case-sensitive traps that the canonical model
- * resolves:
+ * not its namesake. The table also carries date-fns's **extensions** beyond pure
+ * UTS#35 — the localized presets (`P`/`p`/`Pp…`), epoch (`t`/`T`), and the ISO
+ * helpers (`R`, `I`, `i`); a pure-LDML consumer (ICU, `java.time`) would treat
+ * those as a separate extension layer.
+ *
+ * Mind the case-sensitive traps that the canonical model resolves:
  * - lowercase `y` is the calendar year; uppercase `Y` is the local
  *   week-numbering year (date-fns gates `Y`/`YYYY` behind a flag).
  * - lowercase `d` is day-of-month; uppercase `D` is day-of-year (also gated).
@@ -126,5 +130,21 @@ export const ldml: Dialect = {
     // Unix epoch
     { token: 't', canonical: Canonical.EpochSeconds },
     { token: 'T', canonical: Canonical.EpochMilliseconds },
+
+    // Localized presets — date-fns's `P…`/`p…` family. The combined `Pp…` tokens
+    // are single locale-aware presets (date-fns joins date and time with the
+    // locale's connector), so they map preset ↔ preset like the rest.
+    { token: 'P', canonical: Canonical.LocalizedDateShort },
+    { token: 'PP', canonical: Canonical.LocalizedDateMedium },
+    { token: 'PPP', canonical: Canonical.LocalizedDateLong },
+    { token: 'PPPP', canonical: Canonical.LocalizedDateFull },
+    { token: 'p', canonical: Canonical.LocalizedTimeShort },
+    { token: 'pp', canonical: Canonical.LocalizedTimeMedium },
+    { token: 'ppp', canonical: Canonical.LocalizedTimeLong },
+    { token: 'pppp', canonical: Canonical.LocalizedTimeFull },
+    { token: 'Pp', canonical: Canonical.LocalizedDateTimeShort },
+    { token: 'PPpp', canonical: Canonical.LocalizedDateTimeMedium },
+    { token: 'PPPppp', canonical: Canonical.LocalizedDateTimeLong },
+    { token: 'PPPPpppp', canonical: Canonical.LocalizedDateTimeFull },
   ],
 }

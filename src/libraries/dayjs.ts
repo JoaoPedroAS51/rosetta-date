@@ -49,6 +49,18 @@ const advancedFormat = [
   'z',
 ]
 
+// The LocalizedFormat plugin adds the `L…` presets Day.js can render.
+const localizedFormat = [
+  'L',
+  'll',
+  'LL',
+  'LT',
+  'LTS',
+  'lll',
+  'LLL',
+  'LLLL',
+]
+
 /**
  * Day.js — speaks the `moment` grammar but implements only a subset. Tokens it
  * does not recognize are *mangled* at runtime (`Mo` → `6o`, `DDD` → `077`), so
@@ -58,12 +70,14 @@ const advancedFormat = [
  * Not listed (and therefore flagged): the era (`N…`), ordinals beyond `Do`/`wo`
  * (`Mo`, `Qo`, `Wo`, `DDDo`), day-of-year (`DDD`, `DDDD`), the locale/ISO weekday
  * numbers (`e`, `E`), sub-`SSS` fractions (`S`, `SS`), and 2-digit week-years
- * (`gg`, `GG`). The localized presets (`L`, `LT`, …) live in the grammar but
- * require Day.js's LocalizedFormat plugin; they join `supports` once the dialect
- * gains those tokens (RFC 0001).
+ * (`gg`, `GG`).
+ *
+ * `supports` models Day.js **with the common plugins loaded** — AdvancedFormat
+ * (`Q`, `Do`, `X`, …) and LocalizedFormat (`L…`). Day.js *core* alone recognizes
+ * far fewer tokens.
  */
 export const dayjs: Library = defineLibrary({
   name: 'dayjs',
   dialect: moment,
-  supports: new Set([...core, ...advancedFormat]),
+  supports: new Set([...core, ...advancedFormat, ...localizedFormat]),
 })

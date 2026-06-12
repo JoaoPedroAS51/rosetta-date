@@ -105,5 +105,16 @@ export const moment: Dialect = {
     // Unix epoch
     { token: 'X', canonical: Canonical.EpochSeconds },
     { token: 'x', canonical: Canonical.EpochMilliseconds },
+
+    // Localized presets — the `L…` family. moment has no full-date-only,
+    // tz-bearing time, or short date-time preset, so those slots are ldml-only.
+    { token: 'L', canonical: Canonical.LocalizedDateShort },
+    { token: 'll', canonical: Canonical.LocalizedDateMedium },
+    { token: 'LL', canonical: Canonical.LocalizedDateLong },
+    { token: 'LT', canonical: Canonical.LocalizedTimeShort },
+    { token: 'LTS', canonical: Canonical.LocalizedTimeMedium },
+    { token: 'lll', canonical: Canonical.LocalizedDateTimeMedium },
+    { token: 'LLL', canonical: Canonical.LocalizedDateTimeLong },
+    { token: 'LLLL', canonical: Canonical.LocalizedDateTimeFull },
   ],
 }
