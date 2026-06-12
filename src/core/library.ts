@@ -1,4 +1,4 @@
-import type { Dialect, Library } from './types'
+import type { Dialect, Library, TokenCapability } from './types'
 
 /**
  * A library's effective grammar as a {@link Dialect}: its base dialect plus any
@@ -34,27 +34,39 @@ export function resolveDialect(target: Dialect | Library): Dialect {
 }
 
 /**
- * Narrow a render target to its effective {@link Dialect} plus the optional
- * support filter. A bare `Dialect` has no filter (it renders its whole grammar);
- * a {@link Library} contributes its `supports` set, if any.
+ * Narrow a render target to its effective {@link Dialect} and a per-token
+ * capability lookup. A bare `Dialect` renders every token unconditionally; a
+ * {@link Library} returns each token's {@link TokenCapability}, or `undefined`
+ * when the token is outside its supported set (not rendered at all).
  */
 export function resolveTarget(target: Dialect | Library): {
   readonly dialect: Dialect
-  readonly supports: ReadonlySet<string> | undefined
+  readonly capability: (token: string) => TokenCapability | undefined
 } {
-  return 'dialect' in target
-    ? { dialect: effectiveDialect(target), supports: target.supports }
-    : { dialect: target, supports: undefined }
+  if (!('dialect' in target))
+    return { dialect: target, capability: () => 'supported' }
+
+  const { supports, capabilities } = target
+  return {
+    dialect: effectiveDialect(target),
+    capability: (token) => {
+      if (supports !== undefined && !supports.has(token))
+        return undefined
+      return capabilities?.get(token) ?? 'supported'
+    },
+  }
 }
 
 /**
- * Build a {@link Library}, validating that its extensions and supported tokens are
- * coherent. Throws at definition time — instead of failing silently later — when
- * an `extends` token collides with a dialect token, or a `supports` token is not
- * in the effective grammar.
+ * Build a {@link Library}, validating that its extensions, supported tokens, and
+ * capabilities are coherent. Throws at definition time — instead of failing
+ * silently later — when an `extends` token collides with a dialect token or is
+ * listed twice, a `supports` token is not in the effective grammar, or a
+ * `capabilities` key is not among the supported tokens.
  */
 export function defineLibrary(library: Library): Library {
   const dialectTokens = new Set(library.dialect.tokens.map(rule => rule.token))
+  const known = new Set(dialectTokens)
 
   if (library.extends !== undefined) {
     const extended = new Set<string>()
@@ -70,17 +82,26 @@ export function defineLibrary(library: Library): Library {
         )
       }
       extended.add(token)
+      known.add(token)
     }
   }
 
   if (library.supports !== undefined) {
-    const known = new Set(dialectTokens)
-    for (const { token } of library.extends ?? [])
-      known.add(token)
     for (const token of library.supports) {
       if (!known.has(token)) {
         throw new Error(
           `Library "${library.name}" lists token "${token}", which the "${library.dialect.name}" dialect and its extensions do not define`,
+        )
+      }
+    }
+  }
+
+  if (library.capabilities !== undefined) {
+    for (const token of library.capabilities.keys()) {
+      const renderable = library.supports === undefined ? known.has(token) : library.supports.has(token)
+      if (!renderable) {
+        throw new Error(
+          `Library "${library.name}" sets a capability for "${token}", which is not among its supported tokens`,
         )
       }
     }

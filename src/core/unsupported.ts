@@ -24,9 +24,18 @@ export const Unsupported = { drop, literalize } as const
  * - `'unrecognized'` — the source dialect does not define this token.
  * - `'unmappable'` — a valid source field with no token in the target *dialect*.
  * - `'unsupported-by-target'` — the target dialect has the field, but the target
- *   library does not render it (e.g. converting `Mo` to `dayjs`).
+ *   library does not render it at all (e.g. converting `Mo` to `dayjs`).
+ * - `'requires-plugin'` / `'requires-flag'` / `'requires-env'` — the target library
+ *   renders the token only under a condition the caller did not `assume` (a plugin,
+ *   an option, or an environment); {@link UnsupportedTokenInfo.requires} names it.
  */
-export type UnsupportedTokenReason = 'unrecognized' | 'unmappable' | 'unsupported-by-target'
+export type UnsupportedTokenReason
+  = | 'unrecognized'
+    | 'unmappable'
+    | 'unsupported-by-target'
+    | 'requires-plugin'
+    | 'requires-flag'
+    | 'requires-env'
 
 /**
  * Context passed to an {@link UnsupportedTokenHandler} alongside the offending
@@ -39,6 +48,11 @@ export interface UnsupportedTokenInfo {
   readonly from: Dialect
   /** The dialect being rendered to — always the resolved dialect, even when a `Library` was the target. */
   readonly to: Dialect
+  /**
+   * For a `requires-*` reason, the name of the unmet condition (the plugin, flag,
+   * or environment). `undefined` for the other reasons.
+   */
+  readonly requires?: string
 }
 
 /**

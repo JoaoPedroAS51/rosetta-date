@@ -104,10 +104,11 @@ convert(format, { from: getDialect(config.from), to: getLibrary(config.to) })
 
 ### Unsupported tokens
 
-A token can lack a clean conversion for three reasons: it is **unrecognized** (the source dialect does not define
-it), **unmappable** (a valid source field with no token in the target dialect), or **unsupported-by-target** (the
-target dialect has the field, but the target *library* does not render it). The `onUnsupportedToken` option
-decides what happens:
+A token can lack a clean conversion: it is **unrecognized** (the source dialect does not define it), **unmappable**
+(a valid source field with no token in the target dialect), **unsupported-by-target** (the target dialect has the
+field, but the target *library* does not render it), or **requires-plugin / -flag / -env** (the library renders it
+only under a condition you did not [`assume`](#capabilities--assume)). The `onUnsupportedToken` option decides what
+happens:
 
 ```ts
 import { convert, Unsupported, UnsupportedTokenError } from 'rosetta-date'
@@ -133,6 +134,36 @@ A handler's return value is emitted **verbatim**; use the `Unsupported` sentinel
 accepted as equivalents.)
 
 The default never throws — every token is preserved, as a literal at worst.
+
+### Capabilities & `assume`
+
+A library renders some tokens only under a condition — Day.js needs a plugin for `Q`/`L`, date-fns needs an option
+for `YYYY`/`D`, Moment.js needs `moment-timezone` for `z`. Each token carries a *capability*. Conversion is
+**optimistic** by default (every condition is assumed met, so output is unchanged); pass `assume` to declare what
+the target actually has, and a token whose condition is missing is routed through `onUnsupportedToken`:
+
+```ts
+import { convert } from 'rosetta-date'
+import { dayjs, momentjs } from 'rosetta-date/libraries'
+
+convert('Q L', { from: momentjs, to: dayjs }) // 'Q L' (both plugins assumed)
+convert('Q L', { from: momentjs, to: dayjs, assume: { plugins: ['advancedFormat'] } }) // 'Q [L]' — L needs LocalizedFormat
+```
+
+`assume` has three lists, `{ plugins, flags, env }`. An unmet condition surfaces as a `requires-plugin`,
+`requires-flag`, or `requires-env` reason, with `info.requires` (and `UnsupportedTokenError.requires`) naming it:
+
+```ts
+import { convert } from 'rosetta-date'
+import { dateFns, momentjs } from 'rosetta-date/libraries'
+
+convert('gggg', { from: momentjs, to: dateFns, assume: { flags: [] }, onUnsupportedToken: 'throw' })
+// throws — reason 'requires-flag', requires 'useAdditionalWeekYearTokens'
+```
+
+With no `assume`, none of this triggers — it is purely opt-in strictness. But providing `assume` at all switches
+optimism off for *every* kind: an omitted (or empty) list means no condition of that kind is met, so
+`{ plugins: ['advancedFormat'] }` still flags every flag- and env-gated token.
 
 ## Token mapping
 
@@ -296,12 +327,14 @@ different numbering; the AM/PM marker loses its moment casing (`A`/`a` both beco
 
 ## date-fns gotchas
 
-When the output uses `ldml` tokens that date-fns guards by default, you must opt in:
+date-fns guards a few tokens behind options you must enable in its `format()` call:
 
 - Day of year (`D`, `DD`) requires `useAdditionalDayOfYearTokens: true`.
 - Local week-year (`YY`, `YYYY`) requires `useAdditionalWeekYearTokens: true`.
 
-`rosetta-date` produces the standards-correct token; enabling these flags is the caller's responsibility.
+`rosetta-date` produces the standards-correct token; enabling these options is the caller's responsibility. The
+`dateFns` library carries them as [capabilities](#capabilities--assume), so converting with `assume: { flags: [] }`
+makes `rosetta-date` flag the tokens that would otherwise need an option.
 
 ## Literals
 

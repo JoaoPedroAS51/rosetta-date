@@ -9,8 +9,8 @@ import { ldml } from '../dialects/ldml'
  *
  * `extends` carries the tokens date-fns adds on top of pure UTS#35: ISO
  * week-year/week/weekday (`R`/`I`/`i`), epoch (`t`/`T`), and the localized presets
- * (`P`/`p`/`Pp…`). A few tokens render only with an option enabled; those caveats
- * live in `notes` (informational only).
+ * (`P`/`p`/`Pp…`). A few tokens render only with a date-fns option enabled; the
+ * `capabilities` map flags them when that option is not `assume`d.
  */
 export const dateFns: Library = defineLibrary({
   name: 'date-fns',
@@ -48,10 +48,10 @@ export const dateFns: Library = defineLibrary({
     { token: 'PPPppp', canonical: Canonical.LocalizedDateTimeLong },
     { token: 'PPPPpppp', canonical: Canonical.LocalizedDateTimeFull },
   ],
-  notes: new Map([
-    ['YYYY', 'local week-numbering year; needs useAdditionalWeekYearTokens'],
-    ['YY', 'local week-numbering year; needs useAdditionalWeekYearTokens'],
-    ['D', 'day of year; needs useAdditionalDayOfYearTokens'],
-    ['DD', 'day of year; needs useAdditionalDayOfYearTokens'],
+  capabilities: new Map([
+    ['YYYY', { flag: 'useAdditionalWeekYearTokens' }],
+    ['YY', { flag: 'useAdditionalWeekYearTokens' }],
+    ['D', { flag: 'useAdditionalDayOfYearTokens' }],
+    ['DD', { flag: 'useAdditionalDayOfYearTokens' }],
   ]),
 })
