@@ -2,20 +2,23 @@ import type { Dialect } from '../core/types'
 import { Canonical } from '../core/canonical'
 
 /**
- * The `unicode` dialect: the UTS#35 / LDML date field symbols, as implemented by
- * date-fns. Literals are single-quoted (`'literal'`), and a doubled quote (`''`)
+ * The `ldml` dialect: the UTS#35 / LDML (Unicode Locale Data Markup Language)
+ * date field symbols — the grammar date-fns (and Luxon, `java.time`, `Intl`, …)
+ * implement. Literals are single-quoted (`'literal'`), and a doubled quote (`''`)
  * stands for one literal apostrophe.
  *
- * Mind the case-sensitive traps that the canonical model resolves:
+ * This is the grammar, not any one library: date-fns is a {@link Library} of it,
+ * not its namesake. Mind the case-sensitive traps that the canonical model
+ * resolves:
  * - lowercase `y` is the calendar year; uppercase `Y` is the local
  *   week-numbering year (date-fns gates `Y`/`YYYY` behind a flag).
  * - lowercase `d` is day-of-month; uppercase `D` is day-of-year (also gated).
  *
  * Where several tokens share a canonical symbol the first row is the primary
- * spelling used when rendering *to* unicode.
+ * spelling used when rendering *to* ldml.
  */
-export const unicode: Dialect = {
-  name: 'unicode',
+export const ldml: Dialect = {
+  name: 'ldml',
   literal: { open: '\'', close: '\'', escapedDelimiter: '\'\'' },
   tokens: [
     // Era

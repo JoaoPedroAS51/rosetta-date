@@ -1,29 +1,49 @@
 import type { CanonicalToken } from './canonical'
-import type { Dialect, Segment } from './types'
+import type { Dialect, Library, Segment } from './types'
 import type { UnsupportedTokenPolicy, UnsupportedTokenReason } from './unsupported'
 import { UnsupportedTokenError } from './errors'
+import { resolveTarget } from './library'
 import { escapeLiteral } from './literal'
 import { Unsupported } from './unsupported'
 
 /**
- * Canonical → primary-token lookup for rendering. When several tokens share a
- * canonical symbol, the first one listed wins, so dialect tables put the
- * preferred spelling first. Compiled once per dialect and cached.
+ * A compiled render target. The `canonicals` set tells "the library does not
+ * render this token" (`unsupported-by-target`) apart from "the grammar has no
+ * such field" (`unmappable`).
  */
-const cache = new WeakMap<Dialect, ReadonlyMap<CanonicalToken, string>>()
+interface CompiledTarget {
+  /** The dialect tokens are rendered into (a {@link Library} resolves to its dialect). */
+  readonly dialect: Dialect
+  /**
+   * Canonical → primary *supported* token. When several tokens share a canonical
+   * the first listed wins, so dialect tables put the preferred spelling first; a
+   * library's `supports` set further filters to spellings it actually renders.
+   */
+  readonly tokens: ReadonlyMap<CanonicalToken, string>
+  /** Every canonical the dialect defines, ignoring library support. */
+  readonly canonicals: ReadonlySet<CanonicalToken>
+}
 
-function compile(dialect: Dialect): ReadonlyMap<CanonicalToken, string> {
-  let map = cache.get(dialect)
-  if (map === undefined) {
-    const built = new Map<CanonicalToken, string>()
+/** Compiled once per target object (dialect or library) and cached. */
+const cache = new WeakMap<Dialect | Library, CompiledTarget>()
+
+function compile(target: Dialect | Library): CompiledTarget {
+  let compiled = cache.get(target)
+  if (compiled === undefined) {
+    const { dialect, supports } = resolveTarget(target)
+    const tokens = new Map<CanonicalToken, string>()
+    const canonicals = new Set<CanonicalToken>()
     for (const { token, canonical } of dialect.tokens) {
-      if (!built.has(canonical))
-        built.set(canonical, token)
+      canonicals.add(canonical)
+      if (supports !== undefined && !supports.has(token))
+        continue
+      if (!tokens.has(canonical))
+        tokens.set(canonical, token)
     }
-    map = built
-    cache.set(dialect, map)
+    compiled = { dialect, tokens, canonicals }
+    cache.set(target, compiled)
   }
-  return map
+  return compiled
 }
 
 /**
@@ -56,14 +76,14 @@ type Resolution
  * separately could emit a stray delimiter between them (e.g. `'L'` + `'T'` would
  * read back as the apostrophe `L'T`, not `LT`).
  */
-export function render(segments: readonly Segment[], to: Dialect, options?: RenderOptions): string {
-  const tokens = compile(to)
+export function render(segments: readonly Segment[], to: Dialect | Library, options?: RenderOptions): string {
+  const { dialect, tokens, canonicals } = compile(to)
   let output = ''
   let literal = ''
 
   const flush = (): void => {
     if (literal !== '') {
-      output += escapeLiteral(literal, to.literal)
+      output += escapeLiteral(literal, dialect.literal)
       literal = ''
     }
   }
@@ -88,12 +108,15 @@ export function render(segments: readonly Segment[], to: Dialect, options?: Rend
         literal += segment.value
         break
       case 'unknown':
-        apply(resolveUnsupported(segment.value, 'unrecognized', to, options))
+        apply(resolveUnsupported(segment.value, 'unrecognized', dialect, options))
         break
       case 'field': {
         const token = tokens.get(segment.canonical)
         if (token === undefined) {
-          apply(resolveUnsupported(segment.raw, 'unmappable', to, options))
+          const reason: UnsupportedTokenReason = canonicals.has(segment.canonical)
+            ? 'unsupported-by-target'
+            : 'unmappable'
+          apply(resolveUnsupported(segment.raw, reason, dialect, options))
         }
         else {
           flush()

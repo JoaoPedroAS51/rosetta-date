@@ -2,14 +2,14 @@ import type { Dialect } from '../core/types'
 import { Canonical } from '../core/canonical'
 
 /**
- * The `moment` dialect: the Moment.js token grammar, also spoken (as a subset
- * plus plugins) by Day.js. Literals are bracketed (`[literal]`); there is no
- * in-band escape for the closing bracket.
+ * The `moment` dialect: the Moment.js-style token grammar. It is the *grammar*,
+ * lib-agnostic and maximal — the union of everything a tool in this family could
+ * spell. Concrete tools live in `src/libraries/` (e.g. `momentjs`, `dayjs`) and
+ * declare which subset of this grammar they actually render. Literals are
+ * bracketed (`[literal]`); there is no in-band escape for the closing bracket.
  *
- * The table is the union of Moment.js core tokens and the common Day.js
- * AdvancedFormat tokens (`Q`, `Qo`, `Do`, `k`, `kk`, `X`, `x`), matching the
- * permissive scope. Where several tokens share a canonical symbol the first row
- * is the primary spelling used when rendering *to* moment.
+ * Where several tokens share a canonical symbol the first row is the primary
+ * spelling used when rendering *to* moment.
  *
  * Note the deliberate `YYYY → year/numeric` mapping: in moment, capital `Y` is
  * the *calendar* year (unlike LDML, where capital `Y` is the week-numbering

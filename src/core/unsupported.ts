@@ -22,9 +22,11 @@ export const Unsupported = { drop, literalize } as const
 /**
  * Why a token cannot be converted cleanly:
  * - `'unrecognized'` — the source dialect does not define this token.
- * - `'unmappable'` — a valid source field with no token in the target dialect.
+ * - `'unmappable'` — a valid source field with no token in the target *dialect*.
+ * - `'unsupported-by-target'` — the target dialect has the field, but the target
+ *   library does not render it (e.g. converting `Mo` to `dayjs`).
  */
-export type UnsupportedTokenReason = 'unrecognized' | 'unmappable'
+export type UnsupportedTokenReason = 'unrecognized' | 'unmappable' | 'unsupported-by-target'
 
 /**
  * Context passed to an {@link UnsupportedTokenHandler} alongside the offending
@@ -33,9 +35,9 @@ export type UnsupportedTokenReason = 'unrecognized' | 'unmappable'
 export interface UnsupportedTokenInfo {
   /** Why the token could not be converted. */
   readonly reason: UnsupportedTokenReason
-  /** The dialect the format was parsed from. */
+  /** The dialect the format was parsed from (a `Library` source resolves to its dialect). */
   readonly from: Dialect
-  /** The dialect being rendered to. */
+  /** The dialect being rendered to — always the resolved dialect, even when a `Library` was the target. */
   readonly to: Dialect
 }
 

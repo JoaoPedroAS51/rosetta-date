@@ -6,7 +6,7 @@ import type { UnsupportedTokenReason } from './unsupported'
  */
 export class UnsupportedTokenError extends Error {
   constructor(
-    /** The offending token, e.g. `'K'` or `'QQQ'`. */
+    /** The offending token, e.g. `'K'` or `'MMMMM'`. */
     readonly token: string,
     /** Why the token could not be converted. */
     readonly reason: UnsupportedTokenReason,
@@ -14,7 +14,9 @@ export class UnsupportedTokenError extends Error {
     super(
       reason === 'unrecognized'
         ? `Unrecognized token "${token}" in the source dialect`
-        : `Token "${token}" has no equivalent in the target dialect`,
+        : reason === 'unsupported-by-target'
+          ? `Token "${token}" is not rendered by the target library`
+          : `Token "${token}" has no equivalent in the target dialect`,
     )
     this.name = 'UnsupportedTokenError'
   }

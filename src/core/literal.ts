@@ -11,7 +11,7 @@ interface LiteralRead {
 }
 
 /**
- * Both moment and unicode reserve ASCII letters as pattern (token) characters;
+ * Both moment and ldml reserve ASCII letters as pattern (token) characters;
  * everything else is literal. This single rule drives literal detection in the
  * parser and minimal escaping in the renderer.
  */

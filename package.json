@@ -35,6 +35,10 @@
     "./dialects": {
       "types": "./dist/dialects/index.d.mts",
       "import": "./dist/dialects/index.mjs"
+    },
+    "./libraries": {
+      "types": "./dist/libraries/index.d.mts",
+      "import": "./dist/libraries/index.mjs"
     }
   },
   "main": "./dist/index.mjs",

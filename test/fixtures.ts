@@ -67,7 +67,7 @@ export const expectations: Record<DialectName, Partial<Record<CanonicalToken, st
     [Canonical.EpochSeconds]: 'X',
     [Canonical.EpochMilliseconds]: 'x',
   },
-  unicode: {
+  ldml: {
     [Canonical.EraAbbreviated]: 'GGG',
     [Canonical.EraWide]: 'GGGG',
     [Canonical.EraNarrow]: 'GGGGG',
@@ -140,7 +140,7 @@ export const aliases: Partial<Record<DialectName, ReadonlyArray<readonly [token:
     ['a', Canonical.DayPeriodAbbreviated],
     ['zz', Canonical.TimezoneAbbreviated],
   ],
-  unicode: [
+  ldml: [
     ['y', Canonical.YearNumeric],
     ['yyy', Canonical.YearNumeric],
     ['R', Canonical.IsoWeekYearNumeric],
@@ -168,7 +168,7 @@ export const composites: Partial<Record<DialectName, readonly string[]>> = {
     'dddd, MMMM Do YYYY',
     'DD [of] MMMM, YYYY',
   ],
-  unicode: [
+  ldml: [
     'dd/MM/yyyy',
     'yyyy-MM-dd\'T\'HH:mm:ss',
     'EEE, do MMM yyyy',

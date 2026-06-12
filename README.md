@@ -1,39 +1,45 @@
 # rosetta-date
 
-> Bidirectionally convert date-format token strings between the **`moment`** and **`unicode`** dialects.
+> Bidirectionally convert date-format token strings between **dialects** (`moment`, `ldml`) and the **libraries** that speak them (Moment.js, Day.js, date-fns).
 
 [![npm version](https://img.shields.io/npm/v/rosetta-date.svg)](https://www.npmjs.com/package/rosetta-date)
 [![CI](https://github.com/JoaoPedroAS51/rosetta-date/actions/workflows/ci.yml/badge.svg)](https://github.com/JoaoPedroAS51/rosetta-date/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
-`rosetta-date` translates date-format token strings between two **dialects** (token grammars):
+`rosetta-date` translates date-format token strings between **dialects** (token grammars) — and the **libraries**
+that speak them — through a neutral canonical model: each dialect maps to and from a shared semantic vocabulary,
+so conversion stays **bidirectional** and consistent, and **a new dialect or library is added without touching the
+engine**. The dialects and libraries below are what ship today; the design is built to grow.
 
-- **`moment`** — the Moment.js token grammar (e.g. `DD/MM/YYYY`), with literals in `[...]`.
-- **`unicode`** — the [Unicode Technical Standard #35 / LDML](https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table)
-  date field symbols (e.g. `dd/MM/yyyy`), with literals in `'...'`.
-
-Conversion is **bidirectional** and routes through a neutral canonical model: each dialect maps to and from a
-shared semantic vocabulary, so directions stay consistent and new dialects can be added without touching the
-engine. This is what keeps the case-sensitive traps straight — moment `DD` (day of month) becomes unicode `dd`,
-never `DD` (which in LDML is day of *year*).
+Routing through that canonical hub is what keeps the case-sensitive traps straight — moment `DD` (day of month)
+becomes ldml `dd`, never `DD` (which in LDML is day of *year*).
 
 - **Zero runtime dependencies**
 - **ESM-only**, ships with types
-- **Escape-aware tokenizer** (longest-token-first), handling `moment` `[literals]` and `unicode` `'literals'`
+- **Escape-aware tokenizer** (longest-token-first), handling `moment` `[literals]` and `ldml` `'literals'`
 
-## Dialects vs. libraries
+## Supported dialects & libraries
 
-A **dialect** is a token grammar. A **library** is an implementation that *speaks* a dialect — often a subset or
-variant of it. `rosetta-date` converts between **dialects**; the libraries below are the common speakers of each:
+A **dialect** is a token grammar; a **library** is a concrete tool that *speaks* a dialect, rendering some subset
+of it. Convert between **dialects** for pure grammar-level translation, or between **libraries** to additionally
+flag tokens the target tool would mishandle — both are importable objects, and you can add your own.
 
-| Library | Dialect it speaks |
-| --- | --- |
-| [Moment.js](https://momentjs.com/docs/#/displaying/format/) | `moment` (full) |
-| [Day.js](https://day.js.org/docs/en/display/format) | `moment` (core subset, `+` plugins such as AdvancedFormat) |
-| [date-fns](https://date-fns.org/docs/format) | `unicode` (subset + library-specific rules) |
+**Dialects** — at `rosetta-date/dialects`:
 
-So translating a Day.js format to a date-fns format is, in this library's terms, converting from the `moment`
-dialect to the `unicode` dialect.
+- **`moment`** — the Moment.js token grammar (e.g. `DD/MM/YYYY`), literals in `[...]`.
+- **`ldml`** — the [Unicode Technical Standard #35 / LDML](https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table)
+  date field symbols (e.g. `dd/MM/yyyy`), literals in `'...'`.
+
+**Libraries** — at `rosetta-date/libraries`:
+
+| Library | Speaks | Coverage |
+| --- | --- | --- |
+| `momentjs` ([Moment.js](https://momentjs.com/docs/#/displaying/format/)) | `moment` | the full grammar |
+| `dayjs` ([Day.js](https://day.js.org/docs/en/display/format)) | `moment` | a core subset, `+` plugins such as AdvancedFormat |
+| `dateFns` ([date-fns](https://date-fns.org/docs/format)) | `ldml` | the full grammar (some tokens gated behind date-fns options) |
+
+So translating a Day.js format to a date-fns format is converting from the `moment` dialect to the `ldml`
+dialect — or, naming the tools directly, `from: dayjs` to `to: dateFns`.
 
 ## Install
 
@@ -45,59 +51,76 @@ pnpm add rosetta-date
 
 ```ts
 import { convert, createConverter } from 'rosetta-date'
-import { moment, unicode } from 'rosetta-date/dialects'
+import { ldml, moment } from 'rosetta-date/dialects'
 
 // One-off, direction travels with the call:
-convert('DD/MM/YYYY', { from: moment, to: unicode }) // 'dd/MM/yyyy'
-convert('yyyy-MM-dd', { from: unicode, to: moment }) // 'YYYY-MM-DD'
+convert('DD/MM/YYYY', { from: moment, to: ldml }) // 'dd/MM/yyyy'
+convert('yyyy-MM-dd', { from: ldml, to: moment }) // 'YYYY-MM-DD'
 
 // Fixed direction reused many times — bind once, call often:
-const toDateFns = createConverter(moment, unicode)
+const toDateFns = createConverter(moment, ldml)
 toDateFns('YYYY-MM-DD') // 'yyyy-MM-dd'
 toDateFns('hh:mm A') // 'hh:mm a'
 ```
 
 `createConverter` returns a plain `(format: string) => string`, handy to store or pass around as a callback.
 
-### Dialects are objects (tree-shakeable)
+### Dialects and libraries are objects (tree-shakeable)
 
-The conversion API lives at `rosetta-date`; the dialects live at `rosetta-date/dialects`. `from` and `to` take
-**dialect objects** you import (`moment`, `unicode`). Passing the dialects in keeps the conversion functions free
-of a central registry, so a bundle that uses only one pair tree-shakes the unused dialect tables — and you can
-pass a **custom `Dialect`** of your own.
+The conversion API lives at `rosetta-date`; **dialects** at `rosetta-date/dialects`, **libraries** at
+`rosetta-date/libraries`. `from` and `to` each take a `Dialect` *or* a `Library` — mix them freely. Passing them
+in keeps the conversion functions free of a central registry, so a bundle that uses only one pair tree-shakes the
+rest — and you can pass a **custom `Dialect`**, or a `Library` you build with `defineLibrary`.
 
-For a name-driven path (e.g. a dialect chosen from config), `getDialect` resolves a `DialectName` to its object.
-By design this reference pulls in every built-in dialect, so reach for it only when the direction is dynamic:
+```ts
+import { convert, createConverter } from 'rosetta-date'
+import { dateFns, dayjs, momentjs } from 'rosetta-date/libraries'
+
+// Convert lib → lib (reads like the intent):
+convert('DD/MM/YYYY', { from: momentjs, to: dateFns }) // 'dd/MM/yyyy'
+
+// Same grammar, different tool — flags what the target can't render. Day.js
+// would mangle `Mo` to `6o`, so a strict converter throws instead of emitting it:
+const safeForDayjs = createConverter(momentjs, dayjs, { onUnsupportedToken: 'throw' })
+safeForDayjs('YYYY-MM-DD') // 'YYYY-MM-DD'
+safeForDayjs('Mo') // throws UnsupportedTokenError (reason: 'unsupported-by-target')
+```
+
+A `Library` is a `Dialect` plus the subset of tokens it renders; converting *to* one routes any token it cannot
+spell through `onUnsupportedToken` (below). A reference implementation (`momentjs`, `dateFns`) renders its whole
+dialect. Plain `dialect → dialect` conversion is unchanged and equally first-class.
+
+For a name-driven path (e.g. an endpoint chosen from config), `getDialect` / `getLibrary` resolve a name to its
+object. By design each reference pulls in every built-in, so reach for it only when the direction is dynamic:
 
 ```ts
 import { convert } from 'rosetta-date'
 import { getDialect } from 'rosetta-date/dialects'
+import { getLibrary } from 'rosetta-date/libraries'
 
-convert(format, { from: getDialect(config.from), to: getDialect(config.to) })
+convert(format, { from: getDialect(config.from), to: getLibrary(config.to) })
 ```
-
-Library names like `'dayjs'` / `'date-fns'` are intentionally **not** accepted: they're reserved for a future
-per-library profile layer, so the name can carry the library-precise semantics it implies.
 
 ### Unsupported tokens
 
-A token can lack a clean conversion for two reasons: it is **unrecognized** (the source dialect does not define
-it) or **unmappable** (a valid source field with no token in the target dialect). The `onUnsupportedToken` option
+A token can lack a clean conversion for three reasons: it is **unrecognized** (the source dialect does not define
+it), **unmappable** (a valid source field with no token in the target dialect), or **unsupported-by-target** (the
+target dialect has the field, but the target *library* does not render it). The `onUnsupportedToken` option
 decides what happens:
 
 ```ts
 import { convert, Unsupported, UnsupportedTokenError } from 'rosetta-date'
-import { moment, unicode } from 'rosetta-date/dialects'
+import { ldml, moment } from 'rosetta-date/dialects'
 
 // 'literalize' (default) — escape it as a literal, so it can never be re-read as a token:
-convert('K', { from: unicode, to: moment }) // '[K]'
+convert('K', { from: ldml, to: moment }) // '[K]'
 
 // 'throw' — fail fast (handy for migrations/validation):
-convert('K', { from: unicode, to: moment, onUnsupportedToken: 'throw' }) // throws UnsupportedTokenError
+convert('K', { from: ldml, to: moment, onUnsupportedToken: 'throw' }) // throws UnsupportedTokenError
 
 // handler — decide per token:
 convert('K', {
-  from: unicode,
+  from: ldml,
   to: moment,
   onUnsupportedToken: (token, info) =>
     info.reason === 'unmappable' ? Unsupported.drop : Unsupported.literalize,
@@ -116,7 +139,7 @@ The tables below list the tokens that round-trip between dialects.
 
 ### Era & year
 
-| Meaning | `moment` | `unicode` |
+| Meaning | `moment` | `ldml` |
 | --- | --- | --- |
 | Era, abbreviated | `N` | `GGG` |
 | Era, wide | `NNNN` | `GGGG` |
@@ -130,7 +153,7 @@ The tables below list the tokens that round-trip between dialects.
 
 ### Month & quarter
 
-| Meaning | `moment` | `unicode` |
+| Meaning | `moment` | `ldml` |
 | --- | --- | --- |
 | Quarter | `Q` | `Q` |
 | Quarter, ordinal | `Qo` | `Qo` |
@@ -142,7 +165,7 @@ The tables below list the tokens that round-trip between dialects.
 
 ### Week & day
 
-| Meaning | `moment` | `unicode` |
+| Meaning | `moment` | `ldml` |
 | --- | --- | --- |
 | Week of year | `w` | `w` |
 | Week of year, 2-digit | `ww` | `ww` |
@@ -159,7 +182,7 @@ The tables below list the tokens that round-trip between dialects.
 
 ### Weekday
 
-| Meaning | `moment` | `unicode` |
+| Meaning | `moment` | `ldml` |
 | --- | --- | --- |
 | Weekday, abbreviated | `ddd` | `EEE` |
 | Weekday, wide | `dddd` | `EEEE` |
@@ -169,7 +192,7 @@ The tables below list the tokens that round-trip between dialects.
 
 ### Time
 
-| Meaning | `moment` | `unicode` |
+| Meaning | `moment` | `ldml` |
 | --- | --- | --- |
 | AM/PM | `A` | `a` |
 | Hour 1–12 | `h` | `h` |
@@ -186,7 +209,7 @@ The tables below list the tokens that round-trip between dialects.
 
 ### Time zone & epoch
 
-| Meaning | `moment` | `unicode` |
+| Meaning | `moment` | `ldml` |
 | --- | --- | --- |
 | Time-zone name | `z` | `zzz` |
 | Offset, `±hh:mm` | `Z` | `xxx` |
@@ -199,15 +222,15 @@ The tables below list the tokens that round-trip between dialects.
 A few extra spellings are **parsed** but normalize to the primary token above when rendered:
 
 - `moment` `Y` → calendar year (like `YYYY`).
-- `unicode` `y` / `yyy` → calendar year; `R` → ISO week-year; `EE` → abbreviated weekday;
+- `ldml` `y` / `yyy` → calendar year; `R` → ISO week-year; `EE` → abbreviated weekday;
   `aa` / `aaa` → AM/PM; `z` / `zz` → time-zone name.
 
 ## Non-round-trippable tokens
 
-These exist only in `unicode` (date-fns); `moment` has no equivalent, so converting them **to `moment`**
+These exist only in `ldml` (date-fns); `moment` has no equivalent, so converting them **to `moment`**
 produces an escaped literal (e.g. `MMMMM` → `[MMMMM]`) rather than a wrong guess:
 
-| `unicode` | Meaning |
+| `ldml` | Meaning |
 | --- | --- |
 | `MMMMM` | Narrow month |
 | `EEEEE` | Narrow weekday |
@@ -215,16 +238,16 @@ produces an escaped literal (e.g. `MMMMM` → `[MMMMM]`) rather than a wrong gue
 | `K` `KK` | Hour 0–11 |
 | `DD` | Day of year, 2-digit |
 
-Also note: `moment` `d` (weekday number, `0`–`6`) and `unicode` `e` (locale-dependent) map to each other but use
+Also note: `moment` `d` (weekday number, `0`–`6`) and `ldml` `e` (locale-dependent) map to each other but use
 different numbering; the AM/PM marker loses its moment casing (`A`/`a` both become `a`); and moment's narrow era
 (`NNNNN`) renders the abbreviation (`AD`), not a true one-character form.
 
 ## date-fns gotchas
 
-When the output uses `unicode` tokens that date-fns guards by default, you must opt in:
+When the output uses `ldml` tokens that date-fns guards by default, you must opt in:
 
 - Day of year (`D`, `DD`) requires `useAdditionalDayOfYearTokens: true`.
-- Local week-year (`Y`, `YYYY`) requires `useAdditionalWeekYearTokens: true`.
+- Local week-year (`YY`, `YYYY`) requires `useAdditionalWeekYearTokens: true`.
 
 `rosetta-date` produces the standards-correct token; enabling these flags is the caller's responsibility.
 
@@ -232,8 +255,8 @@ When the output uses `unicode` tokens that date-fns guards by default, you must 
 
 Literal (verbatim) text is preserved across dialects:
 
-- `moment` brackets `[...]` ↔ `unicode` quotes `'...'`.
-- A literal apostrophe is `''` in `unicode` (e.g. `'o''clock'` → `o'clock`).
+- `moment` brackets `[...]` ↔ `ldml` quotes `'...'`.
+- A literal apostrophe is `''` in `ldml` (e.g. `'o''clock'` → `o'clock`).
 - Only the letter-bearing span is escaped, so separators stay clean: `DD/MM` ↔ `dd/MM`, not `dd'/'MM`.
 
 ## License

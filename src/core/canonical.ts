@@ -3,7 +3,7 @@
  *
  * Each entry names a date-field *semantic* together with its *style* (width /
  * representation), independent of any single library or dialect. A dialect token
- * such as `YYYY` (moment) or `yyyy` (unicode) is just one spelling of the same
+ * such as `YYYY` (moment) or `yyyy` (ldml) is just one spelling of the same
  * canonical symbol ({@link Canonical.YearNumeric}). Conversion therefore never
  * compares tokens directly: it routes everything through these symbols, which is
  * what keeps directions consistent and prevents lib-vs-dialect confusion (e.g.
