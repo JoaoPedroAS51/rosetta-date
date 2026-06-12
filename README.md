@@ -20,9 +20,10 @@ becomes ldml `dd`, never `DD` (which in LDML is day of *year*).
 
 ## Supported dialects & libraries
 
-A **dialect** is a token grammar; a **library** is a concrete tool that *speaks* a dialect, rendering some subset
-of it. Convert between **dialects** for pure grammar-level translation, or between **libraries** to additionally
-flag tokens the target tool would mishandle — both are importable objects, and you can add your own.
+A **dialect** is a token grammar; a **library** is a concrete tool that *speaks* a dialect — rendering some subset
+of it, and sometimes **adding its own tokens** on top (see [date-fns extensions](#date-fns-extensions)). Convert
+between **dialects** for pure grammar-level translation, or between **libraries** to also flag tokens the target
+tool would mishandle and pick up its extensions. Both are importable objects, and you can add your own.
 
 **Dialects** — at `rosetta-date/dialects`:
 
@@ -36,7 +37,7 @@ flag tokens the target tool would mishandle — both are importable objects, and
 | --- | --- | --- |
 | `momentjs` ([Moment.js](https://momentjs.com/docs/#/displaying/format/)) | `moment` | the full grammar |
 | `dayjs` ([Day.js](https://day.js.org/docs/en/display/format)) | `moment` | a core subset + the common plugins (AdvancedFormat, LocalizedFormat) |
-| `dateFns` ([date-fns](https://date-fns.org/docs/format)) | `ldml` | the full grammar (some tokens gated behind date-fns options) |
+| `dateFns` ([date-fns](https://date-fns.org/docs/format)) | `ldml` | the full grammar **+ its own extensions** (`P…`, `t`/`T`, `R`/`I`/`i`); some tokens gated behind date-fns options |
 
 So translating a Day.js format to a date-fns format is converting from the `moment` dialect to the `ldml`
 dialect — or, naming the tools directly, `from: dayjs` to `to: dateFns`.
@@ -148,8 +149,6 @@ The tables below list the tokens that round-trip between dialects.
 | Calendar year, 2-digit | `YY` | `yy` |
 | Local week-numbering year | `gggg` | `YYYY` |
 | Local week-numbering year, 2-digit | `gg` | `YY` |
-| ISO week-numbering year | `GGGG` | `RRRR` |
-| ISO week-numbering year, 2-digit | `GG` | `RR` |
 
 ### Month & quarter
 
@@ -170,9 +169,6 @@ The tables below list the tokens that round-trip between dialects.
 | Week of year | `w` | `w` |
 | Week of year, 2-digit | `ww` | `ww` |
 | Week of year, ordinal | `wo` | `wo` |
-| ISO week of year | `W` | `I` |
-| ISO week of year, 2-digit | `WW` | `II` |
-| ISO week of year, ordinal | `Wo` | `Io` |
 | Day of month | `D` | `d` |
 | Day of month, 2-digit | `DD` | `dd` |
 | Day of month, ordinal | `Do` | `do` |
@@ -188,7 +184,6 @@ The tables below list the tokens that round-trip between dialects.
 | Weekday, wide | `dddd` | `EEEE` |
 | Weekday, short | `dd` | `EEEEEE` |
 | Weekday, number | `d` | `e` |
-| ISO weekday, number | `E` | `i` |
 
 ### Time
 
@@ -207,24 +202,49 @@ The tables below list the tokens that round-trip between dialects.
 | Second, 2-digit | `ss` | `ss` |
 | Fractional second (1–3 digits) | `S` `SS` `SSS` | `S` `SS` `SSS` |
 
-### Time zone & epoch
+### Time zone
 
 | Meaning | `moment` | `ldml` |
 | --- | --- | --- |
 | Time-zone name | `z` | `zzz` |
 | Offset, `±hh:mm` | `Z` | `xxx` |
 | Offset, `±hhmm` | `ZZ` | `xx` |
+
+### Aliases
+
+A few extra spellings are **parsed** but normalize to the primary token above when rendered:
+
+- `moment` `Y` → calendar year (like `YYYY`).
+- `ldml` `y` / `yyy` → calendar year; `EE` → abbreviated weekday; `aa` / `aaa` → AM/PM;
+  `z` / `zz` → time-zone name.
+
+## date-fns extensions
+
+date-fns adds tokens on top of the `ldml` (UTS#35) grammar — ISO week fields, the
+Unix epoch, and the localized presets. They convert through the **`dateFns`**
+library (`from: momentjs, to: dateFns`); the bare `ldml` dialect does not define
+them, so a `dialect → dialect` conversion literalizes them instead.
+
+| Meaning | `momentjs` | `dateFns` |
+| --- | --- | --- |
+| ISO week-numbering year | `GGGG` | `RRRR` |
+| ISO week-numbering year, 2-digit | `GG` | `RR` |
+| ISO week of year | `W` | `I` |
+| ISO week of year, 2-digit | `WW` | `II` |
+| ISO week of year, ordinal | `Wo` | `Io` |
+| ISO weekday, number | `E` | `i` |
 | Unix timestamp, seconds | `X` | `t` |
 | Unix timestamp, milliseconds | `x` | `T` |
 
 ### Localized presets
 
-`L…` (moment) and `P…`/`p…` (date-fns) render **per the library's loaded locale**.
-`rosetta-date` maps them **preset → preset** (never to a concrete pattern), so the
-token stays locale-deferred and the target library applies its own locale —
-including the compound connector (`" at "`, `", "`, …) it picks for that locale.
+`L…` (Moment.js) and `P…`/`p…` (date-fns) render **per the library's loaded
+locale**. `rosetta-date` maps them **preset → preset** (never to a concrete
+pattern), so the token stays locale-deferred and the target library applies its own
+locale — including the compound connector (`" at "`, `", "`, …) it picks for that
+locale.
 
-| Meaning | `moment` | `ldml` |
+| Meaning | `momentjs` | `dateFns` |
 | --- | --- | --- |
 | Date, short | `L` | `P` |
 | Date, medium | `ll` | `PP` |
@@ -247,18 +267,12 @@ including the compound connector (`" at "`, `", "`, …) it picks for that local
 > different token — `rosetta-date` maps each preset faithfully, but the glued input
 > is "garbage in".
 
-### Aliases
-
-A few extra spellings are **parsed** but normalize to the primary token above when rendered:
-
-- `moment` `Y` → calendar year (like `YYYY`).
-- `ldml` `y` / `yyy` → calendar year; `R` → ISO week-year; `EE` → abbreviated weekday;
-  `aa` / `aaa` → AM/PM; `z` / `zz` → time-zone name.
-
 ## Non-round-trippable tokens
 
-These exist only in `ldml` (date-fns); `moment` has no equivalent, so converting them **to `moment`**
-produces an escaped literal (e.g. `MMMMM` → `[MMMMM]`) rather than a wrong guess:
+Some tokens have no `moment` counterpart, so converting them **to moment** produces
+an escaped literal (e.g. `MMMMM` → `[MMMMM]`) rather than a wrong guess.
+
+Pure `ldml` dialect:
 
 | `ldml` | Meaning |
 | --- | --- |
@@ -267,6 +281,11 @@ produces an escaped literal (e.g. `MMMMM` → `[MMMMM]`) rather than a wrong gue
 | `aaaa` `aaaaa` | Wide / narrow day period |
 | `K` `KK` | Hour 0–11 |
 | `DD` | Day of year, 2-digit |
+
+date-fns extensions:
+
+| `dateFns` | Meaning |
+| --- | --- |
 | `PPPP` | Localized full date (with weekday) |
 | `ppp` `pppp` | Localized time with time zone |
 | `Pp` | Localized short date + time |

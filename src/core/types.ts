@@ -64,15 +64,26 @@ export interface Dialect {
  * warn or throw instead of emitting something the tool will mishandle. Pass a
  * `Library` on either side to read a conversion as "lib X → lib Y"; plain
  * {@link Dialect} conversion stays fully supported and unchanged.
+ *
+ * A library's **effective grammar** is its dialect plus any {@link extends}
+ * tokens it adds: the dialect stays the pure spec while the tool's own extension
+ * tokens live in `extends`.
  */
 export interface Library {
   /** Stable identifier, e.g. `'momentjs'`, `'dayjs'`, `'date-fns'`. */
   readonly name: string
-  /** The grammar this library speaks. */
+  /** The base grammar (a spec, or a reference implementation) this library speaks. */
   readonly dialect: Dialect
   /**
-   * The tokens this library renders. Omit to mean "the whole dialect" — the
-   * reference implementation. Every token listed must exist in {@link dialect}.
+   * Tokens this library adds on top of {@link dialect} — the tool's own extensions
+   * to the spec (e.g. date-fns's `t`/`T`, `R`/`I`/`i`, `P…`). Each must map to a
+   * canonical symbol and must not collide with a dialect token.
+   */
+  readonly extends?: readonly TokenRule[]
+  /**
+   * The tokens this library renders. Omit to mean "the whole effective grammar" —
+   * the reference implementation. Every token listed must exist in the dialect or
+   * in {@link extends}.
    */
   readonly supports?: ReadonlySet<string>
   /**

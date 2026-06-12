@@ -3,20 +3,17 @@ import { Canonical } from '../core/canonical'
 
 /**
  * The `ldml` dialect: the UTS#35 / LDML (Unicode Locale Data Markup Language)
- * date field symbols — the grammar date-fns (and Luxon, `java.time`, `Intl`, …)
- * implement. Literals are single-quoted (`'literal'`), and a doubled quote (`''`)
- * stands for one literal apostrophe.
+ * date field symbols. Literals are single-quoted (`'literal'`), and a doubled
+ * quote (`''`) stands for one literal apostrophe.
  *
- * This is the grammar, not any one library: date-fns is a {@link Library} of it,
- * not its namesake. The table also carries date-fns's **extensions** beyond pure
- * UTS#35 — the localized presets (`P`/`p`/`Pp…`), epoch (`t`/`T`), and the ISO
- * helpers (`R`, `I`, `i`); a pure-LDML consumer (ICU, `java.time`) would treat
- * those as a separate extension layer.
+ * The table is (the project's slice of) **pure UTS#35**. Tokens outside the spec
+ * — the localized `P…` presets, epoch `t`/`T`, and ISO `R`/`I`/`i` — are not
+ * defined here.
  *
  * Mind the case-sensitive traps that the canonical model resolves:
  * - lowercase `y` is the calendar year; uppercase `Y` is the local
- *   week-numbering year (date-fns gates `Y`/`YYYY` behind a flag).
- * - lowercase `d` is day-of-month; uppercase `D` is day-of-year (also gated).
+ *   week-numbering year.
+ * - lowercase `d` is day-of-month; uppercase `D` is day-of-year.
  *
  * Where several tokens share a canonical symbol the first row is the primary
  * spelling used when rendering *to* ldml.
@@ -42,11 +39,6 @@ export const ldml: Dialect = {
     { token: 'YYYY', canonical: Canonical.WeekYearNumeric },
     { token: 'YY', canonical: Canonical.WeekYearTwoDigit },
 
-    // Week-numbering year (ISO)
-    { token: 'RRRR', canonical: Canonical.IsoWeekYearNumeric },
-    { token: 'R', canonical: Canonical.IsoWeekYearNumeric },
-    { token: 'RR', canonical: Canonical.IsoWeekYearTwoDigit },
-
     // Quarter
     { token: 'Q', canonical: Canonical.QuarterNumeric },
     { token: 'Qo', canonical: Canonical.QuarterOrdinal },
@@ -63,11 +55,6 @@ export const ldml: Dialect = {
     { token: 'w', canonical: Canonical.WeekOfYearNumeric },
     { token: 'ww', canonical: Canonical.WeekOfYearTwoDigit },
     { token: 'wo', canonical: Canonical.WeekOfYearOrdinal },
-
-    // Week of year (ISO) — date-fns extension `I`
-    { token: 'I', canonical: Canonical.IsoWeekOfYearNumeric },
-    { token: 'II', canonical: Canonical.IsoWeekOfYearTwoDigit },
-    { token: 'Io', canonical: Canonical.IsoWeekOfYearOrdinal },
 
     // Day of month
     { token: 'd', canonical: Canonical.DayOfMonthNumeric },
@@ -88,9 +75,8 @@ export const ldml: Dialect = {
     { token: 'EEEEE', canonical: Canonical.WeekdayNarrow },
     { token: 'EEEEEE', canonical: Canonical.WeekdayShort },
 
-    // Weekday number — local (`e`) and ISO (`i`)
+    // Weekday number — local (`e`); ISO (`i`) is a date-fns extension
     { token: 'e', canonical: Canonical.WeekdayNumeric },
-    { token: 'i', canonical: Canonical.IsoWeekdayNumeric },
 
     // Day period (AM/PM)
     { token: 'a', canonical: Canonical.DayPeriodAbbreviated },
@@ -127,24 +113,7 @@ export const ldml: Dialect = {
     { token: 'xxx', canonical: Canonical.OffsetWithColon },
     { token: 'xx', canonical: Canonical.OffsetWithoutColon },
 
-    // Unix epoch
-    { token: 't', canonical: Canonical.EpochSeconds },
-    { token: 'T', canonical: Canonical.EpochMilliseconds },
-
-    // Localized presets — date-fns's `P…`/`p…` family. The combined `Pp…` tokens
-    // are single locale-aware presets (date-fns joins date and time with the
-    // locale's connector), so they map preset ↔ preset like the rest.
-    { token: 'P', canonical: Canonical.LocalizedDateShort },
-    { token: 'PP', canonical: Canonical.LocalizedDateMedium },
-    { token: 'PPP', canonical: Canonical.LocalizedDateLong },
-    { token: 'PPPP', canonical: Canonical.LocalizedDateFull },
-    { token: 'p', canonical: Canonical.LocalizedTimeShort },
-    { token: 'pp', canonical: Canonical.LocalizedTimeMedium },
-    { token: 'ppp', canonical: Canonical.LocalizedTimeLong },
-    { token: 'pppp', canonical: Canonical.LocalizedTimeFull },
-    { token: 'Pp', canonical: Canonical.LocalizedDateTimeShort },
-    { token: 'PPpp', canonical: Canonical.LocalizedDateTimeMedium },
-    { token: 'PPPppp', canonical: Canonical.LocalizedDateTimeLong },
-    { token: 'PPPPpppp', canonical: Canonical.LocalizedDateTimeFull },
+    // Epoch (`t`/`T`) and the localized presets (`P…`/`p…`) are date-fns
+    // extensions, not UTS#35 — they are defined on the `dateFns` library.
   ],
 }
