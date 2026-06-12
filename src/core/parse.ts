@@ -1,22 +1,6 @@
-import type { CanonicalToken } from './canonical'
-import type { Dialect, Segment, TokenRule } from './types'
+import type { Dialect, Segment } from './types'
 import { isPatternChar, readLiteral } from './literal'
-
-/**
- * Token rows sorted longest-first so the parser matches greedily (`YYYY` before
- * `YY` before `Y`). Compiled once per dialect and cached, since dialects are
- * immutable.
- */
-const cache = new WeakMap<Dialect, readonly TokenRule[]>()
-
-function compile(dialect: Dialect): readonly TokenRule[] {
-  let sorted = cache.get(dialect)
-  if (sorted === undefined) {
-    sorted = [...dialect.tokens].sort((a, b) => b.token.length - a.token.length)
-    cache.set(dialect, sorted)
-  }
-  return sorted
-}
+import { compile, matchToken, runExtendsBeyond } from './tokenize'
 
 /**
  * Parse a format string written in `dialect` into canonical segments.
@@ -76,26 +60,4 @@ export function parse(input: string, dialect: Dialect): Segment[] {
   }
 
   return segments
-}
-
-function matchToken(rules: readonly TokenRule[], input: string, index: number): { token: string, canonical: CanonicalToken } | undefined {
-  for (const rule of rules) {
-    if (input.startsWith(rule.token, index))
-      return rule
-  }
-  return undefined
-}
-
-/**
- * True when `token` is a run of one repeated letter and the input continues with
- * that same letter — meaning the match is only part of a longer same-letter run
- * the dialect does not define, so the whole run is one unrecognized token.
- */
-function runExtendsBeyond(token: string, input: string, index: number): boolean {
-  const first = token.charAt(0)
-  for (let i = 1; i < token.length; i += 1) {
-    if (token.charAt(i) !== first)
-      return false
-  }
-  return input.charAt(index + token.length) === first
 }

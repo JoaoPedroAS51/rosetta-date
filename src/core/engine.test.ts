@@ -1,6 +1,10 @@
+import type { Dialect } from './types'
 import { describe, expect, it } from 'vitest'
+import { convert } from '../converter'
 import { ldml } from '../dialects/ldml'
 import { moment } from '../dialects/moment'
+import { Canonical } from './canonical'
+import { UnsupportedTokenError } from './errors'
 import { parse } from './parse'
 import { render } from './render'
 
@@ -93,5 +97,59 @@ describe('round trips on the bijective core', () => {
     'h:mm A',
   ])('moment %s survives a round trip', (format) => {
     expect(u2m(m2u(format))).toBe(format)
+  })
+})
+
+describe('unrepresentable adjacency (a quote-style target with no empty literal)', () => {
+  // `bracket` parses `A`/`B` as two distinct tokens; `quote` renders them as
+  // `y`/`yy`, which collide when adjacent (`yyy` re-reads as `yy`+`y`). `quote`
+  // has no empty literal (`''` is an apostrophe), so the merge cannot be separated.
+  const bracket: Dialect = {
+    name: 'bracket',
+    literal: { open: '[', close: ']' },
+    tokens: [
+      { token: 'A', canonical: Canonical.EpochSeconds },
+      { token: 'B', canonical: Canonical.EpochMilliseconds },
+    ],
+  }
+  const quote: Dialect = {
+    name: 'quote',
+    literal: { open: '\'', close: '\'', escapedDelimiter: '\'\'' },
+    tokens: [
+      { token: 'y', canonical: Canonical.EpochSeconds },
+      { token: 'yy', canonical: Canonical.EpochMilliseconds },
+    ],
+  }
+
+  it('emits the merged form by default (no empty literal to insert)', () => {
+    expect(convert('AB', { from: bracket, to: quote })).toBe('yyy') // y + yy
+    expect(convert('BA', { from: bracket, to: quote })).toBe('yyy') // yy + y
+  })
+
+  it('throws unrepresentable-adjacency when asked to', () => {
+    let error: unknown
+    try {
+      convert('AB', { from: bracket, to: quote, onUnsupportedToken: 'throw' })
+    }
+    catch (caught) {
+      error = caught
+    }
+    expect(error).toBeInstanceOf(UnsupportedTokenError)
+    expect((error as UnsupportedTokenError).reason).toBe('unrepresentable-adjacency')
+    expect((error as UnsupportedTokenError).token).toBe('yy')
+  })
+
+  it('lets a handler decide, defaulting to the verbatim token', () => {
+    const reasons: string[] = []
+    const out = convert('AB', {
+      from: bracket,
+      to: quote,
+      onUnsupportedToken: (_token, info) => {
+        reasons.push(info.reason)
+        return undefined
+      },
+    })
+    expect(out).toBe('yyy')
+    expect(reasons).toEqual(['unrepresentable-adjacency'])
   })
 })

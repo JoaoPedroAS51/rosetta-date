@@ -71,7 +71,7 @@ describe('date-fns extensions (tokens the dateFns library adds to ldml)', () => 
   })
 })
 
-describe('mismatched-width localized presets (garbage-in, via dateFns)', () => {
+describe('mismatched-width localized presets (via dateFns)', () => {
   const d2m = (format: string): string => convert(format, { from: dateFns, to: momentjs })
 
   it('is clean for matched-width compounds and separated presets', () => {
@@ -81,12 +81,18 @@ describe('mismatched-width localized presets (garbage-in, via dateFns)', () => {
   })
 
   it('is lossy when widths differ but the tokens do not merge', () => {
-    expect(d2m('PPp')).toBe('llLT') // drops the locale connector
+    expect(d2m('PPp')).toBe('llLT') // `ll`+`LT` re-reads cleanly; only the locale connector is lost
   })
 
-  it('is garbage when the moment presets merge into a different token', () => {
-    expect(d2m('PPPp')).toBe('LLLT')
-    expect(d2m('PPPpp')).toBe('LLLTS')
+  it('separates presets that would otherwise merge into a different token', () => {
+    // `LL`+`LT` would read back as `LLL`+`T`; the empty literal `[]` keeps them apart.
+    expect(d2m('PPPp')).toBe('LL[]LT')
+    expect(d2m('PPPpp')).toBe('LL[]LTS')
+  })
+
+  it('round-trips the separated form back to date-fns', () => {
+    expect(convert(d2m('PPPp'), { from: momentjs, to: dateFns })).toBe('PPPp')
+    expect(convert(d2m('PPPpp'), { from: momentjs, to: dateFns })).toBe('PPPpp')
   })
 })
 

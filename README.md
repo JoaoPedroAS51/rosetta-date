@@ -29,6 +29,7 @@ LDML `DD`, which is day of *year*.
 - [Non-round-trippable tokens](#non-round-trippable-tokens)
 - [date-fns gotchas](#date-fns-gotchas)
 - [Literals](#literals)
+- [Adjacent tokens](#adjacent-tokens)
 - [Developing](#developing)
 - [Testing](#testing)
 - [License](#license)
@@ -132,9 +133,10 @@ convert(format, { from: getDialect(config.from), to: getLibrary(config.to) })
 ### Unsupported tokens
 
 A token can lack a clean conversion: it is **unrecognized** (the source dialect does not define it), **unmappable**
-(a valid source field with no token in the target dialect), or **unsupported-by-target** (the target dialect has the
-field, but the target *library* does not render it — e.g. Day.js mangling `Mo`). The `onUnsupportedToken` option
-decides what happens:
+(a valid source field with no token in the target dialect), **unsupported-by-target** (the target dialect has the
+field, but the target *library* does not render it — e.g. Day.js mangling `Mo`), or **unrepresentable-adjacency**
+(the token converts, but it would merge with its neighbour and the target dialect has no empty literal to separate
+them — see [Adjacent tokens](#adjacent-tokens)). The `onUnsupportedToken` option decides what happens:
 
 ```ts
 import { convert, Unsupported, UnsupportedTokenError } from 'rosetta-date'
@@ -345,6 +347,25 @@ Literal (verbatim) text is preserved across dialects:
 - `moment` brackets `[...]` ↔ `ldml` quotes `'...'`.
 - A literal apostrophe is `''` in `ldml` (e.g. `'o''clock'` → `o'clock`).
 - Only the letter-bearing span is escaped, so separators stay clean: `DD/MM` ↔ `dd/MM`, not `dd'/'MM`.
+
+## Adjacent tokens
+
+Output is **round-trip-safe at the token boundary**: two adjacent tokens never silently re-merge into a different
+token when read back. When a conversion would place tokens that collide — e.g. date-fns `PPPp` (a long date next to
+a short time) becomes moment `LL` + `LT`, and `LLLT` would re-read as `LLL` + `T` — they are separated with the
+target dialect's **empty literal**:
+
+```ts
+import { convert } from 'rosetta-date'
+import { dateFns, momentjs } from 'rosetta-date/libraries'
+
+convert('PPPp', { from: dateFns, to: momentjs }) // 'LL[]LT' — '[]' keeps LL and LT apart
+```
+
+A quote-style dialect like `ldml` has no empty literal (`''` is a literal apostrophe, not nothing), so it cannot
+express such an adjacency. There the second token is routed through `onUnsupportedToken` as
+`unrepresentable-adjacency` — the default emits it anyway (matching the merged output), while `'throw'` lets a mass
+migration catch it.
 
 ## Developing
 

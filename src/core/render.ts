@@ -3,7 +3,8 @@ import type { Dialect, Library, Segment } from './types'
 import type { UnsupportedTokenInfo, UnsupportedTokenPolicy, UnsupportedTokenReason } from './unsupported'
 import { UnsupportedTokenError } from './errors'
 import { resolveTarget } from './library'
-import { escapeLiteral } from './literal'
+import { boundaryFor, escapeLiteral } from './literal'
+import { compile as compileRules, mergesAfter } from './tokenize'
 import { Unsupported } from './unsupported'
 
 /**
@@ -26,7 +27,7 @@ interface CompiledTarget {
 /** Compiled once per target object (dialect or library) and cached. */
 const cache = new WeakMap<Dialect | Library, CompiledTarget>()
 
-function compile(target: Dialect | Library): CompiledTarget {
+function compileTarget(target: Dialect | Library): CompiledTarget {
   let compiled = cache.get(target)
   if (compiled === undefined) {
     const { dialect, renders } = resolveTarget(target)
@@ -58,7 +59,7 @@ export interface RenderOptions {
 /** How an unsupported token resolves into output. */
 type Resolution
   = | { readonly kind: 'literal', readonly text: string } // accumulate as literal text
-    | { readonly kind: 'emit', readonly text: string } // flush, then output verbatim
+    | { readonly kind: 'emit', readonly text: string, readonly isToken?: boolean } // flush, then output verbatim; `isToken` when the text is itself a clean token
     | { readonly kind: 'drop' } // omit entirely
 
 /**
@@ -74,16 +75,28 @@ type Resolution
  * Adjacent literal output is accumulated and escaped together: escaping pieces
  * separately could emit a stray delimiter between them (e.g. `'L'` + `'T'` would
  * read back as the apostrophe `L'T`, not `LT`).
+ *
+ * Two adjacent field tokens whose concatenation would re-tokenize differently in
+ * the target (e.g. moment `LL` + `LT` → `LLLT`, which reads back as `LLL` + `T`)
+ * are separated by the dialect's empty literal (`LL[]LT`). When the dialect has
+ * none — a quote-style dialect like LDML, where `''` is an apostrophe, not empty —
+ * the second token is routed to the policy as `unrepresentable-adjacency`.
  */
 export function render(segments: readonly Segment[], to: Dialect | Library, options?: RenderOptions): string {
-  const { dialect, tokens, canonicals } = compile(to)
+  const { dialect, tokens, canonicals } = compileTarget(to)
+  const rules = compileRules(dialect)
+  const boundary = boundaryFor(dialect.literal)
   let output = ''
   let literal = ''
+  // The last field token emitted with nothing after it, or `undefined` when the
+  // tail is literal/verbatim text (so the next field cannot merge into it).
+  let last: string | undefined
 
   const flush = (): void => {
     if (literal !== '') {
       output += escapeLiteral(literal, dialect.literal)
       literal = ''
+      last = undefined
     }
   }
 
@@ -91,13 +104,33 @@ export function render(segments: readonly Segment[], to: Dialect | Library, opti
     switch (resolution.kind) {
       case 'literal':
         literal += resolution.text
+        last = undefined
         break
       case 'emit':
         flush()
         output += resolution.text
+        last = resolution.isToken === true ? resolution.text : undefined
         break
       case 'drop':
-        break
+        break // tail unchanged: a dropped token leaves its neighbours adjacent
+    }
+  }
+
+  const emitToken = (token: string): void => {
+    flush()
+    if (last !== undefined && mergesAfter(rules, last, token)) {
+      if (boundary !== undefined) {
+        output += boundary + token
+        last = token
+      }
+      else {
+        // The token converts, but this dialect cannot separate it from `last`.
+        apply(resolveUnsupported(token, 'unrepresentable-adjacency', dialect, options, { kind: 'emit', text: token, isToken: true }))
+      }
+    }
+    else {
+      output += token
+      last = token
     }
   }
 
@@ -105,6 +138,7 @@ export function render(segments: readonly Segment[], to: Dialect | Library, opti
     switch (segment.kind) {
       case 'literal':
         literal += segment.value
+        last = undefined
         break
       case 'unknown':
         apply(resolveUnsupported(segment.value, 'unrecognized', dialect, options))
@@ -118,8 +152,7 @@ export function render(segments: readonly Segment[], to: Dialect | Library, opti
           apply(resolveUnsupported(segment.raw, reason, dialect, options))
         }
         else {
-          flush()
-          output += token
+          emitToken(token)
         }
         break
       }
@@ -135,6 +168,7 @@ function resolveUnsupported(
   reason: UnsupportedTokenReason,
   to: Dialect,
   options?: RenderOptions,
+  fallback: Resolution = { kind: 'literal', text: token },
 ): Resolution {
   const policy = options?.onUnsupportedToken
 
@@ -147,9 +181,9 @@ function resolveUnsupported(
     if (replacement === Unsupported.drop || replacement === '')
       return { kind: 'drop' }
     if (replacement === undefined || replacement === Unsupported.literalize)
-      return { kind: 'literal', text: token }
+      return fallback
     return { kind: 'emit', text: replacement }
   }
 
-  return { kind: 'literal', text: token }
+  return fallback
 }

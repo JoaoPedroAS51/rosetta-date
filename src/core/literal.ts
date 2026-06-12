@@ -73,6 +73,23 @@ export function readLiteral(input: string, start: number, rules: LiteralRules): 
 }
 
 /**
+ * The dialect's empty literal — the zero-width sequence its own parser consumes
+ * as nothing, used to separate two adjacent tokens that would otherwise re-merge
+ * (e.g. moment `LL` + `LT` → `LL[]LT`). It is `open + close`, *unless* that
+ * collides with `escapedDelimiter` and so does not read as empty: LDML's `''` is
+ * a literal apostrophe, not an empty run, so quoted dialects have no boundary and
+ * this returns `undefined`.
+ *
+ * This assumes `open + close` parses as an empty literal whenever it differs from
+ * the escape — true for the bracket and quote families. A dialect that breaks the
+ * assumption would need an explicit boundary; none does today.
+ */
+export function boundaryFor(rules: LiteralRules): string | undefined {
+  const empty = rules.open + rules.close
+  return empty === rules.escapedDelimiter ? undefined : empty
+}
+
+/**
  * Encode literal text for a target dialect, escaping only what must be escaped.
  *
  * Only the span from the first letter to the last letter is wrapped in the

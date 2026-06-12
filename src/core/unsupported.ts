@@ -25,11 +25,15 @@ export const Unsupported = { drop, literalize } as const
  * - `'unmappable'` — a valid source field with no token in the target *dialect*.
  * - `'unsupported-by-target'` — the target dialect has the field, but the target
  *   library does not render it at all (e.g. converting `Mo` to `dayjs`).
+ * - `'unrepresentable-adjacency'` — the token converts fine, but placing it right
+ *   after the previous token would re-merge into a different token, and the target
+ *   dialect has no empty literal to separate them (a quote-style dialect like LDML).
  */
 export type UnsupportedTokenReason
   = | 'unrecognized'
     | 'unmappable'
     | 'unsupported-by-target'
+    | 'unrepresentable-adjacency'
 
 /**
  * Context passed to an {@link UnsupportedTokenHandler} alongside the offending
