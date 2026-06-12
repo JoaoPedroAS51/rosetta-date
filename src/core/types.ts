@@ -53,23 +53,17 @@ export interface Dialect {
 }
 
 /**
- * A concrete date library: the {@link Dialect} (grammar) it speaks paired with
- * the subset of that grammar it actually renders. Where a `Dialect` answers
- * "does this token exist, and what does it mean?", a `Library` answers "does this
- * tool render it?" — e.g. `dayjs` speaks the `moment` grammar but does not render
- * `Mo` (it mangles it to `6o`).
- *
- * Converting *to* a library renders through its dialect and routes any token the
- * library cannot spell through the unsupported-token policy, so a conversion can
- * warn or throw instead of emitting something the tool will mishandle. Pass a
- * `Library` on either side to read a conversion as "lib X → lib Y"; plain
- * {@link Dialect} conversion stays fully supported and unchanged.
+ * The declarative shape passed to {@link defineLibrary}: the {@link Dialect} a
+ * tool speaks, its own extension tokens, and the subset it renders. Where a
+ * `Dialect` answers "does this token exist, and what does it mean?", a library
+ * answers "does this tool render it?" — e.g. `dayjs` speaks the `moment` grammar
+ * but does not render `Mo` (it mangles it to `6o`).
  *
  * A library's **effective grammar** is its dialect plus any {@link extends}
  * tokens it adds: the dialect stays the pure spec while the tool's own extension
  * tokens live in `extends`.
  */
-export interface Library {
+export interface LibraryDefinition {
   /** Stable identifier, e.g. `'momentjs'`, `'dayjs'`, `'date-fns'`. */
   readonly name: string
   /** The base grammar (a spec, or a reference implementation) this library speaks. */
@@ -87,6 +81,30 @@ export interface Library {
    * `extends`.
    */
   readonly supports?: ReadonlySet<string>
+}
+
+/**
+ * The render target a {@link Library} carries, computed once by
+ * {@link defineLibrary}. The engine reads this directly, so converting through a
+ * library needs no resolution step at render time — and a dialect-only conversion
+ * never reaches the merge logic, keeping it out of that bundle.
+ */
+export interface ResolvedLibrary {
+  /** Effective grammar: the base dialect with any {@link LibraryDefinition.extends} merged in. */
+  readonly dialect: Dialect
+  /** Whether the library renders a given token (its supported subset). */
+  readonly renders: (token: string) => boolean
+}
+
+/**
+ * A concrete date library, produced by {@link defineLibrary}: its
+ * {@link LibraryDefinition} plus the precomputed {@link resolved} render target.
+ * Pass a `Library` on either side of a conversion to read it as "lib X → lib Y";
+ * plain {@link Dialect} conversion stays fully supported and unchanged.
+ */
+export interface Library extends LibraryDefinition {
+  /** Precomputed effective grammar and render predicate — read by the engine. */
+  readonly resolved: ResolvedLibrary
 }
 
 /**

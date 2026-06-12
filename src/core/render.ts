@@ -1,11 +1,18 @@
 import type { CanonicalToken } from './canonical'
-import type { Dialect, Library, Segment } from './types'
+import type { Dialect, Library, ResolvedLibrary, Segment } from './types'
 import type { UnsupportedTokenInfo, UnsupportedTokenPolicy, UnsupportedTokenReason } from './unsupported'
 import { UnsupportedTokenError } from './errors'
-import { resolveTarget } from './library'
 import { boundaryFor, escapeLiteral } from './literal'
 import { compile as compileRules, mergesAfter } from './tokenize'
 import { Unsupported } from './unsupported'
+
+/** A bare dialect renders every token; only a library narrows the set. */
+const renderAll = (): true => true
+
+/** Resolve a target inline — no dependency on the library merge logic. */
+function resolve(target: Dialect | Library): ResolvedLibrary {
+  return 'resolved' in target ? target.resolved : { dialect: target, renders: renderAll }
+}
 
 /**
  * A compiled render target. The `canonicals` set tells "the library does not
@@ -30,7 +37,7 @@ const cache = new WeakMap<Dialect | Library, CompiledTarget>()
 function compileTarget(target: Dialect | Library): CompiledTarget {
   let compiled = cache.get(target)
   if (compiled === undefined) {
-    const { dialect, renders } = resolveTarget(target)
+    const { dialect, renders } = resolve(target)
     const tokens = new Map<CanonicalToken, string>()
     const canonicals = new Set<CanonicalToken>()
     for (const { token, canonical } of dialect.tokens) {

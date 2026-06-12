@@ -1,8 +1,12 @@
 import type { Dialect, Library } from './core/types'
 import type { UnsupportedTokenPolicy } from './core/unsupported'
-import { resolveDialect } from './core/library'
 import { parse } from './core/parse'
 import { render } from './core/render'
+
+/** The dialect an endpoint parses through — a library's precomputed effective grammar, or the dialect itself. */
+function sourceDialect(endpoint: Dialect | Library): Dialect {
+  return 'resolved' in endpoint ? endpoint.resolved.dialect : endpoint
+}
 
 /**
  * A bound, single-direction converter: give it a format string, get the
@@ -60,7 +64,7 @@ export interface ConvertOptions extends ConverterOptions {
  * ```
  */
 export function convert(format: string, options: ConvertOptions): string {
-  const from = resolveDialect(options.from)
+  const from = sourceDialect(options.from)
   return render(parse(format, from), options.to, {
     from,
     onUnsupportedToken: options.onUnsupportedToken,
@@ -91,7 +95,7 @@ export function convert(format: string, options: ConvertOptions): string {
  * ```
  */
 export function createConverter(from: Dialect | Library, to: Dialect | Library, options?: ConverterOptions): Converter {
-  const fromDialect = resolveDialect(from)
+  const fromDialect = sourceDialect(from)
   const renderOptions = { from: fromDialect, onUnsupportedToken: options?.onUnsupportedToken }
   return format => render(parse(format, fromDialect), to, renderOptions)
 }
