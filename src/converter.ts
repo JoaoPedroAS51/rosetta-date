@@ -1,4 +1,5 @@
 import type { Dialect } from './core/types'
+import type { UnsupportedTokenPolicy } from './core/unsupported'
 import { parse } from './core/parse'
 import { render } from './core/render'
 
@@ -10,12 +11,23 @@ import { render } from './core/render'
 export type Converter = (format: string) => string
 
 /**
- * Which dialects to convert between. Both are {@link Dialect} objects you import
- * (e.g. `moment`, `unicode`) or define yourself — passing the dialects in keeps
- * the conversion functions free of a central registry, so unused dialects are
- * tree-shaken from your bundle.
+ * Behavioural options shared by {@link convert} and {@link createConverter}.
  */
-export interface ConvertOptions {
+export interface ConverterOptions {
+  /**
+   * What to do with a token that has no clean conversion — `'literalize'`
+   * (default), `'throw'`, or a handler. See {@link UnsupportedTokenPolicy}.
+   */
+  readonly onUnsupportedToken?: UnsupportedTokenPolicy
+}
+
+/**
+ * Which dialects to convert between, plus any {@link ConverterOptions}. The
+ * dialects are {@link Dialect} objects you import (e.g. `moment`, `unicode`) or
+ * define yourself — passing them in keeps the conversion functions free of a
+ * central registry, so unused dialects are tree-shaken from your bundle.
+ */
+export interface ConvertOptions extends ConverterOptions {
   /** The dialect the input format string is written in. */
   readonly from: Dialect
   /** The dialect to translate the format string into. */
@@ -43,7 +55,10 @@ export interface ConvertOptions {
  * ```
  */
 export function convert(format: string, options: ConvertOptions): string {
-  return render(parse(format, options.from), options.to)
+  return render(parse(format, options.from), options.to, {
+    from: options.from,
+    onUnsupportedToken: options.onUnsupportedToken,
+  })
 }
 
 /**
@@ -55,6 +70,7 @@ export function convert(format: string, options: ConvertOptions): string {
  *
  * @param from - The dialect inputs are written in.
  * @param to - The dialect to translate into.
+ * @param options - Optional {@link ConverterOptions}, e.g. an unsupported-token policy.
  * @returns A {@link Converter} for the given direction.
  *
  * @example
@@ -67,6 +83,7 @@ export function convert(format: string, options: ConvertOptions): string {
  * toDateFns('hh:mm A')    // 'hh:mm a'
  * ```
  */
-export function createConverter(from: Dialect, to: Dialect): Converter {
-  return format => render(parse(format, from), to)
+export function createConverter(from: Dialect, to: Dialect, options?: ConverterOptions): Converter {
+  const renderOptions = { from, onUnsupportedToken: options?.onUnsupportedToken }
+  return format => render(parse(format, from), to, renderOptions)
 }

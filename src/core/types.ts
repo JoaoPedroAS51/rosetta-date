@@ -63,8 +63,8 @@ export type Segment
   /** A recognized field, normalized to its canonical symbol. */
     | { readonly kind: 'field', readonly canonical: CanonicalToken, readonly raw: string }
   /**
-   * A run of pattern characters the source dialect did not recognize. Kept as a
-   * distinct kind so a later unknown-token policy can decide its fate; the
-   * permissive engine renders it as an escaped literal.
+   * A run of pattern characters the source dialect did not recognize. The
+   * configured unsupported-token policy decides its fate; by default it is
+   * rendered as an escaped literal.
    */
     | { readonly kind: 'unknown', readonly value: string }

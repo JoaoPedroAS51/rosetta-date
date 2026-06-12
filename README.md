@@ -79,11 +79,40 @@ convert(format, { from: getDialect(config.from), to: getDialect(config.to) })
 Library names like `'dayjs'` / `'date-fns'` are intentionally **not** accepted: they're reserved for a future
 per-library profile layer, so the name can carry the library-precise semantics it implies.
 
+### Unsupported tokens
+
+A token can lack a clean conversion for two reasons: it is **unrecognized** (the source dialect does not define
+it) or **unmappable** (a valid source field with no token in the target dialect). The `onUnsupportedToken` option
+decides what happens:
+
+```ts
+import { convert, Unsupported, UnsupportedTokenError } from 'rosetta-date'
+import { moment, unicode } from 'rosetta-date/dialects'
+
+// 'literalize' (default) — escape it as a literal, so it can never be re-read as a token:
+convert('K', { from: unicode, to: moment }) // '[K]'
+
+// 'throw' — fail fast (handy for migrations/validation):
+convert('K', { from: unicode, to: moment, onUnsupportedToken: 'throw' }) // throws UnsupportedTokenError
+
+// handler — decide per token:
+convert('K', {
+  from: unicode,
+  to: moment,
+  onUnsupportedToken: (token, info) =>
+    info.reason === 'unmappable' ? Unsupported.drop : Unsupported.literalize,
+})
+```
+
+A handler's return value is emitted **verbatim**; use the `Unsupported` sentinels to express intent:
+`Unsupported.drop` omits the token, `Unsupported.literalize` defers to the default. (`''` and `undefined` are
+accepted as equivalents.)
+
+The default never throws — every token is preserved, as a literal at worst.
+
 ## Token mapping
 
-The tables below list the tokens that round-trip between dialects. `rosetta-date` is **permissive**: it never
-throws. A token with no equivalent in the target dialect, or any unrecognized letter run, is emitted as an
-**escaped literal** so it can never be silently re-read as a different token.
+The tables below list the tokens that round-trip between dialects.
 
 ### Year
 
