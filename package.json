@@ -1,7 +1,7 @@
 {
   "name": "rosetta-date",
   "type": "module",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "packageManager": "pnpm@11.5.3",
   "description": "Bidirectionally convert date-format token strings between the moment/dayjs and Unicode/LDML (date-fns) dialects.",
   "author": "João Pedro Antunes Silva <joaopedroantunessilva51@gmail.com>",
