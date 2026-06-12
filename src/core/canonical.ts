@@ -44,8 +44,10 @@ export const Canonical = {
   // Week of year
   WeekOfYearNumeric: 'week-of-year/numeric',
   WeekOfYearTwoDigit: 'week-of-year/2-digit',
+  WeekOfYearOrdinal: 'week-of-year/ordinal',
   IsoWeekOfYearNumeric: 'iso-week-of-year/numeric',
   IsoWeekOfYearTwoDigit: 'iso-week-of-year/2-digit',
+  IsoWeekOfYearOrdinal: 'iso-week-of-year/ordinal',
 
   // Day of month
   DayOfMonthNumeric: 'day-of-month/numeric',
@@ -56,6 +58,7 @@ export const Canonical = {
   DayOfYearNumeric: 'day-of-year/numeric',
   DayOfYearTwoDigit: 'day-of-year/2-digit',
   DayOfYearThreeDigit: 'day-of-year/3-digit',
+  DayOfYearOrdinal: 'day-of-year/ordinal',
 
   // Weekday name
   WeekdayAbbreviated: 'weekday/abbreviated',

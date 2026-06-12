@@ -30,6 +30,13 @@ export const moment: Dialect = {
     { token: 'GGGG', canonical: Canonical.IsoWeekYearNumeric },
     { token: 'GG', canonical: Canonical.IsoWeekYearTwoDigit },
 
+    // Era — moment's narrow (`NNNNN`) renders the abbreviation, not a 1-char form
+    { token: 'N', canonical: Canonical.EraAbbreviated },
+    { token: 'NN', canonical: Canonical.EraAbbreviated },
+    { token: 'NNN', canonical: Canonical.EraAbbreviated },
+    { token: 'NNNN', canonical: Canonical.EraWide },
+    { token: 'NNNNN', canonical: Canonical.EraNarrow },
+
     // Quarter
     { token: 'Q', canonical: Canonical.QuarterNumeric },
     { token: 'Qo', canonical: Canonical.QuarterOrdinal },
@@ -44,8 +51,10 @@ export const moment: Dialect = {
     // Week of year
     { token: 'w', canonical: Canonical.WeekOfYearNumeric },
     { token: 'ww', canonical: Canonical.WeekOfYearTwoDigit },
+    { token: 'wo', canonical: Canonical.WeekOfYearOrdinal },
     { token: 'W', canonical: Canonical.IsoWeekOfYearNumeric },
     { token: 'WW', canonical: Canonical.IsoWeekOfYearTwoDigit },
+    { token: 'Wo', canonical: Canonical.IsoWeekOfYearOrdinal },
 
     // Day of month
     { token: 'D', canonical: Canonical.DayOfMonthNumeric },
@@ -55,6 +64,7 @@ export const moment: Dialect = {
     // Day of year
     { token: 'DDD', canonical: Canonical.DayOfYearNumeric },
     { token: 'DDDD', canonical: Canonical.DayOfYearThreeDigit },
+    { token: 'DDDo', canonical: Canonical.DayOfYearOrdinal },
 
     // Weekday name / number
     { token: 'dddd', canonical: Canonical.WeekdayWide },

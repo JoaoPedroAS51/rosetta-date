@@ -55,10 +55,12 @@ export const unicode: Dialect = {
     // Week of year (local)
     { token: 'w', canonical: Canonical.WeekOfYearNumeric },
     { token: 'ww', canonical: Canonical.WeekOfYearTwoDigit },
+    { token: 'wo', canonical: Canonical.WeekOfYearOrdinal },
 
     // Week of year (ISO) — date-fns extension `I`
     { token: 'I', canonical: Canonical.IsoWeekOfYearNumeric },
     { token: 'II', canonical: Canonical.IsoWeekOfYearTwoDigit },
+    { token: 'Io', canonical: Canonical.IsoWeekOfYearOrdinal },
 
     // Day of month
     { token: 'd', canonical: Canonical.DayOfMonthNumeric },
@@ -69,6 +71,7 @@ export const unicode: Dialect = {
     { token: 'D', canonical: Canonical.DayOfYearNumeric },
     { token: 'DD', canonical: Canonical.DayOfYearTwoDigit },
     { token: 'DDD', canonical: Canonical.DayOfYearThreeDigit },
+    { token: 'Do', canonical: Canonical.DayOfYearOrdinal },
 
     // Weekday name (formatting `E`)
     { token: 'EEE', canonical: Canonical.WeekdayAbbreviated },

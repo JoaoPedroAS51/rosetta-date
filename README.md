@@ -114,10 +114,13 @@ The default never throws — every token is preserved, as a literal at worst.
 
 The tables below list the tokens that round-trip between dialects.
 
-### Year
+### Era & year
 
 | Meaning | `moment` | `unicode` |
 | --- | --- | --- |
+| Era, abbreviated | `N` | `GGG` |
+| Era, wide | `NNNN` | `GGGG` |
+| Era, narrow | `NNNNN` | `GGGGG` |
 | Calendar year | `YYYY` | `yyyy` |
 | Calendar year, 2-digit | `YY` | `yy` |
 | Local week-numbering year | `gggg` | `YYYY` |
@@ -143,13 +146,16 @@ The tables below list the tokens that round-trip between dialects.
 | --- | --- | --- |
 | Week of year | `w` | `w` |
 | Week of year, 2-digit | `ww` | `ww` |
+| Week of year, ordinal | `wo` | `wo` |
 | ISO week of year | `W` | `I` |
 | ISO week of year, 2-digit | `WW` | `II` |
+| ISO week of year, ordinal | `Wo` | `Io` |
 | Day of month | `D` | `d` |
 | Day of month, 2-digit | `DD` | `dd` |
 | Day of month, ordinal | `Do` | `do` |
 | Day of year | `DDD` | `D` |
 | Day of year, 3-digit | `DDDD` | `DDD` |
+| Day of year, ordinal | `DDDo` | `Do` |
 
 ### Weekday
 
@@ -203,7 +209,6 @@ produces an escaped literal (e.g. `MMMMM` → `[MMMMM]`) rather than a wrong gue
 
 | `unicode` | Meaning |
 | --- | --- |
-| `G` `GG` `GGG` `GGGG` `GGGGG` | Era (abbreviated / wide / narrow) |
 | `MMMMM` | Narrow month |
 | `EEEEE` | Narrow weekday |
 | `aaaa` `aaaaa` | Wide / narrow day period |
@@ -211,7 +216,8 @@ produces an escaped literal (e.g. `MMMMM` → `[MMMMM]`) rather than a wrong gue
 | `DD` | Day of year, 2-digit |
 
 Also note: `moment` `d` (weekday number, `0`–`6`) and `unicode` `e` (locale-dependent) map to each other but use
-different numbering, and the AM/PM marker loses its moment casing (`A`/`a` both become `a`).
+different numbering; the AM/PM marker loses its moment casing (`A`/`a` both become `a`); and moment's narrow era
+(`NNNNN`) renders the abbreviation (`AD`), not a true one-character form.
 
 ## date-fns gotchas
 
