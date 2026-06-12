@@ -41,6 +41,22 @@ describe('moment → unicode', () => {
   })
 })
 
+describe('unsupported same-letter runs and adjacent literals', () => {
+  it('treats an over-long run as one unrecognized token, not several short ones', () => {
+    // date-fns `QQQ` (abbreviated quarter) must not become moment `QQQ` (three
+    // quarter numbers) — the run has no moment token, so it literalizes whole.
+    expect(u2m('QQQ')).toBe('[QQQ]')
+    // moment caps months at `MMMM`; `MMMMM` must not remap to wide + numeric.
+    expect(m2u('MMMMM')).toBe('\'MMMMM\'')
+  })
+
+  it('coalesces adjacent unrecognized letters so no stray delimiter appears', () => {
+    // `L` and `T` are both unknown to moment; escaping them separately would read
+    // back as the apostrophe `L'T` instead of the literal `LT`.
+    expect(m2u('LT')).toBe('\'LT\'')
+  })
+})
+
 describe('unicode → moment', () => {
   it('converts common formats', () => {
     expect(u2m('dd/MM/yyyy')).toBe('DD/MM/YYYY')

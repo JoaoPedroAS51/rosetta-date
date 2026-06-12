@@ -58,14 +58,16 @@ export function parse(input: string, dialect: Dialect): Segment[] {
     }
 
     const match = matchToken(rules, input, index)
-    if (match !== undefined) {
+    if (match !== undefined && !runExtendsBeyond(match.token, input, index)) {
       segments.push({ kind: 'field', canonical: match.canonical, raw: match.token })
       index += match.token.length
       continue
     }
 
-    // An unrecognized field: consume the maximal run of the same letter, mirroring
-    // how real tokens are runs of one character (e.g. an unknown `ZZZ`).
+    // Either nothing matched, or a single-letter-run token only matched a prefix of
+    // a longer run the dialect does not define (e.g. `QQQ` when only `Q` exists). A
+    // run of one letter is a single token whose length is significant, so consume
+    // the whole run as one unrecognized segment — never several shorter tokens.
     let end = index + 1
     while (end < input.length && input.charAt(end) === char)
       end += 1
@@ -82,4 +84,18 @@ function matchToken(rules: readonly TokenRule[], input: string, index: number): 
       return rule
   }
   return undefined
+}
+
+/**
+ * True when `token` is a run of one repeated letter and the input continues with
+ * that same letter — meaning the match is only part of a longer same-letter run
+ * the dialect does not define, so the whole run is one unrecognized token.
+ */
+function runExtendsBeyond(token: string, input: string, index: number): boolean {
+  const first = token.charAt(0)
+  for (let i = 1; i < token.length; i += 1) {
+    if (token.charAt(i) !== first)
+      return false
+  }
+  return input.charAt(index + token.length) === first
 }

@@ -38,21 +38,40 @@ export function render(segments: readonly Segment[], dialect: Dialect): string {
   const tokens = compile(dialect)
   let output = ''
 
-  for (const segment of segments) {
-    switch (segment.kind) {
-      case 'literal':
-        output += escapeLiteral(segment.value, dialect.literal)
-        break
-      case 'field': {
-        const token = tokens.get(segment.canonical)
-        output += token ?? escapeLiteral(segment.raw, dialect.literal)
-        break
-      }
-      case 'unknown':
-        output += escapeLiteral(segment.value, dialect.literal)
-        break
+  // Literal text, unrecognized runs, and fields with no target token all become
+  // literal output. Accumulate adjacent ones and escape them together: escaping
+  // separately could emit a stray delimiter between them (e.g. `'L'` + `'T'`
+  // would read as the apostrophe `L'T`, not `LT`).
+  let literal = ''
+  const flush = (): void => {
+    if (literal !== '') {
+      output += escapeLiteral(literal, dialect.literal)
+      literal = ''
     }
   }
 
+  for (const segment of segments) {
+    switch (segment.kind) {
+      case 'literal':
+        literal += segment.value
+        break
+      case 'unknown':
+        literal += segment.value
+        break
+      case 'field': {
+        const token = tokens.get(segment.canonical)
+        if (token === undefined) {
+          literal += segment.raw
+        }
+        else {
+          flush()
+          output += token
+        }
+        break
+      }
+    }
+  }
+
+  flush()
   return output
 }
