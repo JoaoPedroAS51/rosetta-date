@@ -6,17 +6,33 @@
 [![CI](https://github.com/JoaoPedroAS51/rosetta-date/actions/workflows/ci.yml/badge.svg)](https://github.com/JoaoPedroAS51/rosetta-date/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
-`rosetta-date` translates date-format token strings between **dialects** (token grammars) — and the **libraries**
-that speak them — through a neutral canonical model: each dialect maps to and from a shared semantic vocabulary,
-so conversion stays **bidirectional** and consistent, and **a new dialect or library is added without touching the
-engine**. The dialects and libraries below are what ship today; the design is built to grow.
+`rosetta-date` translates date-format tokens between **dialects** (token grammars) and the **libraries** that speak
+them, routing every token through a neutral canonical model. Each dialect maps to and from one shared vocabulary,
+so conversion stays **bidirectional** and a new dialect or library drops in without touching the engine.
 
-Routing through that canonical hub is what keeps the case-sensitive traps straight — moment `DD` (day of month)
-becomes ldml `dd`, never `DD` (which in LDML is day of *year*).
+That canonical hub keeps the case-sensitive traps straight: moment `DD` (day of month) becomes ldml `dd`, never
+LDML `DD`, which is day of *year*.
 
 - **Zero runtime dependencies**
 - **ESM-only**, ships with types
 - **Escape-aware tokenizer** (longest-token-first), handling `moment` `[literals]` and `ldml` `'literals'`
+
+## Contents
+
+- [Supported dialects & libraries](#supported-dialects--libraries)
+- [Install](#install)
+- [Usage](#usage)
+  - [Dialects and libraries are objects (tree-shakeable)](#dialects-and-libraries-are-objects-tree-shakeable)
+  - [Unsupported tokens](#unsupported-tokens)
+  - [Capabilities & `assume`](#capabilities--assume)
+- [Token mapping](#token-mapping)
+- [date-fns extensions](#date-fns-extensions)
+- [Non-round-trippable tokens](#non-round-trippable-tokens)
+- [date-fns gotchas](#date-fns-gotchas)
+- [Literals](#literals)
+- [Developing](#developing)
+- [Testing](#testing)
+- [License](#license)
 
 ## Supported dialects & libraries
 
@@ -45,8 +61,20 @@ dialect — or, naming the tools directly, `from: dayjs` to `to: dateFns`.
 ## Install
 
 ```bash
-pnpm add rosetta-date
+npm install rosetta-date
 ```
+
+<details><summary>pnpm / yarn / bun</summary>
+
+```bash
+pnpm add rosetta-date
+yarn add rosetta-date
+bun add rosetta-date
+```
+
+</details>
+
+Requires Node ≥ 22. The package is **ESM-only**: `import` it, do not `require()` it.
 
 ## Usage
 
@@ -343,6 +371,52 @@ Literal (verbatim) text is preserved across dialects:
 - `moment` brackets `[...]` ↔ `ldml` quotes `'...'`.
 - A literal apostrophe is `''` in `ldml` (e.g. `'o''clock'` → `o'clock`).
 - Only the letter-bearing span is escaped, so separators stay clean: `DD/MM` ↔ `dd/MM`, not `dd'/'MM`.
+
+## Developing
+
+Prerequisites: Node ≥ 22 and [pnpm](https://pnpm.io).
+
+```bash
+git clone https://github.com/JoaoPedroAS51/rosetta-date.git
+cd rosetta-date
+pnpm install
+```
+
+| Script | Purpose |
+| --- | --- |
+| `pnpm dev` | Rebuild on change (`tsdown --watch`). |
+| `pnpm build` | Emit the ESM bundle and types to `dist/`. |
+| `pnpm playground` | Serve the interactive playground from `playground/`. |
+| `pnpm typecheck` | Type-check without emitting. |
+| `pnpm lint` / `pnpm lint:fix` | Lint, and autofix, with the antfu config. |
+| `pnpm test` | Run the suite once. |
+| `pnpm test:coverage` | Run with coverage, gated at 100%. |
+
+The engine stays dialect-agnostic: every dialect maps to and from the shared canonical model. To add one, register
+it in `src/dialects/registry.ts` (or a library in `src/libraries/registry.ts`) and give it a `test/fixtures.ts`
+entry. The generic suites pick it up from there.
+
+CI runs `lint`, `typecheck`, `test:coverage`, and `build` on every pull request. Record user-facing changes with a
+changeset:
+
+```bash
+pnpm changeset
+```
+
+## Testing
+
+Where a test lives signals what it covers.
+
+| Location | Scope | Examples |
+| --- | --- | --- |
+| Beside the module (`src/`) | One module's units, in isolation | `literal.test.ts` next to `literal.ts` |
+| `test/` | Cross-cutting behavior across every dialect | `matrix.test.ts`, `round-trip.test.ts` |
+
+Unit tests sit next to the code they exercise, so they travel with it on a refactor. The cross-cutting suites span
+every dialect pair and derive from one shared oracle, `test/fixtures.ts`. Adding a dialect to the registry makes
+TypeScript require its `fixtures.ts` entry, so the matrix and round-trip suites cover the new dialect automatically.
+
+Run `pnpm test` for both, or `pnpm test:coverage` to enforce the 100% threshold.
 
 ## License
 
