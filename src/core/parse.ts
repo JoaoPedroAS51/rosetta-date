@@ -7,8 +7,11 @@ import { compile, matchToken, runExtendsBeyond } from './tokenize'
  *
  * Literals are decoded per the dialect's rules; recognized tokens become
  * {@link Segment} fields carrying their canonical symbol; unrecognized letter
- * runs become `unknown` segments. Adjacent literal text is coalesced so the
- * renderer can escape it as a single run.
+ * runs become `unknown` segments. Adjacent literal text — and adjacent
+ * unrecognized runs — are coalesced, so the renderer escapes a literal as one
+ * run and an unsupported-token handler sees a maximal run as a single token (a
+ * mixed run like `Jb` arrives as one `unknown`, matching how a same-letter run
+ * like `JJ` already does).
  */
 export function parse(input: string, dialect: Dialect): Segment[] {
   const rules = compile(dialect)
@@ -22,6 +25,14 @@ export function parse(input: string, dialect: Dialect): Segment[] {
       segments[segments.length - 1] = { kind: 'literal', value: last.value + value }
     else
       segments.push({ kind: 'literal', value })
+  }
+
+  const pushUnknown = (value: string): void => {
+    const last = segments.at(-1)
+    if (last?.kind === 'unknown')
+      segments[segments.length - 1] = { kind: 'unknown', value: last.value + value }
+    else
+      segments.push({ kind: 'unknown', value })
   }
 
   let index = 0
@@ -55,7 +66,7 @@ export function parse(input: string, dialect: Dialect): Segment[] {
     let end = index + 1
     while (end < input.length && input.charAt(end) === char)
       end += 1
-    segments.push({ kind: 'unknown', value: input.slice(index, end) })
+    pushUnknown(input.slice(index, end))
     index = end
   }
 

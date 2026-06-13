@@ -70,6 +70,22 @@ describe('onUnsupportedToken policy', () => {
     expect(convert('K', { from: ldml, to: moment, onUnsupportedToken: () => undefined })).toBe('[K]')
   })
 
+  it('hands an adjacent unrecognized run to the handler as one token', () => {
+    // `J` and `b` are both unknown to moment and adjacent, so they coalesce into
+    // a single `unknown` — the handler fires once with `Jb`, matching how a
+    // same-letter run like `JJ` already behaves. A separator keeps them apart.
+    const tokens: string[] = []
+    const record = (token: string): undefined => {
+      tokens.push(token)
+      return undefined
+    }
+
+    convert('Jb', { from: moment, to: ldml, onUnsupportedToken: record })
+    convert('J-b', { from: moment, to: ldml, onUnsupportedToken: record })
+
+    expect(tokens).toEqual(['Jb', 'J', 'b'])
+  })
+
   it('passes the token, reason, and dialects to the handler', () => {
     const calls: Array<{ token: string, reason: string, from: boolean, to: boolean }> = []
     convert('J K', {
