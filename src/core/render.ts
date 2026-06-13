@@ -59,6 +59,8 @@ function compileTarget(target: Dialect | Library): CompiledTarget {
 export interface RenderOptions {
   /** The dialect the segments were parsed from (for handler context). */
   readonly from: Dialect
+  /** The source endpoint when it was a `Library`, surfaced to the handler as `info.fromLibrary`. */
+  readonly fromLibrary?: Library | undefined
   /** Policy for unrecognized or unmappable tokens. Defaults to `'literalize'`. */
   readonly onUnsupportedToken?: UnsupportedTokenPolicy | undefined
 }
@@ -91,6 +93,7 @@ type Resolution
  */
 export function render(segments: readonly Segment[], to: Dialect | Library, options?: RenderOptions): string {
   const { dialect, tokens, canonicals } = compileTarget(to)
+  const toLibrary = 'resolved' in to ? to : undefined
   const rules = compileRules(dialect)
   const boundary = boundaryFor(dialect.literal)
   let output = ''
@@ -132,7 +135,7 @@ export function render(segments: readonly Segment[], to: Dialect | Library, opti
       }
       else {
         // The token converts, but this dialect cannot separate it from `last`.
-        apply(resolveUnsupported(token, 'unrepresentable-adjacency', dialect, options, { kind: 'emit', text: token, isToken: true }))
+        apply(resolveUnsupported(token, 'unrepresentable-adjacency', dialect, toLibrary, options, { kind: 'emit', text: token, isToken: true }))
       }
     }
     else {
@@ -148,7 +151,7 @@ export function render(segments: readonly Segment[], to: Dialect | Library, opti
         last = undefined
         break
       case 'unknown':
-        apply(resolveUnsupported(segment.value, 'unrecognized', dialect, options))
+        apply(resolveUnsupported(segment.value, 'unrecognized', dialect, toLibrary, options))
         break
       case 'field': {
         const token = tokens.get(segment.canonical)
@@ -156,7 +159,7 @@ export function render(segments: readonly Segment[], to: Dialect | Library, opti
           const reason: UnsupportedTokenReason = canonicals.has(segment.canonical)
             ? 'unsupported-by-target'
             : 'unmappable'
-          apply(resolveUnsupported(segment.raw, reason, dialect, options))
+          apply(resolveUnsupported(segment.raw, reason, dialect, toLibrary, options))
         }
         else {
           emitToken(token)
@@ -174,6 +177,7 @@ function resolveUnsupported(
   token: string,
   reason: UnsupportedTokenReason,
   to: Dialect,
+  toLibrary: Library | undefined,
   options?: RenderOptions,
   fallback: Resolution = { kind: 'literal', text: token },
 ): Resolution {
@@ -183,7 +187,7 @@ function resolveUnsupported(
     throw new UnsupportedTokenError(token, reason)
 
   if (typeof policy === 'function' && options !== undefined) {
-    const info: UnsupportedTokenInfo = { reason, from: options.from, to }
+    const info: UnsupportedTokenInfo = { reason, from: options.from, to, fromLibrary: options.fromLibrary, toLibrary }
     const replacement = policy(token, info)
     if (replacement === Unsupported.drop || replacement === '')
       return { kind: 'drop' }

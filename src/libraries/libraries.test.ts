@@ -1,3 +1,4 @@
+import type { UnsupportedTokenInfo } from '../index'
 import { describe, expect, it } from 'vitest'
 import { Canonical } from '../core/canonical'
 import { ldml, moment } from '../dialects'
@@ -144,6 +145,54 @@ describe('target-support awareness (the dayjs subset)', () => {
     const safeForDayjs = createConverter(momentjs, dayjs, { onUnsupportedToken: 'throw' })
     expect(safeForDayjs('YYYY-MM-DD')).toBe('YYYY-MM-DD')
     expect(() => safeForDayjs('Mo')).toThrowError(UnsupportedTokenError)
+  })
+})
+
+describe('handler library context (fromLibrary / toLibrary)', () => {
+  it('exposes both endpoints when they are libraries', () => {
+    let info: UnsupportedTokenInfo | undefined
+    // `PPPP` (full localized date) has no token in the moment grammar.
+    convert('PPPP', {
+      from: dateFns,
+      to: momentjs,
+      onUnsupportedToken: (_token, i) => {
+        info = i
+        return undefined
+      },
+    })
+    expect(info?.fromLibrary).toBe(dateFns)
+    expect(info?.toLibrary).toBe(momentjs)
+    // `to` still resolves to the underlying dialect, as documented.
+    expect(info?.to).toBe(moment)
+  })
+
+  it('identifies the target library when libraries share a dialect', () => {
+    let lib: unknown
+    // `Mo` is unsupported by Day.js (it would mangle to `6o`); the shared `moment`
+    // dialect cannot tell dayjs from momentjs, but `toLibrary` can.
+    convert('Mo', {
+      from: momentjs,
+      to: dayjs,
+      onUnsupportedToken: (_token, i) => {
+        lib = i.toLibrary
+        return undefined
+      },
+    })
+    expect(lib).toBe(dayjs)
+  })
+
+  it('leaves the context undefined for a bare dialect endpoint', () => {
+    let info: UnsupportedTokenInfo | undefined
+    convert('K', {
+      from: ldml,
+      to: moment,
+      onUnsupportedToken: (_token, i) => {
+        info = i
+        return undefined
+      },
+    })
+    expect(info?.fromLibrary).toBeUndefined()
+    expect(info?.toLibrary).toBeUndefined()
   })
 })
 

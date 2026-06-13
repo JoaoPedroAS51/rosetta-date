@@ -1,4 +1,4 @@
-import type { Dialect } from './types'
+import type { Dialect, Library } from './types'
 
 const drop = Symbol('rosetta-date/unsupported.drop')
 const literalize = Symbol('rosetta-date/unsupported.literalize')
@@ -46,6 +46,18 @@ export interface UnsupportedTokenInfo {
   readonly from: Dialect
   /** The dialect being rendered to — always the resolved dialect, even when a `Library` was the target. */
   readonly to: Dialect
+  /**
+   * The source endpoint when it was a `Library` (e.g. `dayjs`), else `undefined`.
+   * Since `from` resolves to the underlying dialect, this is the only way to tell
+   * libraries that share a dialect apart (e.g. `dayjs` vs `momentjs`).
+   */
+  readonly fromLibrary?: Library | undefined
+  /**
+   * The target endpoint when it was a `Library` (e.g. `dayjs`), else `undefined`.
+   * Since `to` resolves to the underlying dialect, this is the only way to tell
+   * libraries that share a dialect apart (e.g. `dayjs` vs `momentjs`).
+   */
+  readonly toLibrary?: Library | undefined
 }
 
 /**

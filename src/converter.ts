@@ -67,6 +67,7 @@ export function convert(format: string, options: ConvertOptions): string {
   const from = sourceDialect(options.from)
   return render(parse(format, from), options.to, {
     from,
+    fromLibrary: 'resolved' in options.from ? options.from : undefined,
     onUnsupportedToken: options.onUnsupportedToken,
   })
 }
@@ -96,6 +97,10 @@ export function convert(format: string, options: ConvertOptions): string {
  */
 export function createConverter(from: Dialect | Library, to: Dialect | Library, options?: ConverterOptions): Converter {
   const fromDialect = sourceDialect(from)
-  const renderOptions = { from: fromDialect, onUnsupportedToken: options?.onUnsupportedToken }
+  const renderOptions = {
+    from: fromDialect,
+    fromLibrary: 'resolved' in from ? from : undefined,
+    onUnsupportedToken: options?.onUnsupportedToken,
+  }
   return format => render(parse(format, fromDialect), to, renderOptions)
 }

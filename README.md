@@ -161,6 +161,10 @@ A handler's return value is emitted **verbatim**; use the `Unsupported` sentinel
 `Unsupported.drop` omits the token, `Unsupported.literalize` defers to the default. (`''` and `undefined` are
 accepted as equivalents.)
 
+The `info` argument carries the `reason`, the resolved `from` / `to` **dialects**, and — when an endpoint was a
+`Library` — the `fromLibrary` / `toLibrary` it resolved from. Since libraries that share a dialect (Day.js and
+Moment.js both speak `moment`) resolve to the same `to`, `toLibrary` is how a handler tells them apart.
+
 The default never throws — every token is preserved, as a literal at worst.
 
 A `Library`'s `supports` set is "what tokens this tool can render" (used to flag `unsupported-by-target`). It
