@@ -96,6 +96,13 @@ export function boundaryFor(rules: LiteralRules): string | undefined {
  * dialect's delimiters — leading and trailing punctuation/whitespace stays raw,
  * so `dd/MM` stays `dd/MM` (never `dd'/'MM`) and ` o'clock` becomes ` [o'clock]`
  * rather than `[ o'clock]`. For quoted dialects, embedded delimiters are doubled.
+ *
+ * A bracketed dialect has no in-band escape for its `close` delimiter, so a
+ * `close` character can never sit inside a pair: the wrapped span is split around
+ * each one, which is emitted raw between the bracketed pieces (a bare `]` already
+ * reads as a literal in moment). This keeps a literal `]` intact rather than
+ * swallowing it — `a]b` → `[a]][b]`. It assumes `open` and `close` differ, which
+ * every bracketed dialect satisfies.
  */
 export function escapeLiteral(value: string, rules: LiteralRules): string {
   if (value === '')
@@ -104,6 +111,10 @@ export function escapeLiteral(value: string, rules: LiteralRules): string {
   const { open, close, escapedDelimiter } = rules
   const isQuoted = escapedDelimiter !== undefined
   const escape = (text: string): string => isQuoted ? text.replaceAll(open, escapedDelimiter) : text
+  const wrapSpan = (span: string): string =>
+    isQuoted
+      ? open + escape(span) + close
+      : span.split(close).map(part => (part === '' ? '' : open + part + close)).join(close)
 
   let first = -1
   let last = -1
@@ -121,7 +132,7 @@ export function escapeLiteral(value: string, rules: LiteralRules): string {
     return escape(value)
 
   const lead = escape(value.slice(0, first))
-  const core = open + escape(value.slice(first, last + 1)) + close
+  const core = wrapSpan(value.slice(first, last + 1))
   const trail = escape(value.slice(last + 1))
   return lead + core + trail
 }

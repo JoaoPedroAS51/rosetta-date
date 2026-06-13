@@ -87,6 +87,13 @@ describe('ldml → moment', () => {
   it('decodes quoted literals and escaped apostrophes', () => {
     expect(u2m('h \'o\'\'clock\'')).toBe('h [o\'clock]')
   })
+
+  it('keeps a literal `]` intact even though moment cannot escape it', () => {
+    // The `]` lands between bracketed spans rather than being swallowed, so the
+    // literal still round-trips through moment's escape-less bracket grammar.
+    expect(u2m('\'a]b\'')).toBe('[a]][b]')
+    expect(m2u('[a]][b]')).toBe('\'a]b\'')
+  })
 })
 
 describe('round trips on the bijective core', () => {

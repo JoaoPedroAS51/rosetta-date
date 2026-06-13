@@ -347,6 +347,8 @@ Literal (verbatim) text is preserved across dialects:
 - `moment` brackets `[...]` ↔ `ldml` quotes `'...'`.
 - A literal apostrophe is `''` in `ldml` (e.g. `'o''clock'` → `o'clock`).
 - Only the letter-bearing span is escaped, so separators stay clean: `DD/MM` ↔ `dd/MM`, not `dd'/'MM`.
+- A literal `]` has no in-band escape inside a moment `[...]` run, so it is emitted *between* bracketed spans
+  (e.g. `a]b` → `[a]][b]`); the text still round-trips intact.
 
 ## Adjacent tokens
 

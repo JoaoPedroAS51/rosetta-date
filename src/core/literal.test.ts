@@ -77,4 +77,13 @@ describe('escapeLiteral', () => {
     expect(escapeLiteral('de', bracket)).toBe('[de]')
     expect(escapeLiteral('de', quoted)).toBe('\'de\'')
   })
+
+  it('splits a bracketed span around the close delimiter it cannot escape', () => {
+    // moment has no in-band escape for `]`, so a `]` inside the letter span is
+    // emitted raw between bracketed pieces instead of being swallowed.
+    expect(escapeLiteral('a]b', bracket)).toBe('[a]][b]')
+    expect(escapeLiteral('a]]b', bracket)).toBe('[a]]][b]') // consecutive `]` → empty middle piece
+    expect(escapeLiteral(']ab', bracket)).toBe('][ab]') // leading `]` stays in the raw lead
+    expect(escapeLiteral('ab]', bracket)).toBe('[ab]]') // trailing `]` stays in the raw trail
+  })
 })
