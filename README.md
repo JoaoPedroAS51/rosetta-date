@@ -101,6 +101,11 @@ The conversion API lives at `rosetta-date`; **dialects** at `rosetta-date/dialec
 in keeps the conversion functions free of a central registry, so a bundle that uses only one pair tree-shakes the
 rest — and you can pass a **custom `Dialect`**, or a `Library` you build with `defineLibrary`.
 
+> **Define a custom dialect or library once and reuse that object.** Per-dialect compilation is cached by object
+> identity, so constructing a fresh `{ name, literal, tokens }` (or calling `defineLibrary`) on every `convert`
+> call silently misses the cache and recompiles each time. The built-in dialects and libraries are already shared
+> singletons.
+
 ```ts
 import { convert, createConverter } from 'rosetta-date'
 import { dateFns, dayjs, momentjs } from 'rosetta-date/libraries'

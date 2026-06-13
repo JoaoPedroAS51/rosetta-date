@@ -23,6 +23,10 @@ function effectiveDialect(def: LibraryDefinition): Dialect {
  * target. Throws at definition time — instead of failing silently later — when an
  * `extends` token collides with a dialect token or is listed twice, or a
  * `supports` token is not in the effective grammar.
+ *
+ * Call this once per library and reuse the result: the engine caches compiled
+ * tables by object identity, so a `Library` rebuilt on every conversion recompiles
+ * rather than hitting the cache.
  */
 export function defineLibrary(definition: LibraryDefinition): Library {
   const dialectTokens = new Set(definition.dialect.tokens.map(rule => rule.token))

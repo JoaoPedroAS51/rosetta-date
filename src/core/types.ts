@@ -42,6 +42,10 @@ export interface TokenRule {
  * A dialect: a token grammar expressed as data. The conversion engine is generic
  * and reads everything it needs from here, so adding a dialect means adding one
  * of these — never touching the parser or renderer.
+ *
+ * Treat a dialect as an immutable singleton: define it once and reuse that object.
+ * The engine caches its compiled token tables keyed by object identity, so a
+ * freshly built dialect on every call recompiles instead of hitting the cache.
  */
 export interface Dialect {
   /** Stable identifier, e.g. `'moment'` or `'ldml'`. */
