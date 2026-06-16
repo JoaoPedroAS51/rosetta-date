@@ -1,5 +1,12 @@
 # rosetta-date
 
+## 0.2.0
+
+### Minor Changes
+
+- d7f3fbe: Add `defineDialect`, a definition-time helper mirroring `defineLibrary`. It validates a dialect (rejecting duplicate token spellings and incoherent literal rules) and returns a stable object to reuse across conversions.
+- aea79e4: Export the canonical vocabulary so `defineDialect` and `defineLibrary({ extends })` are usable from outside the package. `Canonical` (and the `CanonicalToken`, `TokenRule`, `LiteralRules` types) are now part of the public API at the package root; their `field/style` string values are covered by semver.
+
 ## 0.1.0
 
 Initial release — a zero-dependency, ESM-only TypeScript library that
