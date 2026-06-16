@@ -28,6 +28,7 @@ LDML `DD`, which is day of *year*.
 - [Install](#install)
 - [Usage](#usage)
   - [Dialects and libraries are objects (tree-shakeable)](#dialects-and-libraries-are-objects-tree-shakeable)
+  - [Building custom dialects and libraries](#building-custom-dialects-and-libraries)
   - [Unsupported tokens](#unsupported-tokens)
 - [Token mapping](#token-mapping)
   - [Tokens with no `moment` counterpart](#tokens-with-no-moment-counterpart)
@@ -146,6 +147,45 @@ import { getLibrary } from 'rosetta-date/libraries'
 
 convert(format, { from: getDialect(config.from), to: getLibrary(config.to) })
 ```
+
+### Building custom dialects and libraries
+
+`defineDialect` and `defineLibrary` validate a definition **once, at definition time** — they throw on an
+incoherent token table or literal rules — and return a stable object you reuse across conversions.
+
+The key idea: map each token to a **canonical symbol** — what it *means* (year, 2-digit month, …), not another
+dialect's spelling. `Canonical` is the neutral vocabulary every built-in dialect routes through, so a token you map
+to `Canonical.YearNumeric` converts to and from every other dialect for free:
+
+```ts
+import { Canonical, convert, defineDialect, defineLibrary } from 'rosetta-date'
+import { ldml } from 'rosetta-date/dialects'
+import { dateFns } from 'rosetta-date/libraries'
+
+// A custom dialect — map each token to what it *means*, not to another dialect:
+const custom = defineDialect({
+  name: 'custom',
+  literal: { open: '{', close: '}' },
+  tokens: [
+    { token: 'yr', canonical: Canonical.YearNumeric },
+    { token: 'mo', canonical: Canonical.MonthTwoDigit },
+    { token: 'dy', canonical: Canonical.DayOfMonthTwoDigit },
+  ],
+})
+convert('yr-mo-dy', { from: custom, to: ldml }) // 'yyyy-MM-dd'
+
+// Or add a tool's own tokens on top of a dialect via `extends`:
+const ldmlPlus = defineLibrary({
+  name: 'ldml-plus',
+  dialect: ldml,
+  extends: [{ token: 'u', canonical: Canonical.EpochSeconds }],
+})
+convert('u', { from: ldmlPlus, to: dateFns }) // 't' — bridged by the canonical symbol
+```
+
+`Canonical` values are stable identifiers shaped as `field/style`, versioned by semver: adding a symbol is a minor
+(additive) change; renaming or removing one is breaking. Prefer the named members (`Canonical.YearNumeric`) over
+the raw strings. The `TokenRule` and `LiteralRules` types are available for annotating your token tables and literals.
 
 ### Unsupported tokens
 

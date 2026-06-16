@@ -1,17 +1,16 @@
 /**
- * The neutral canonical vocabulary — the "hub" every dialect maps to and from.
+ * The neutral canonical vocabulary every dialect maps to and from — the "hub" of
+ * the conversion model. Each member names a date-field *semantic* together with
+ * its *style* (width / representation), independent of any dialect: `YYYY`
+ * (moment) and `yyyy` (ldml) are both spellings of {@link Canonical.YearNumeric}.
  *
- * Each entry names a date-field *semantic* together with its *style* (width /
- * representation), independent of any single library or dialect. A dialect token
- * such as `YYYY` (moment) or `yyyy` (ldml) is just one spelling of the same
- * canonical symbol ({@link Canonical.YearNumeric}). Conversion therefore never
- * compares tokens directly: it routes everything through these symbols, which is
- * what keeps directions consistent and prevents lib-vs-dialect confusion (e.g.
- * moment `DD` = day-of-month, *not* the LDML `DD` = day-of-year).
+ * Use these when building your own: a custom dialect, or a library's `extends`
+ * tokens, maps each token to one of these symbols. Prefer the named members over
+ * the raw strings.
  *
- * The string values are stable identifiers shaped as `field/style`. They are an
- * internal contract: dialect tables reference them, and tests/doc tooling can
- * iterate over them — but they are not part of the public API.
+ * Part of the public API, re-exported from the package root. The string values
+ * are stable identifiers shaped as `field/style`, covered by semver — adding a
+ * symbol is a minor, additive change; renaming or removing one is breaking.
  */
 export const Canonical = {
   // Era — e.g. AD / Anno Domini
