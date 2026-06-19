@@ -39,6 +39,10 @@
     "./libraries": {
       "types": "./dist/libraries/index.d.mts",
       "import": "./dist/libraries/index.mjs"
+    },
+    "./intl": {
+      "types": "./dist/intl/index.d.mts",
+      "import": "./dist/intl/index.mjs"
     }
   },
   "main": "./dist/index.mjs",

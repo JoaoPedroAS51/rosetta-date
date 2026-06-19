@@ -27,6 +27,7 @@ Although `YYYY-MM-DD` and `yyyy-MM-dd` look different, they express the same dat
 - 🪶 **Zero runtime dependencies**.
 - 🌳 **Tree-shakeable** — dialects and libraries ship from their own entrypoints.
 - 🛡️ **Escape-aware tokenizer** — literals round-trip intact across dialects.
+- 🌐 **Native `Intl` bridge** — turn a token pattern into `Intl.DateTimeFormat` options, and back.
 
 ## Documentation
 
@@ -94,7 +95,21 @@ safeForDayjs('YYYY-MM-DD') // 'YYYY-MM-DD'
 safeForDayjs('Mo') // throws UnsupportedTokenError
 ```
 
-See [Converting](https://rosetta-date.vercel.app/guides/converting), [Dialects & Libraries](https://rosetta-date.vercel.app/concepts/dialects-and-libraries),
+Bridge a token pattern to the native [`Intl.DateTimeFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat) API, and back, from `rosetta-date/intl`:
+
+```ts
+import { moment } from 'rosetta-date/dialects'
+import { fromIntlOptions, toIntlOptions } from 'rosetta-date/intl'
+import { dayjs } from 'rosetta-date/libraries'
+
+// Stop hardcoding the layout — hand the components to the locale:
+toIntlOptions('DD/MM/YYYY', { from: moment }) // { day: '2-digit', month: '2-digit', year: 'numeric' }
+
+// The style axis round-trips through each library's localized preset:
+fromIntlOptions({ dateStyle: 'short' }, { to: dayjs }) // 'L'
+```
+
+See [Converting](https://rosetta-date.vercel.app/guides/converting), [Intl Options](https://rosetta-date.vercel.app/guides/intl), [Dialects & Libraries](https://rosetta-date.vercel.app/concepts/dialects-and-libraries),
 and [Custom dialects & libraries](https://rosetta-date.vercel.app/guides/custom-dialects) for the full guides.
 
 ## Supported dialects & libraries

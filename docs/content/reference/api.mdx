@@ -42,6 +42,63 @@ const toLdml = createConverter(moment, ldml)
 toLdml('YYYY-MM-DD') // 'yyyy-MM-dd'
 ```
 
+## `Intl` adapter — `rosetta-date/intl`
+
+Bridges token strings and native `Intl.DateTimeFormat` options. See the [Intl Options](/guides/intl)
+guide for behaviour.
+
+### `toIntlOptions`
+
+```ts
+function toIntlOptions(format: string, options: ToIntlOptions): Intl.DateTimeFormatOptions
+```
+
+Read a format string into an `Intl.DateTimeFormatOptions` bag. Literals and field order are dropped —
+the locale decides layout.
+
+```ts
+import { toIntlOptions } from 'rosetta-date/intl'
+import { moment } from 'rosetta-date/dialects'
+
+toIntlOptions('YYYY-MM-DD', { from: moment }) // { year: 'numeric', month: '2-digit', day: '2-digit' }
+```
+
+### `fromIntlOptions`
+
+```ts
+function fromIntlOptions(intlOptions: Intl.DateTimeFormatOptions, options: FromIntlOptions): string
+```
+
+Translate Intl options into a target's tokens. `dateStyle` / `timeStyle` map to the target's
+localized presets; components reconstruct a CLDR-canonical-order skeleton.
+
+```ts
+import { fromIntlOptions } from 'rosetta-date/intl'
+import { dayjs } from 'rosetta-date/libraries'
+
+fromIntlOptions({ dateStyle: 'short' }, { to: dayjs }) // 'L'
+```
+
+### `Intl` adapter types
+
+```ts
+type IntlUnsupportedPolicy = 'throw' | 'drop'
+
+interface ToIntlOptions {
+  readonly from: Dialect | Library
+  readonly onUnsupportedToken?: IntlUnsupportedPolicy
+}
+
+interface FromIntlOptions {
+  readonly to: Dialect | Library
+  readonly onUnsupportedToken?: IntlUnsupportedPolicy
+}
+```
+
+The policy is narrower than `UnsupportedTokenPolicy`: across the `Intl` boundary there is no output
+string to `'literalize'` and no target dialect for a handler, so only `'throw'` and `'drop'` (the
+default) apply. A field with no Intl equivalent is otherwise dropped.
+
 ## Types
 
 ### `Converter`
