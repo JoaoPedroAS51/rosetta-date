@@ -2,22 +2,18 @@ import type { Dialect } from '../core/types'
 import { Canonical } from '../core/canonical'
 
 /**
- * The `ldml` dialect: the UTS#35 / LDML (Unicode Locale Data Markup Language)
- * date field symbols. Literals are single-quoted (`'literal'`), and a doubled
- * quote (`''`) stands for one literal apostrophe.
+ * Defines the Unicode LDML date-token grammar.
  *
- * The table is (the project's slice of) **pure UTS#35**. Tokens outside the spec
- * — the ordinal `…o` forms (`Mo`/`do`/…), the localized `P…` presets, epoch
- * `t`/`T`, and ISO `R`/`I`/`i` — are not defined here; they live on the libraries
- * that add them (e.g. `dateFns`).
+ * @remarks
+ * Scope: supported non-ordinal date field symbols from UTS #35 / LDML.
  *
- * Mind the case-sensitive traps that the canonical model resolves:
- * - lowercase `y` is the calendar year; uppercase `Y` is the local
- *   week-numbering year.
- * - lowercase `d` is day-of-month; uppercase `D` is day-of-year.
+ * Literals: text is quoted with `'...'`. Use `''` to emit one apostrophe.
  *
- * Where several tokens share a canonical symbol the first row is the primary
- * spelling used when rendering *to* ldml.
+ * Rendering: when aliases share a canonical token, the first mapping is emitted.
+ *
+ * Case sensitivity: `y` and `Y` are different fields, as are `d` and `D`.
+ *
+ * @see {@link https://unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table | Unicode UTS #35 Date Field Symbol Table}
  */
 export const ldml: Dialect = {
   name: 'ldml',

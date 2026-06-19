@@ -43,6 +43,31 @@ cover the code automatically, but the docs do not — keep these pages in sync b
   tokens it cannot render.
 - [API Reference](/reference/api) — list the new export under its entrypoint.
 
+### TSDoc conventions
+
+Use a consistent TSDoc structure for dialect and library exports.
+
+Dialect TSDoc documents only the grammar it defines:
+
+- `Scope`: the supported token grammar.
+- `Literals`: how literal text is represented.
+- `Rendering`: how primary mappings are chosen.
+- `Case sensitivity`: only when token case changes meaning.
+- `@see`: official specs or token references.
+
+Avoid mentioning concrete libraries in dialect TSDoc unless the behavior belongs to the dialect
+itself.
+
+Library TSDoc documents the rendering target:
+
+- `Base grammar`: the dialect used by the library.
+- `Extensions`: tokens added on top of the base grammar.
+- `Support model`: whether `supports` is omitted or defines a subset.
+- `Runtime behavior`: only for runtime requirements outside conversion logic.
+- `@see`: official library docs.
+
+Wrap code identifiers, plugin names, token names, and package names in backticks.
+
 CI runs `lint`, `typecheck`, `test:coverage`, and `build` on every pull request. Record user-facing
 changes with a changeset:
 

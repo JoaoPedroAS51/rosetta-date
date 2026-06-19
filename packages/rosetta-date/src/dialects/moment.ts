@@ -2,18 +2,19 @@ import type { Dialect } from '../core/types'
 import { Canonical } from '../core/canonical'
 
 /**
- * The `moment` dialect: the Moment.js-style token grammar. It is the *grammar*,
- * lib-agnostic and maximal — the union of everything a tool in this family could
- * spell. Concrete tools live in `src/libraries/` (e.g. `momentjs`, `dayjs`) and
- * declare which subset of this grammar they actually render. Literals are
- * bracketed (`[literal]`); there is no in-band escape for the closing bracket.
+ * Defines the Moment.js-style date-token grammar.
  *
- * Where several tokens share a canonical symbol the first row is the primary
- * spelling used when rendering *to* moment.
+ * @remarks
+ * Scope: supported format tokens from the Moment.js grammar family.
  *
- * Note the deliberate `YYYY → year/numeric` mapping: in moment, capital `Y` is
- * the *calendar* year (unlike LDML, where capital `Y` is the week-numbering
- * year). Routing through the canonical model is what keeps that straight.
+ * Literals: text is wrapped with `[ ... ]`. The closing bracket has no in-band
+ * escape.
+ *
+ * Rendering: when aliases share a canonical token, the first mapping is emitted.
+ *
+ * Case sensitivity: `YYYY` is a calendar-year token in this grammar.
+ *
+ * @see {@link https://momentjs.com/docs/#/displaying/format/ | Moment.js format tokens}
  */
 export const moment: Dialect = {
   name: 'moment',

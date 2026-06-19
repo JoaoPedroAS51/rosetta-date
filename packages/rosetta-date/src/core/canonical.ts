@@ -1,16 +1,16 @@
 /**
- * The neutral canonical vocabulary every dialect maps to and from — the "hub" of
- * the conversion model. Each member names a date-field *semantic* together with
- * its *style* (width / representation), independent of any dialect: `YYYY`
- * (moment) and `yyyy` (ldml) are both spellings of {@link Canonical.YearNumeric}.
+ * Defines the canonical date-field vocabulary used between dialects.
  *
- * Use these when building your own: a custom dialect, or a library's `extends`
- * tokens, maps each token to one of these symbols. Prefer the named members over
- * the raw strings.
+ * @remarks
+ * Purpose: each member names a date-field semantic plus its representation,
+ * independent of any concrete token grammar.
  *
- * Part of the public API, re-exported from the package root. The string values
- * are stable identifiers shaped as `field/style`, covered by semver — adding a
- * symbol is a minor, additive change; renaming or removing one is breaking.
+ * Usage: dialects and library extensions map each token spelling to one
+ * of these members through `TokenRule.canonical`. Prefer named members over raw
+ * string values.
+ *
+ * Stability: values are stable `field/style` identifiers. Adding a member is a
+ * minor, additive change. Renaming or removing a member is breaking.
  */
 export const Canonical = {
   // Era — e.g. AD / Anno Domini
@@ -82,11 +82,11 @@ export const Canonical = {
   Hour24Numeric: 'hour-24/numeric',
   Hour24TwoDigit: 'hour-24/2-digit',
 
-  // Hour, 1–24 (moment `k`)
+  // Hour, 1–24
   Hour24From1Numeric: 'hour-24-from-1/numeric',
   Hour24From1TwoDigit: 'hour-24-from-1/2-digit',
 
-  // Hour, 0–11 (moment has no token; reserved for dialects that do)
+  // Hour, 0–11
   Hour11Numeric: 'hour-11/numeric',
   Hour11TwoDigit: 'hour-11/2-digit',
 
@@ -134,10 +134,10 @@ export const Canonical = {
 } as const
 
 /**
- * A canonical symbol — one of the stable identifiers in {@link Canonical}.
+ * Union of all stable canonical identifier values in {@link Canonical}.
  *
- * This is the currency the conversion engine speaks: a parser turns dialect
- * tokens into these, and a renderer turns these back into another dialect's
- * tokens.
+ * @remarks
+ * Use this when defining APIs that accept or return canonical symbols directly,
+ * especially `TokenRule.canonical`.
  */
 export type CanonicalToken = (typeof Canonical)[keyof typeof Canonical]

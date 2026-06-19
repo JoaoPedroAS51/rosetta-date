@@ -3,52 +3,55 @@ import type { CanonicalToken } from './canonical'
 /**
  * How a dialect delimits and escapes literal (verbatim) text.
  *
- * Two families exist in practice:
- * - **Bracketed** (moment): text between `open` and `close` is literal, e.g.
- *   `[literal]`. There is no in-band escape for the closing bracket.
- * - **Quoted** (ldml / LDML): text between two `open`/`close` quotes is
- *   literal, and a doubled quote (`escapedDelimiter`) stands for one literal
- *   quote character, e.g. `'o''clock'` → `o'clock`.
+ * @remarks
+ * Common delimiter models include:
+ * - **Bracketed**: text between distinct `open` and `close` delimiters is
+ *   literal. There is no in-band escape for the closing delimiter.
+ * - **Quoted**: text between matching `open`/`close` delimiters is literal, and
+ *   `escapedDelimiter` represents one literal delimiter character.
  */
 export interface LiteralRules {
-  /** Opening delimiter, e.g. `[` (moment) or `'` (ldml). */
+  /** Opening delimiter, e.g. `[` or `'`. */
   readonly open: string
-  /** Closing delimiter, e.g. `]` (moment) or `'` (ldml). */
+  /** Closing delimiter, e.g. `]` or `'`. */
   readonly close: string
   /**
    * Sequence that represents a single literal delimiter character inside (or
-   * outside) a quoted run, e.g. `''` in LDML. Omit for bracketed dialects,
-   * which have no such escape.
+   * outside) a quoted run. Omit for delimiter models that have no such escape.
    */
   readonly escapedDelimiter?: string
 }
 
 /**
- * One row of a dialect's token table: a dialect token paired with the canonical
- * symbol it means.
+ * One row of a dialect's token table.
+ *
+ * @remarks
+ * A token rule pairs a concrete token spelling with the canonical symbol it
+ * represents.
  *
  * A canonical symbol may appear on more than one row (aliases). The first row
  * for a given symbol is treated as the primary spelling used when rendering to
  * this dialect; every row is honoured when parsing from it.
  */
 export interface TokenRule {
-  /** The dialect's literal token, e.g. `YYYY` (moment) or `yyyy` (ldml). */
+  /** The dialect's token spelling, e.g. `YYYY` or `yyyy`. */
   readonly token: string
   /** The canonical symbol this token maps to. */
   readonly canonical: CanonicalToken
 }
 
 /**
- * A dialect: a token grammar expressed as data. The conversion engine is generic
- * and reads everything it needs from here, so adding a dialect means adding one
- * of these — never touching the parser or renderer.
+ * Defines a token grammar as immutable data.
  *
- * Treat a dialect as an immutable singleton: define it once and reuse that object.
- * The engine caches its compiled token tables keyed by object identity, so a
- * freshly built dialect on every call recompiles instead of hitting the cache.
+ * @remarks
+ * Scope: literal rules plus token-to-canonical mappings.
+ *
+ * Usage: define a dialect once and reuse that object. Compiled token tables are
+ * cached by object identity, so rebuilding a dialect for every conversion misses
+ * the cache.
  */
 export interface Dialect {
-  /** Stable identifier, e.g. `'moment'` or `'ldml'`. */
+  /** Stable identifier for this dialect. */
   readonly name: string
   /** How this dialect delimits and escapes literal text. */
   readonly literal: LiteralRules
@@ -57,41 +60,47 @@ export interface Dialect {
 }
 
 /**
- * The declarative shape passed to {@link defineLibrary}: the {@link Dialect} a
- * tool speaks, its own extension tokens, and the subset it renders. Where a
- * `Dialect` answers "does this token exist, and what does it mean?", a library
- * answers "does this tool render it?" — e.g. `dayjs` speaks the `moment` grammar
- * but does not render `Mo` (it mangles it to `6o`).
+ * Declarative input passed to {@link defineLibrary}.
  *
- * A library's **effective grammar** is its dialect plus any {@link extends}
- * tokens it adds: the dialect stays the pure spec while the tool's own extension
- * tokens live in `extends`.
+ * @remarks
+ * Base grammar: {@link LibraryDefinition.dialect} defines the grammar the
+ * library starts from.
+ *
+ * Extensions: {@link LibraryDefinition.extends} adds library-specific token
+ * spellings on top of the base grammar.
+ *
+ * Support model: {@link LibraryDefinition.supports} narrows the effective
+ * grammar to the tokens the library can render. Omit it when every token in the
+ * effective grammar is renderable.
  */
 export interface LibraryDefinition {
-  /** Stable identifier, e.g. `'momentjs'`, `'dayjs'`, `'date-fns'`. */
+  /** Stable identifier for this library. */
   readonly name: string
   /** The base grammar (a spec, or a reference implementation) this library speaks. */
   readonly dialect: Dialect
   /**
-   * Tokens this library adds on top of {@link dialect} — the tool's own extensions
-   * to the spec (e.g. date-fns's `t`/`T`, `R`/`I`/`i`, `P…`). Each must map to a
-   * canonical symbol and must not collide with a dialect token.
+   * Tokens this library adds on top of {@link LibraryDefinition.dialect}.
+   *
+   * Each token must map to a canonical symbol and must not collide with a base
+   * dialect token.
    */
   readonly extends?: readonly TokenRule[]
   /**
    * The tokens this library can render — its subset of the effective grammar
-   * (dialect + {@link extends}). Omit to mean "the whole effective grammar" (a
-   * reference implementation). Every token listed must exist in the dialect or in
-   * `extends`.
+   * (dialect + {@link LibraryDefinition.extends}).
+   *
+   * Omit to mean "the whole effective grammar". Every token listed must exist in
+   * the dialect or in `extends`.
    */
   readonly supports?: ReadonlySet<string>
 }
 
 /**
- * The render target a {@link Library} carries, computed once by
- * {@link defineLibrary}. The engine reads this directly, so converting through a
- * library needs no resolution step at render time — and a dialect-only conversion
- * never reaches the merge logic, keeping it out of that bundle.
+ * Precomputed render metadata carried by a {@link Library}.
+ *
+ * @remarks
+ * This is produced by {@link defineLibrary}. Consumers normally read it only
+ * indirectly by passing a {@link Library} to conversion APIs.
  */
 export interface ResolvedLibrary {
   /** Effective grammar: the base dialect with any {@link LibraryDefinition.extends} merged in. */
@@ -101,10 +110,12 @@ export interface ResolvedLibrary {
 }
 
 /**
- * A concrete date library, produced by {@link defineLibrary}: its
- * {@link LibraryDefinition} plus the precomputed {@link resolved} render target.
- * Pass a `Library` on either side of a conversion to read it as "lib X → lib Y";
- * plain {@link Dialect} conversion stays fully supported and unchanged.
+ * Concrete date library metadata produced by {@link defineLibrary}.
+ *
+ * @remarks
+ * A library is a {@link LibraryDefinition} plus its precomputed
+ * {@link Library.resolved} render target. Pass it to conversion APIs when the
+ * target should honor library-specific extensions or support subsets.
  */
 export interface Library extends LibraryDefinition {
   /** Precomputed effective grammar and render predicate — read by the engine. */
@@ -112,9 +123,11 @@ export interface Library extends LibraryDefinition {
 }
 
 /**
- * A single piece of a parsed format string — the engine's intermediate
- * representation. A format is parsed into a list of these, then rendered back
- * out in another dialect.
+ * A single piece of a parsed format string.
+ *
+ * @remarks
+ * This is the internal intermediate representation used between parsing and
+ * rendering.
  */
 export type Segment
   /** Verbatim text that must survive conversion unchanged. */

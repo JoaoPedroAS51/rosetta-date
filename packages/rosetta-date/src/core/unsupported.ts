@@ -4,12 +4,12 @@ const drop = Symbol('rosetta-date/unsupported.drop')
 const literalize = Symbol('rosetta-date/unsupported.literalize')
 
 /**
- * Explicit return sentinels for an {@link UnsupportedTokenHandler}, so intent is
- * readable at the call site instead of relying on `''` vs `undefined`:
+ * Return sentinels for an {@link UnsupportedTokenHandler}.
  *
- * - `Unsupported.drop` — omit the token entirely.
- * - `Unsupported.literalize` — defer to the default behaviour (escape it as a
- *   literal).
+ * @remarks
+ * Use `Unsupported.drop` to omit the token entirely. Use
+ * `Unsupported.literalize` to defer to the default behavior and escape the token
+ * as a literal.
  *
  * @example
  * ```ts
@@ -23,11 +23,11 @@ export const Unsupported = { drop, literalize } as const
  * Why a token cannot be converted cleanly:
  * - `'unrecognized'` — the source dialect does not define this token.
  * - `'unmappable'` — a valid source field with no token in the target *dialect*.
- * - `'unsupported-by-target'` — the target dialect has the field, but the target
- *   library does not render it at all (e.g. converting `Mo` to `dayjs`).
+ * - `'unsupported-by-target'` — the target dialect has a token for the same
+ *   field, but the target library does not render that token.
  * - `'unrepresentable-adjacency'` — the token converts fine, but placing it right
  *   after the previous token would re-merge into a different token, and the target
- *   dialect has no empty literal to separate them (a quote-style dialect like LDML).
+ *   dialect has no empty literal to separate them.
  */
 export type UnsupportedTokenReason
   = | 'unrecognized'
@@ -36,8 +36,7 @@ export type UnsupportedTokenReason
     | 'unrepresentable-adjacency'
 
 /**
- * Context passed to an {@link UnsupportedTokenHandler} alongside the offending
- * token.
+ * Context passed to an {@link UnsupportedTokenHandler}.
  */
 export interface UnsupportedTokenInfo {
   /** Why the token could not be converted. */
@@ -47,15 +46,17 @@ export interface UnsupportedTokenInfo {
   /** The dialect being rendered to — always the resolved dialect, even when a `Library` was the target. */
   readonly to: Dialect
   /**
-   * The source endpoint when it was a `Library` (e.g. `dayjs`), else `undefined`.
+   * The source endpoint when it was a `Library`, else `undefined`.
+   *
    * Since `from` resolves to the underlying dialect, this is the only way to tell
-   * libraries that share a dialect apart (e.g. `dayjs` vs `momentjs`).
+   * libraries that share a dialect apart.
    */
   readonly fromLibrary?: Library | undefined
   /**
-   * The target endpoint when it was a `Library` (e.g. `dayjs`), else `undefined`.
+   * The target endpoint when it was a `Library`, else `undefined`.
+   *
    * Since `to` resolves to the underlying dialect, this is the only way to tell
-   * libraries that share a dialect apart (e.g. `dayjs` vs `momentjs`).
+   * libraries that share a dialect apart.
    */
   readonly toLibrary?: Library | undefined
 }
@@ -69,9 +70,10 @@ export interface UnsupportedTokenInfo {
 export type UnsupportedTokenResult = string | typeof Unsupported.drop | typeof Unsupported.literalize
 
 /**
- * Decides what to emit for a token with no clean conversion. Returning
- * `undefined` (e.g. from a handler that simply falls through) is treated as
- * {@link Unsupported.literalize}.
+ * Decides what to emit for a token with no clean conversion.
+ *
+ * @remarks
+ * Returning `undefined` is treated as {@link Unsupported.literalize}.
  */
 export type UnsupportedTokenHandler = (token: string, info: UnsupportedTokenInfo) => UnsupportedTokenResult | undefined
 

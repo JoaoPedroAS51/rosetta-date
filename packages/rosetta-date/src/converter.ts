@@ -29,9 +29,9 @@ export interface ConverterOptions {
 /**
  * Which endpoints to convert between, plus any {@link ConverterOptions}. Each
  * side is a {@link Dialect} (pure grammar) or a {@link Library} (a concrete tool,
- * e.g. `momentjs`, `dateFns`) — mix them freely. You import these or define your
- * own; passing them in keeps the conversion functions free of a central registry,
- * so unused tables are tree-shaken from your bundle.
+ * built-in or user-defined) — mix them freely. Passing endpoints in keeps the
+ * conversion functions free of a central registry, so unused tables are
+ * tree-shaken from your bundle.
  */
 export interface ConvertOptions extends ConverterOptions {
   /** The dialect or library the input format string is written in. */
@@ -77,8 +77,8 @@ export function convert(format: string, options: ConvertOptions): string {
  * side may be a {@link Dialect} or a {@link Library} (see {@link convert}).
  *
  * The returned {@link Converter} is a clean `(format) => string` you can call
- * repeatedly or hand off as a callback. Per-target parsing/rendering work is
- * cached, so binding once is as cheap as it looks.
+ * repeatedly or hand off as a callback. Compiled token tables are cached by
+ * endpoint identity, so reusing endpoint objects keeps repeated calls cheap.
  *
  * @param from - The dialect or library inputs are written in.
  * @param to - The dialect or library to translate into.

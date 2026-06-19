@@ -1,19 +1,20 @@
 import type { Dialect } from './types'
 
 /**
- * Build a {@link Dialect} from its plain-data definition, validating at definition
- * time — instead of failing silently later — that its token table and literal
- * rules are coherent. Throws when a token spelling is empty or listed twice, when
- * the literal delimiters are empty, when an `escapedDelimiter` is set for a
- * bracketed dialect (it only applies to quote-style literals, where `open` and
- * `close` match), or when a bracketed dialect's `open` and `close` are equal —
- * the renderer can only escape a literal delimiter when the two differ.
+ * Defines and validates a {@link Dialect}.
  *
- * A dialect is already plain data, so this returns the very object passed in —
- * call it once and reuse that result: the engine caches compiled token tables by
- * object identity, so a dialect rebuilt on every conversion recompiles rather
- * than hitting the cache. Aliases (several tokens sharing one canonical symbol)
- * are expected and never throw; only a repeated `token` spelling does.
+ * @remarks
+ * Validation catches incoherent literal rules, empty token spellings, and
+ * duplicate token spellings at definition time. Aliases are valid: multiple
+ * token spellings may map to the same canonical symbol.
+ *
+ * The returned object is the same object passed in. Define it once and reuse it
+ * so compiled token tables can be cached by object identity.
+ *
+ * @param definition - The dialect data to validate.
+ * @returns The same {@link Dialect} object passed as `definition`.
+ * @throws {Error} When literal delimiters are invalid, a token spelling is
+ * empty, or a token spelling is listed more than once.
  */
 export function defineDialect(definition: Dialect): Dialect {
   const { name, literal, tokens } = definition

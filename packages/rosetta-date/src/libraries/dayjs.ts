@@ -31,7 +31,7 @@ const core = [
   'a',
 ]
 
-// The AdvancedFormat plugin adds these (and only these) extra spellings.
+// The `AdvancedFormat` plugin adds these (and only these) extra spellings.
 const advancedFormat = [
   'Q',
   'Do',
@@ -49,7 +49,7 @@ const advancedFormat = [
   'z',
 ]
 
-// The LocalizedFormat plugin adds the `L…` presets Day.js can render.
+// The `LocalizedFormat` plugin adds the `L…` presets Day.js can render.
 const localizedFormat = [
   'L',
   'll',
@@ -62,18 +62,21 @@ const localizedFormat = [
 ]
 
 /**
- * Day.js — speaks the `moment` grammar but implements only a subset. Tokens it
- * does not recognize are *mangled* at runtime (`Mo` → `6o`, `DDD` → `077`), so
- * converting *to* `dayjs` routes them through the unsupported-token policy rather
- * than emitting something broken.
+ * Defines the `Day.js` rendering target.
  *
- * Not listed (and therefore flagged): the era (`N…`), ordinals beyond `Do`/`wo`
- * (`Mo`, `Qo`, `Wo`, `DDDo`), day-of-year (`DDD`, `DDDD`), the locale/ISO weekday
- * numbers (`e`, `E`), sub-`SSS` fractions (`S`, `SS`), and 2-digit week-years
- * (`gg`, `GG`).
+ * @remarks
+ * Base grammar: `moment`.
  *
- * `supports` is everything Day.js can render with the common plugins (the core
- * formatter plus AdvancedFormat and LocalizedFormat).
+ * Extensions: none. Plugin-provided tokens are modeled as supported tokens from
+ * the base grammar.
+ *
+ * Support model: `supports` contains the Day.js core formatter plus common
+ * `AdvancedFormat` and `LocalizedFormat` plugin tokens. Tokens outside this set
+ * are unsupported by this target.
+ *
+ * @see {@link https://day.js.org/docs/en/display/format | `Day.js` format documentation}
+ * @see {@link https://day.js.org/docs/en/plugin/advanced-format | `Day.js` `AdvancedFormat` plugin}
+ * @see {@link https://day.js.org/docs/en/plugin/localized-format | `Day.js` `LocalizedFormat` plugin}
  */
 export const dayjs: Library = defineLibrary({
   name: 'dayjs',

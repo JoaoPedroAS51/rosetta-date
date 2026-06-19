@@ -4,12 +4,21 @@ import { defineLibrary } from '../core/library'
 import { ldml } from '../dialects/ldml'
 
 /**
- * date-fns — the reference implementation of the `ldml` grammar. It renders the
- * whole effective grammar (dialect + `extends`), so `supports` is omitted.
+ * Defines the `date-fns` rendering target.
  *
- * `extends` carries the tokens date-fns adds on top of pure UTS#35: the ordinal
- * `…o` forms (`do`/`Mo`/…), ISO week-year/week/weekday (`R`/`I`/`i`), epoch
- * (`t`/`T`), and the localized presets (`P`/`p`/`Pp…`).
+ * @remarks
+ * Base grammar: `ldml`.
+ *
+ * Extensions: adds ordinal forms specific to `date-fns`
+ * (`Qo`/`Mo`/`wo`/`do`/`Do`/`Io`), ISO week-year/week/weekday tokens
+ * (`R`/`I`/`i`), epoch tokens (`t`/`T`), and localized preset tokens
+ * (`P`/`p`/`Pp...`).
+ *
+ * Support model: every token in the effective grammar is considered renderable,
+ * so `supports` is omitted.
+ *
+ * @see {@link https://date-fns.org/docs/format | `date-fns` format documentation}
+ * @see {@link https://github.com/date-fns/date-fns/blob/main/docs/unicodeTokens.md | `date-fns` Unicode token notes}
  */
 export const dateFns: Library = defineLibrary({
   name: 'date-fns',

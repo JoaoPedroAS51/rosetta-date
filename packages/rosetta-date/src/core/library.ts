@@ -18,15 +18,20 @@ function effectiveDialect(def: LibraryDefinition): Dialect {
 }
 
 /**
- * Build a {@link Library} from its {@link LibraryDefinition}, validating that its
- * extensions and supported tokens are coherent and precomputing its render
- * target. Throws at definition time — instead of failing silently later — when an
- * `extends` token collides with a dialect token or is listed twice, or a
- * `supports` token is not in the effective grammar.
+ * Defines and validates a concrete date-format library.
  *
- * Call this once per library and reuse the result: the engine caches compiled
- * tables by object identity, so a `Library` rebuilt on every conversion recompiles
- * rather than hitting the cache.
+ * @remarks
+ * Validation catches extension tokens that collide with the base dialect,
+ * duplicate extension token spellings, and `supports` entries that are absent
+ * from the effective grammar.
+ *
+ * The returned {@link Library} includes precomputed render metadata. Define it
+ * once and reuse it so compiled token tables can be cached by object identity.
+ *
+ * @param definition - The library definition to validate and resolve.
+ * @returns A {@link Library} with precomputed render metadata.
+ * @throws {Error} When `extends` or `supports` references invalid token
+ * spellings.
  */
 export function defineLibrary(definition: LibraryDefinition): Library {
   const dialectTokens = new Set(definition.dialect.tokens.map(rule => rule.token))
