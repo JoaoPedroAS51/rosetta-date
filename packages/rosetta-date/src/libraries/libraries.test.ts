@@ -19,8 +19,8 @@ describe('library as a conversion endpoint', () => {
   it('a reference library omits `supports` and renders its whole dialect', () => {
     expect(momentjs.supports).toBeUndefined()
     expect(dateFns.supports).toBeUndefined()
-    // `Mo`/`Qo` are unsupported by Day.js but fine for the full moment grammar.
-    expect(convert('Mo Qo', { from: ldml, to: momentjs })).toBe('Mo Qo')
+    // `Mo`/`Qo` are date-fns ordinal extensions, fine for the full moment grammar.
+    expect(convert('Mo Qo', { from: dateFns, to: momentjs })).toBe('Mo Qo')
   })
 
   it('renders localized presets to Day.js (its LocalizedFormat tokens)', () => {
@@ -44,6 +44,13 @@ describe('date-fns extensions (tokens the dateFns library adds to ldml)', () => 
     expect(convert('RRRR', { from: dateFns, to: momentjs })).toBe('GGGG')
     expect(convert('I', { from: dateFns, to: momentjs })).toBe('W')
     expect(convert('t', { from: dateFns, to: momentjs })).toBe('X')
+  })
+
+  it('converts the ordinal `…o` extensions momentjs ↔ dateFns', () => {
+    expect(convert('Qo Mo wo Do', { from: momentjs, to: dateFns })).toBe('Qo Mo wo do')
+    expect(convert('Wo', { from: momentjs, to: dateFns })).toBe('Io') // ISO week ordinal
+    expect(convert('DDDo', { from: momentjs, to: dateFns })).toBe('Do') // day-of-year ordinal
+    expect(convert('Qo Mo wo do Do Io', { from: dateFns, to: momentjs })).toBe('Qo Mo wo Do DDDo Wo')
   })
 
   it('converts localized presets preset ↔ preset (locale stays deferred)', () => {
@@ -125,7 +132,7 @@ describe('target-support awareness (the dayjs subset)', () => {
     const reasonFor = (format: string): string | undefined => {
       let reason: string | undefined
       convert(format, {
-        from: ldml,
+        from: dateFns,
         to: dayjs,
         onUnsupportedToken: (_token, info) => {
           reason = info.reason

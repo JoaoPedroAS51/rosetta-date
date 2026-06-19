@@ -12,6 +12,12 @@ concrete library lives in [Library Notes](/reference/library-notes).
 
 The tables below list the tokens that round-trip between dialects.
 
+<Callout type="info">
+  Ordinals (`Mo`, `Qo`, `wo`, `Do`…) are **not** part of the bare `ldml` dialect — they are
+  date-fns extensions, so a `—` marks the `ldml` column for them. They convert only through the
+  `dateFns` library; see [Library Notes → dateFns](/reference/library-notes#datefns).
+</Callout>
+
 ## Era & year
 
 | Meaning | `moment` | `ldml` |
@@ -29,10 +35,10 @@ The tables below list the tokens that round-trip between dialects.
 | Meaning | `moment` | `ldml` |
 | ------- | -------- | ------ |
 | Quarter | `Q` | `Q` |
-| Quarter, ordinal | `Qo` | `Qo` |
+| Quarter, ordinal | `Qo` | — |
 | Month | `M` | `M` |
 | Month, 2-digit | `MM` | `MM` |
-| Month, ordinal | `Mo` | `Mo` |
+| Month, ordinal | `Mo` | — |
 | Month, abbreviated | `MMM` | `MMM` |
 | Month, wide | `MMMM` | `MMMM` |
 
@@ -42,13 +48,13 @@ The tables below list the tokens that round-trip between dialects.
 | ------- | -------- | ------ |
 | Week of year | `w` | `w` |
 | Week of year, 2-digit | `ww` | `ww` |
-| Week of year, ordinal | `wo` | `wo` |
+| Week of year, ordinal | `wo` | — |
 | Day of month | `D` | `d` |
 | Day of month, 2-digit | `DD` | `dd` |
-| Day of month, ordinal | `Do` | `do` |
+| Day of month, ordinal | `Do` | — |
 | Day of year | `DDD` | `D` |
 | Day of year, 3-digit | `DDDD` | `DDD` |
-| Day of year, ordinal | `DDDo` | `Do` |
+| Day of year, ordinal | `DDDo` | — |
 
 ## Weekday
 

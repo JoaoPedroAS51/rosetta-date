@@ -7,8 +7,9 @@ import { Canonical } from '../core/canonical'
  * quote (`''`) stands for one literal apostrophe.
  *
  * The table is (the project's slice of) **pure UTS#35**. Tokens outside the spec
- * — the localized `P…` presets, epoch `t`/`T`, and ISO `R`/`I`/`i` — are not
- * defined here.
+ * — the ordinal `…o` forms (`Mo`/`do`/…), the localized `P…` presets, epoch
+ * `t`/`T`, and ISO `R`/`I`/`i` — are not defined here; they live on the libraries
+ * that add them (e.g. `dateFns`).
  *
  * Mind the case-sensitive traps that the canonical model resolves:
  * - lowercase `y` is the calendar year; uppercase `Y` is the local
@@ -41,12 +42,10 @@ export const ldml: Dialect = {
 
     // Quarter
     { token: 'Q', canonical: Canonical.QuarterNumeric },
-    { token: 'Qo', canonical: Canonical.QuarterOrdinal },
 
     // Month
     { token: 'M', canonical: Canonical.MonthNumeric },
     { token: 'MM', canonical: Canonical.MonthTwoDigit },
-    { token: 'Mo', canonical: Canonical.MonthOrdinal },
     { token: 'MMM', canonical: Canonical.MonthAbbreviated },
     { token: 'MMMM', canonical: Canonical.MonthWide },
     { token: 'MMMMM', canonical: Canonical.MonthNarrow },
@@ -54,18 +53,15 @@ export const ldml: Dialect = {
     // Week of year (local)
     { token: 'w', canonical: Canonical.WeekOfYearNumeric },
     { token: 'ww', canonical: Canonical.WeekOfYearTwoDigit },
-    { token: 'wo', canonical: Canonical.WeekOfYearOrdinal },
 
     // Day of month
     { token: 'd', canonical: Canonical.DayOfMonthNumeric },
     { token: 'dd', canonical: Canonical.DayOfMonthTwoDigit },
-    { token: 'do', canonical: Canonical.DayOfMonthOrdinal },
 
     // Day of year, gated in date-fns by useAdditionalDayOfYearTokens
     { token: 'D', canonical: Canonical.DayOfYearNumeric },
     { token: 'DD', canonical: Canonical.DayOfYearTwoDigit },
     { token: 'DDD', canonical: Canonical.DayOfYearThreeDigit },
-    { token: 'Do', canonical: Canonical.DayOfYearOrdinal },
 
     // Weekday name (formatting `E`)
     { token: 'EEE', canonical: Canonical.WeekdayAbbreviated },

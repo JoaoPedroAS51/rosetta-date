@@ -100,7 +100,7 @@ describe('round trips on the bijective core', () => {
   it.each([
     'DD/MM/YYYY',
     'YYYY-MM-DD[T]HH:mm:ss',
-    'ddd, Do MMM YYYY',
+    'ddd, DD MMM YYYY',
     'h:mm A',
   ])('moment %s survives a round trip', (format) => {
     expect(u2m(m2u(format))).toBe(format)

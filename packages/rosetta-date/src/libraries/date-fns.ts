@@ -7,14 +7,22 @@ import { ldml } from '../dialects/ldml'
  * date-fns — the reference implementation of the `ldml` grammar. It renders the
  * whole effective grammar (dialect + `extends`), so `supports` is omitted.
  *
- * `extends` carries the tokens date-fns adds on top of pure UTS#35: ISO
- * week-year/week/weekday (`R`/`I`/`i`), epoch (`t`/`T`), and the localized presets
- * (`P`/`p`/`Pp…`).
+ * `extends` carries the tokens date-fns adds on top of pure UTS#35: the ordinal
+ * `…o` forms (`do`/`Mo`/…), ISO week-year/week/weekday (`R`/`I`/`i`), epoch
+ * (`t`/`T`), and the localized presets (`P`/`p`/`Pp…`).
  */
 export const dateFns: Library = defineLibrary({
   name: 'date-fns',
   dialect: ldml,
   extends: [
+    // Ordinal `…o` forms — moment/date-fns convention, not UTS#35
+    { token: 'Qo', canonical: Canonical.QuarterOrdinal },
+    { token: 'Mo', canonical: Canonical.MonthOrdinal },
+    { token: 'wo', canonical: Canonical.WeekOfYearOrdinal },
+    { token: 'do', canonical: Canonical.DayOfMonthOrdinal },
+    { token: 'Do', canonical: Canonical.DayOfYearOrdinal },
+    { token: 'Io', canonical: Canonical.IsoWeekOfYearOrdinal },
+
     // ISO week-numbering year
     { token: 'RRRR', canonical: Canonical.IsoWeekYearNumeric },
     { token: 'R', canonical: Canonical.IsoWeekYearNumeric },
@@ -23,7 +31,6 @@ export const dateFns: Library = defineLibrary({
     // ISO week of year
     { token: 'I', canonical: Canonical.IsoWeekOfYearNumeric },
     { token: 'II', canonical: Canonical.IsoWeekOfYearTwoDigit },
-    { token: 'Io', canonical: Canonical.IsoWeekOfYearOrdinal },
 
     // ISO day of week
     { token: 'i', canonical: Canonical.IsoWeekdayNumeric },

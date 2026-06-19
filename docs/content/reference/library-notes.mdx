@@ -77,9 +77,9 @@ consumer's concern.
 ## dateFns
 
 date-fns is the reference implementation of the `ldml` (UTS #35) grammar **plus its own
-extensions** — ISO week fields, the Unix epoch, and localized `P…`/`p…` presets. These extras
-convert only through the `dateFns` library (`from: momentjs, to: dateFns`); the bare `ldml` dialect
-does not define them, so a `dialect → dialect` conversion literalizes them instead.
+extensions** — ordinal forms, ISO week fields, the Unix epoch, and localized `P…`/`p…` presets.
+These extras convert only through the `dateFns` library (`from: momentjs, to: dateFns`); the bare
+`ldml` dialect does not define them, so a `dialect → dialect` conversion literalizes them instead.
 
 | Meaning | `momentjs` | `dayjs` | `dateFns` |
 | ------- | ---------- | ------- | --------- |
@@ -94,6 +94,20 @@ does not define them, so a `dialect → dialect` conversion literalizes them ins
 
 `—` marks a date-fns extension Day.js has no token for; converting it *to* `dayjs` flags it. The
 ones Day.js does render here come from its AdvancedFormat plugin.
+
+### Ordinals
+
+date-fns renders ordinal forms (`…o`) that are **not** part of the bare `ldml` dialect. They convert
+from the matching `moment` ordinals:
+
+| Meaning | `momentjs` | `dateFns` |
+| ------- | ---------- | --------- |
+| Quarter, ordinal | `Qo` | `Qo` |
+| Month, ordinal | `Mo` | `Mo` |
+| Local week of year, ordinal | `wo` | `wo` |
+| Day of month, ordinal | `Do` | `do` |
+| Day of year, ordinal | `DDDo` | `Do` |
+| ISO week of year, ordinal | `Wo` | `Io` |
 
 ### Option-gated tokens
 
