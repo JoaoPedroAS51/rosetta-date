@@ -1,0 +1,68 @@
+---
+title: Describing Formats
+---
+
+import { Callout } from 'nextra/components'
+
+# Describing Formats
+
+`describe(format, endpoint)` is the read-only counterpart to [`convert`](/guides/converting): instead
+of translating a pattern, it tells you what the pattern *means*, token by token. It surfaces the
+canonical semantics that conversion normally keeps internal.
+
+```ts
+import { describe } from 'rosetta-date'
+import { moment } from 'rosetta-date/dialects'
+
+describe('DD/MM', moment)
+// [
+//   { kind: 'field', token: 'DD', canonical: 'day-of-month/2-digit', field: 'day-of-month', style: '2-digit', qualifiers: [] },
+//   { kind: 'literal', value: '/' },
+//   { kind: 'field', token: 'MM', canonical: 'month/2-digit', field: 'month', style: '2-digit', qualifiers: [] },
+// ]
+```
+
+It reuses the same parser as `convert`, so the result mirrors the input in order and covers every
+character — fields, literals, and unrecognized runs alike.
+
+## The segments
+
+Each entry is one of three kinds:
+
+| Kind | Shape | Meaning |
+| ---- | ----- | ------- |
+| `field` | `{ kind, token, canonical, field, style, qualifiers }` | A recognized token, decoded into its canonical `field` / `style` / `qualifiers`. |
+| `literal` | `{ kind, value }` | Verbatim text (the dialect's quoted/bracketed literals, and any non-token characters). |
+| `unknown` | `{ kind, value }` | A run the dialect does not recognize. |
+
+A `field` carries both its raw `token` (the spelling, e.g. `'DD'`) and its stable `canonical` symbol
+(e.g. `'day-of-month/2-digit'`), plus the decoded parts. Qualifiers surface refinements that would
+otherwise be invisible — the ISO rule, the hour cycle, the stand-alone form:
+
+```ts
+import { ldml } from 'rosetta-date/dialects'
+
+describe('K', ldml)
+// [{ kind: 'field', token: 'K', canonical: 'hour/numeric/h11', field: 'hour', style: 'numeric', qualifiers: ['h11'] }]
+```
+
+An `endpoint` may be a `Dialect` or a `Library`; a library is read through its effective grammar, so
+its extensions (e.g. date-fns ISO tokens) describe correctly.
+
+## Decoding a canonical symbol directly
+
+When you already hold a `CanonicalToken` — say, while iterating `Canonical` — `decodeCanonical` gives
+you the same `field` / `style` / `qualifiers` split without a format string:
+
+```ts
+import { Canonical, decodeCanonical } from 'rosetta-date'
+
+decodeCanonical(Canonical.WeekOfYearOrdinalIso)
+// { field: 'week-of-year', style: 'ordinal', qualifiers: ['iso'] }
+```
+
+<Callout type="info">
+  `describe` is pure introspection: no rendering, no locale, no unsupported-token policy. To learn what
+  a token becomes in another endpoint — and what a conversion would lose — pair it with
+  [`convert`](/guides/converting).
+</Callout>

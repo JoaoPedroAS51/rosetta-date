@@ -42,6 +42,55 @@ const toLdml = createConverter(moment, ldml)
 toLdml('YYYY-MM-DD') // 'yyyy-MM-dd'
 ```
 
+## `describe`
+
+```ts
+function describe(format: string, endpoint: Dialect | Library): DescribedSegment[]
+```
+
+The read-only counterpart to `convert`: parse a format and return its segments with the canonical
+semantics conversion keeps internal. See the [Describing Formats](/guides/describe) guide.
+
+```ts
+import { describe } from 'rosetta-date'
+import { moment } from 'rosetta-date/dialects'
+
+describe('DD/MM', moment)
+// [ { kind: 'field', token: 'DD', canonical: 'day-of-month/2-digit', field: 'day-of-month', style: '2-digit', qualifiers: [] },
+//   { kind: 'literal', value: '/' },
+//   { kind: 'field', token: 'MM', canonical: 'month/2-digit', field: 'month', style: '2-digit', qualifiers: [] } ]
+```
+
+### `decodeCanonical`
+
+```ts
+function decodeCanonical(token: CanonicalToken): DecodedCanonical
+```
+
+Split a canonical symbol into its `field` / `style` / `qualifiers` parts — the same decoding
+`describe` applies, for when you already hold a `CanonicalToken`.
+
+### `describe` types
+
+```ts
+interface DecodedCanonical {
+  readonly field: string
+  readonly style: string
+  readonly qualifiers: readonly string[]
+}
+
+interface DescribedField extends DecodedCanonical {
+  readonly kind: 'field'
+  readonly token: string
+  readonly canonical: CanonicalToken
+}
+
+type DescribedSegment =
+  | { readonly kind: 'literal', readonly value: string }
+  | DescribedField
+  | { readonly kind: 'unknown', readonly value: string }
+```
+
 ## `Intl` adapter — `rosetta-date/intl`
 
 Bridges token strings and native `Intl.DateTimeFormat` options. See the [Intl Options](/guides/intl)

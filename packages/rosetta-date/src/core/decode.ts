@@ -8,8 +8,6 @@ import type { CanonicalToken } from './canonical'
  * view of that string: `field` and `style` are always present, `qualifiers`
  * holds any trailing refinements, such as `iso`, hour-cycle qualifiers
  * (`h11`/`h12`/`h23`/`h24`), or `standalone`.
- *
- * @internal
  */
 export interface DecodedCanonical {
   /** The semantic field, e.g. `hour`, `day-of-month`, `localized-date-time`. */
@@ -24,14 +22,12 @@ export interface DecodedCanonical {
  * Decode a {@link CanonicalToken} into its `field`, `style`, and `qualifiers`.
  *
  * @remarks
- * A pure split on `/`: the field keeps any internal hyphens (`day-of-month`,
- * `fractional-second`), since the grammar only separates parts with `/`. This is
- * the structural primitive behind the `Intl` adapter.
+ * Use this when you already have a canonical symbol and need its structured
+ * `field`, `style`, and `qualifiers` parts. The split is only on `/`: the field
+ * keeps internal hyphens such as `day-of-month` or `fractional-second`.
  *
  * @param token - The canonical symbol to decode.
  * @returns The {@link DecodedCanonical} parts.
- *
- * @internal
  */
 export function decodeCanonical(token: CanonicalToken): DecodedCanonical {
   const [field = '', style = '', ...qualifiers] = token.split('/')

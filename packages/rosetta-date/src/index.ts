@@ -2,6 +2,8 @@ export { convert, createConverter } from './converter'
 export type { Converter, ConverterOptions, ConvertOptions } from './converter'
 export { Canonical } from './core/canonical'
 export type { CanonicalToken } from './core/canonical'
+export { decodeCanonical } from './core/decode'
+export type { DecodedCanonical } from './core/decode'
 export { defineDialect } from './core/dialect'
 export { UnsupportedTokenError } from './core/errors'
 export { defineLibrary } from './core/library'
@@ -14,3 +16,5 @@ export type {
   UnsupportedTokenReason,
   UnsupportedTokenResult,
 } from './core/unsupported'
+export { describe } from './describe'
+export type { DescribedField, DescribedSegment } from './describe'

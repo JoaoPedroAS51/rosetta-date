@@ -15,7 +15,8 @@ dialects exist.
 Values are stable `field/style[/qualifier]` identifiers exported as the
 [`Canonical`](/reference/api#canonical) object — the optional `qualifier` (e.g. `iso`, the hour cycle
 `h12`, `standalone`) refines a base field/style, and its absence is the default. Prefer the named
-members (`Canonical.YearNumeric`) over the raw strings.
+members (`Canonical.YearNumeric`) over the raw strings. To split a symbol into those parts
+programmatically, see [`decodeCanonical`](/reference/api#decodecanonical).
 
 <Callout type="info">
   Adding a member is a minor, additive change; renaming or removing one is breaking. A dialect or
