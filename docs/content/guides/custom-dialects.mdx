@@ -56,6 +56,26 @@ convert('u', { from: ldmlPlus, to: dateFns }) // 't' — bridged by the canonica
 The token `u` is not in the bare `ldml` dialect, but because it maps to `Canonical.EpochSeconds`, it
 bridges straight to date-fns's `t`.
 
+### Narrowing what a tool renders with `supports`
+
+Where `extends` *adds* tokens, `supports` *narrows* a tool to a subset of the grammar. It is keyed
+by **canonical field**, not spelling: you list the fields the tool renders, and each is emitted with
+the dialect's primary spelling. Omit it (as `ldmlPlus` does) to render the whole grammar.
+
+```ts
+import { Canonical, convert, defineLibrary } from 'rosetta-date'
+import { moment } from 'rosetta-date/dialects'
+
+const dayjsLike = defineLibrary({
+  name: 'dayjs-like',
+  dialect: moment,
+  supports: new Set([Canonical.YearNumeric, Canonical.MonthTwoDigit, Canonical.DayOfMonthTwoDigit]),
+})
+
+convert('MM', { from: moment, to: dayjsLike }) // 'MM' — a supported field
+convert('Mo', { from: moment, to: dayjsLike }) // '[Mo]' — month ordinal isn't in `supports`, so it's flagged
+```
+
 ## Validation happens once
 
 <Callout type="warning">

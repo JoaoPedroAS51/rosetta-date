@@ -1,6 +1,7 @@
 import type { UnsupportedTokenInfo } from '../index'
 import { describe, expect, it } from 'vitest'
 import { Canonical } from '../core/canonical'
+import { renderedTokens } from '../core/render'
 import { ldml, moment } from '../dialects'
 import { convert, createConverter, defineLibrary, UnsupportedTokenError } from '../index'
 import { dateFns, dayjs, getLibrary, momentjs } from './index'
@@ -204,13 +205,13 @@ describe('handler library context (fromLibrary / toLibrary)', () => {
 })
 
 describe('defineLibrary validation', () => {
-  it('rejects a supported token absent from the dialect', () => {
-    expect(() => defineLibrary({ name: 'broken', dialect: moment, supports: new Set(['NOPE']) }))
-      .toThrowError(/NOPE/)
+  it('rejects a supported canonical the dialect cannot express', () => {
+    expect(() => defineLibrary({ name: 'broken', dialect: moment, supports: new Set([Canonical.Hour11Numeric]) }))
+      .toThrowError(/hour-11/)
   })
 
-  it('accepts a subset whose tokens all exist in the dialect', () => {
-    expect(() => defineLibrary({ name: 'ok', dialect: moment, supports: new Set(['YYYY', 'MM']) }))
+  it('accepts a subset whose canonicals the dialect all expresses', () => {
+    expect(() => defineLibrary({ name: 'ok', dialect: moment, supports: new Set([Canonical.YearNumeric, Canonical.MonthTwoDigit]) }))
       .not
       .toThrow()
   })
@@ -231,13 +232,31 @@ describe('defineLibrary validation', () => {
     })).toThrowError(/more than once/)
   })
 
-  it('accepts a supports set that includes an extension token', () => {
+  it('accepts a supports set that includes an extension canonical', () => {
     expect(() => defineLibrary({
       name: 'ext-subset',
       dialect: ldml,
       extends: [{ token: 'tt', canonical: Canonical.EpochSeconds }],
-      supports: new Set(['M', 'tt']),
+      supports: new Set([Canonical.MonthNumeric, Canonical.EpochSeconds]),
     })).not.toThrow()
+  })
+})
+
+describe('supports is total (the rendered set matches the declared subset)', () => {
+  it('renders exactly the canonicals dayjs declares in `supports`', () => {
+    expect(new Set(renderedTokens(dayjs).keys())).toEqual(dayjs.supports)
+  })
+
+  it('a reference library renders every canonical its grammar expresses', () => {
+    const grammar = new Set(dateFns.resolved.dialect.tokens.map(rule => rule.canonical))
+    expect(new Set(renderedTokens(dateFns).keys())).toEqual(grammar)
+  })
+
+  it('renders an aliased field via the dialect primary spelling, not a library choice', () => {
+    // `supports` gates which fields render, never how they are spelled: am/pm has
+    // moment aliases `A` (primary) and `a`, and a library cannot select the alias.
+    expect(renderedTokens(dayjs).get(Canonical.DayPeriodAbbreviated)).toBe('A')
+    expect(convert('a', { from: momentjs, to: dayjs })).toBe('A')
   })
 })
 

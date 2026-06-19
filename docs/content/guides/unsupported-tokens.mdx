@@ -69,7 +69,7 @@ same `to` dialect, `toLibrary` is how a handler tells them apart.
 
 ## What the `supports` set does *not* cover
 
-A `Library`'s `supports` set models "what tokens this tool can render" — it is what flags
+A `Library`'s `supports` set models which canonical fields this tool renders — it is what flags
 `unsupported-by-target`. It does **not** model the consumer's runtime configuration. A token a
 library renders only with a plugin or option loaded (Day.js's `Q`, date-fns's `D`) is emitted
 as-is. Whether that plugin or option is actually enabled is the target library's concern, and it

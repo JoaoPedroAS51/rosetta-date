@@ -29,9 +29,8 @@ export interface LiteralRules {
  * A token rule pairs a concrete token spelling with the canonical symbol it
  * represents.
  *
- * A canonical symbol may appear on more than one row (aliases). The first row
- * for a given symbol is treated as the primary spelling used when rendering to
- * this dialect; every row is honoured when parsing from it.
+ * A canonical symbol may appear on more than one row (aliases). Every row is
+ * honored when parsing from this dialect.
  */
 export interface TokenRule {
   /** The dialect's token spelling, e.g. `YYYY` or `yyyy`. */
@@ -70,8 +69,8 @@ export interface Dialect {
  * spellings on top of the base grammar.
  *
  * Support model: {@link LibraryDefinition.supports} narrows the effective
- * grammar to the tokens the library can render. Omit it when every token in the
- * effective grammar is renderable.
+ * grammar to the canonical fields the library can render. Omit it when every
+ * field in the effective grammar is renderable.
  */
 export interface LibraryDefinition {
   /** Stable identifier for this library. */
@@ -86,13 +85,20 @@ export interface LibraryDefinition {
    */
   readonly extends?: readonly TokenRule[]
   /**
-   * The tokens this library can render — its subset of the effective grammar
-   * (dialect + {@link LibraryDefinition.extends}).
+   * The canonical fields this library renders: its subset of the effective
+   * grammar's canonicals ({@link LibraryDefinition.dialect} +
+   * {@link LibraryDefinition.extends}).
    *
-   * Omit to mean "the whole effective grammar". Every token listed must exist in
-   * the dialect or in `extends`.
+   * Omit to mean "renders every field". Every canonical listed must be expressible
+   * by {@link LibraryDefinition.dialect} or {@link LibraryDefinition.extends}.
+   * Keyed by canonical field, not token spelling: it gates which fields render,
+   * never how they are spelled.
+   *
+   * Rendered fields use the dialect's primary spelling, which is the first
+   * {@link TokenRule} for that canonical in token-table order. To render a
+   * different alias, use a dialect whose token table makes that alias primary.
    */
-  readonly supports?: ReadonlySet<string>
+  readonly supports?: ReadonlySet<CanonicalToken>
 }
 
 /**
@@ -105,8 +111,8 @@ export interface LibraryDefinition {
 export interface ResolvedLibrary {
   /** Effective grammar: the base dialect with any {@link LibraryDefinition.extends} merged in. */
   readonly dialect: Dialect
-  /** Whether the library renders a given token (its supported subset). */
-  readonly renders: (token: string) => boolean
+  /** Whether the library renders a given canonical field (its supported subset). */
+  readonly renders: (canonical: CanonicalToken) => boolean
 }
 
 /**

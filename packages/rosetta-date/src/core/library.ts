@@ -1,10 +1,11 @@
+import type { CanonicalToken } from './canonical'
 import type { Dialect, Library, LibraryDefinition } from './types'
 
 /**
  * A library's effective grammar: its base dialect with any
  * {@link LibraryDefinition.extends} tokens merged in. Computed once, at
- * definition time, so the resulting object identity is stable — which keeps the
- * parser's and renderer's per-grammar caches working — and so the merge logic is
+ * definition time, so the resulting object identity is stable. This keeps the
+ * parser's and renderer's per-grammar caches working and keeps the merge logic
  * reachable only through {@link defineLibrary}, never from a dialect-only render.
  */
 function effectiveDialect(def: LibraryDefinition): Dialect {
@@ -22,20 +23,19 @@ function effectiveDialect(def: LibraryDefinition): Dialect {
  *
  * @remarks
  * Validation catches extension tokens that collide with the base dialect,
- * duplicate extension token spellings, and `supports` entries that are absent
- * from the effective grammar.
+ * duplicate extension token spellings, and `supports` canonicals absent from the
+ * effective grammar.
  *
  * The returned {@link Library} includes precomputed render metadata. Define it
  * once and reuse it so compiled token tables can be cached by object identity.
  *
  * @param definition - The library definition to validate and resolve.
  * @returns A {@link Library} with precomputed render metadata.
- * @throws {Error} When `extends` or `supports` references invalid token
- * spellings.
+ * @throws {Error} When `extends` references invalid token spellings or `supports`
+ * lists a canonical absent from the effective grammar.
  */
 export function defineLibrary(definition: LibraryDefinition): Library {
   const dialectTokens = new Set(definition.dialect.tokens.map(rule => rule.token))
-  const known = new Set(dialectTokens)
 
   if (definition.extends !== undefined) {
     const extended = new Set<string>()
@@ -51,15 +51,17 @@ export function defineLibrary(definition: LibraryDefinition): Library {
         )
       }
       extended.add(token)
-      known.add(token)
     }
   }
 
+  const dialect = effectiveDialect(definition)
+
   if (definition.supports !== undefined) {
-    for (const token of definition.supports) {
-      if (!known.has(token)) {
+    const canonicals = new Set<CanonicalToken>(dialect.tokens.map(rule => rule.canonical))
+    for (const canonical of definition.supports) {
+      if (!canonicals.has(canonical)) {
         throw new Error(
-          `Library "${definition.name}" lists token "${token}", which the "${definition.dialect.name}" dialect and its extensions do not define`,
+          `Library "${definition.name}" supports canonical "${canonical}", which the "${definition.dialect.name}" dialect and its extensions do not express`,
         )
       }
     }
@@ -69,8 +71,8 @@ export function defineLibrary(definition: LibraryDefinition): Library {
   return {
     ...definition,
     resolved: {
-      dialect: effectiveDialect(definition),
-      renders: supports === undefined ? () => true : token => supports.has(token),
+      dialect,
+      renders: supports === undefined ? () => true : canonical => supports.has(canonical),
     },
   }
 }

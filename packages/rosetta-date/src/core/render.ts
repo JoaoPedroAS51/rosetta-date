@@ -16,16 +16,13 @@ function resolve(target: Dialect | Library): ResolvedLibrary {
 
 /**
  * A compiled render target. The `canonicals` set tells "the library does not
- * render this token" (`unsupported-by-target`) apart from "the grammar has no
- * such field" (`unmappable`).
+ * render this canonical field" (`unsupported-by-target`) apart from "the
+ * grammar has no such field" (`unmappable`).
  */
 interface CompiledTarget {
   /** The dialect tokens are rendered into (a {@link Library} resolves to its dialect). */
   readonly dialect: Dialect
-  /**
-   * Canonical → the primary renderable spelling. The first spelling the target
-   * library renders wins, so dialect tables put the preferred spelling first.
-   */
+  /** Canonical -> target token spelling. */
   readonly tokens: ReadonlyMap<CanonicalToken, string>
   /** Every canonical the dialect defines, ignoring library support. */
   readonly canonicals: ReadonlySet<CanonicalToken>
@@ -44,13 +41,26 @@ function compileTarget(target: Dialect | Library): CompiledTarget {
       canonicals.add(canonical)
       if (tokens.has(canonical))
         continue
-      if (renders(token))
+      if (renders(canonical))
         tokens.set(canonical, token)
     }
     compiled = { dialect, tokens, canonicals }
     cache.set(target, compiled)
   }
   return compiled
+}
+
+/**
+ * Returns the canonical fields a target renders, mapped to a target token
+ * spelling.
+ *
+ * @param target - The dialect or library to inspect.
+ * @returns A map from canonical field to target token spelling.
+ *
+ * @internal
+ */
+export function renderedTokens(target: Dialect | Library): ReadonlyMap<CanonicalToken, string> {
+  return compileTarget(target).tokens
 }
 
 /**
@@ -74,12 +84,13 @@ type Resolution
 /**
  * Render canonical segments into a format string for `to`.
  *
- * Literals are escaped minimally; fields become the dialect's primary token for
- * their canonical symbol. A field whose canonical has no token in `to`, or whose
- * spelling the target library does not render, plus any `unknown` segment, is
- * handed to the {@link RenderOptions.onUnsupportedToken} policy — by default
- * escaped as a literal, so its characters can never be silently re-read as a
- * token in the target dialect (e.g. an ISO `T` must not become the epoch token).
+ * Literals are escaped minimally; fields become target tokens for their
+ * canonical symbols. A field whose canonical has no token in `to`, or whose
+ * canonical field the target library does not render, plus any `unknown`
+ * segment, is handed to the {@link RenderOptions.onUnsupportedToken} policy. By
+ * default, it is escaped as a literal, so its characters can never be silently
+ * re-read as a token in the target dialect (e.g. an ISO `T` must not become the
+ * epoch token).
  *
  * Adjacent literal output is accumulated and escaped together: escaping pieces
  * separately could emit a stray delimiter between them (e.g. `'L'` + `'T'` would
