@@ -32,7 +32,8 @@ describe('single-token round trips (canonicals shared by both endpoints)', () =>
 })
 
 describe('composite formats round-trip', () => {
-  // Real-world format strings stay dialect-level (dialect → dialect → dialect).
+  // Composites test literal/adjacency mechanics — a dialect-level concern — so they
+  // round-trip across the literal-style boundary (dialect → other → dialect).
   const dialectNames = Object.keys(dialects) as DialectName[]
   const dialectPairs = dialectNames.flatMap(
     from => dialectNames.filter(to => to !== from).map(to => [from, to] as const),

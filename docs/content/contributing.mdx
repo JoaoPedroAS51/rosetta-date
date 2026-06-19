@@ -29,9 +29,10 @@ pnpm install
 
 ## Adding a dialect or library
 
-To add a dialect, register it in `src/dialects/registry.ts` (or a library in
-`src/libraries/registry.ts`) and give it a `test/fixtures.ts` entry. The generic suites pick it up
-from there — you never touch the parser or renderer.
+To add a dialect, register it in `src/dialects/registry.ts` and give it an `expectations` entry in
+`test/fixtures.ts`; to add a library, register it in `src/libraries/registry.ts` and give it a
+`libraryDeltas` entry there. Registering it is all it takes — the generic suites and the shared
+engine handle the rest, since a new dialect or library is data, not new code.
 
 Then update the documentation so the new dialect or library is discoverable. The generic suites
 cover the code automatically, but the docs do not — keep these pages in sync by hand:
@@ -82,13 +83,15 @@ Where a test lives signals what it covers.
 
 | Location | Scope | Examples |
 | -------- | ----- | -------- |
-| Beside the module (`src/`) | One module's units, in isolation | `literal.test.ts` next to `literal.ts` |
-| `test/` | Cross-cutting behaviour across every dialect | `matrix.test.ts`, `round-trip.test.ts` |
+| Beside the module (`src/`) | One module's units, plus the mechanics the oracle cannot express | `literal.test.ts`; the unsupported-token reasons in `libraries.test.ts` |
+| `test/` | Systematic behaviour across every endpoint (dialect or library) | `matrix.test.ts`, `round-trip.test.ts` |
 
 Unit tests sit next to the code they exercise, so they travel with it on a refactor. The
-cross-cutting suites span every dialect pair and derive from one shared oracle, `test/fixtures.ts`.
-Adding a dialect to the registry makes TypeScript require its `fixtures.ts` entry, so the matrix and
-round-trip suites cover the new dialect automatically.
+cross-cutting suites span every endpoint pair and derive from one shared oracle, `test/fixtures.ts`
+(each dialect's `expectations`, plus each library's `libraryDeltas`). Registering a dialect or
+library makes TypeScript require its oracle entry, so conformance, the matrix, round-trip, and
+totality cover it automatically — leaving the colocated tests for the per-tool mechanics
+(unsupported-token reasons, handler context, adjacency) the oracle does not express.
 
 Run `pnpm test` for both, or `pnpm test:coverage` to enforce the 100% threshold.
 

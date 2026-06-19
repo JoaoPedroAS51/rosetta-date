@@ -1,5 +1,4 @@
 import type { CanonicalToken } from '../src/core/canonical'
-import type { DialectName } from '../src/dialects/registry'
 import type { EndpointName } from './fixtures'
 import { describe, expect, it } from 'vitest'
 import { convert } from '../src'
@@ -35,8 +34,8 @@ describe('endpoint conformance (each endpoint ↔ the canonical hub)', () => {
 })
 
 describe('aliases parse to their canonical symbol', () => {
-  // Aliases are parse-side, dialect-level; exercise them through the dialect grammar.
-  for (const name of Object.keys(aliases) as DialectName[]) {
+  // Aliases are parse-side; exercise each through its endpoint's grammar.
+  for (const name of Object.keys(aliases) as EndpointName[]) {
     const list = aliases[name] ?? []
     if (list.length === 0)
       continue

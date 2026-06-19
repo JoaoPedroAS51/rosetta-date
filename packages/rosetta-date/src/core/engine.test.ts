@@ -6,17 +6,12 @@ import { moment } from '../dialects/moment'
 import { Canonical } from './canonical'
 import { UnsupportedTokenError } from './errors'
 import { parse } from './parse'
-import { render } from './render'
+import { render, renderedTokens } from './render'
 
 const m2u = (input: string): string => render(parse(input, moment), ldml)
 const u2m = (input: string): string => render(parse(input, ldml), moment)
 
 describe('moment → ldml', () => {
-  it('converts common formats', () => {
-    expect(m2u('DD/MM/YYYY')).toBe('dd/MM/yyyy')
-    expect(m2u('YYYY-MM-DD HH:mm:ss')).toBe('yyyy-MM-dd HH:mm:ss')
-  })
-
   it('resolves the capital-letter traps via the canonical model', () => {
     // moment YYYY is the calendar year → lowercase yyyy, never LDML week-year YYYY
     expect(m2u('YYYY')).toBe('yyyy')
@@ -61,10 +56,29 @@ describe('unsupported same-letter runs and adjacent literals', () => {
   })
 })
 
+describe('tokenization and caching', () => {
+  it('matches the longest token regardless of declaration order', () => {
+    // `Y` is declared before `YYYY`; longest-match must still pick `YYYY`, not Y×4.
+    const dialect: Dialect = {
+      name: 'order',
+      literal: { open: '[', close: ']' },
+      tokens: [
+        { token: 'Y', canonical: Canonical.YearTwoDigit },
+        { token: 'YYYY', canonical: Canonical.YearNumeric },
+      ],
+    }
+    expect(parse('YYYY', dialect)).toEqual([{ kind: 'field', canonical: Canonical.YearNumeric, raw: 'YYYY' }])
+  })
+
+  it('compiles a render target once and caches it by object identity', () => {
+    expect(renderedTokens(moment)).toBe(renderedTokens(moment))
+  })
+})
+
 describe('the pure ldml dialect excludes date-fns extensions', () => {
   // The localized presets, epoch, and ISO helpers are date-fns additions, not
   // UTS#35 — they live on the `dateFns` library, so the bare dialect lacks them.
-  // The full preset/extension conversions are covered in `libraries.test.ts`.
+  // The full extension conversions are covered by the endpoint suites in `test/`.
   it('does not recognize date-fns-only tokens', () => {
     expect(u2m('t')).toBe('[t]') // epoch
     expect(u2m('I')).toBe('[I]') // ISO week
@@ -79,11 +93,6 @@ describe('the pure ldml dialect excludes date-fns extensions', () => {
 })
 
 describe('ldml → moment', () => {
-  it('converts common formats', () => {
-    expect(u2m('dd/MM/yyyy')).toBe('DD/MM/YYYY')
-    expect(u2m('yyyy-MM-dd HH:mm:ss')).toBe('YYYY-MM-DD HH:mm:ss')
-  })
-
   it('decodes quoted literals and escaped apostrophes', () => {
     expect(u2m('h \'o\'\'clock\'')).toBe('h [o\'clock]')
   })
@@ -96,14 +105,15 @@ describe('ldml → moment', () => {
   })
 })
 
-describe('round trips on the bijective core', () => {
-  it.each([
-    'DD/MM/YYYY',
-    'YYYY-MM-DD[T]HH:mm:ss',
-    'ddd, DD MMM YYYY',
-    'h:mm A',
-  ])('moment %s survives a round trip', (format) => {
-    expect(u2m(m2u(format))).toBe(format)
+describe('malformed delimiters degrade to literal text, never throw', () => {
+  it('reads an unterminated quote to end of input as a literal', () => {
+    expect(u2m('\'abc')).toBe('[abc]')
+  })
+
+  it('treats an unterminated bracket open as a literal and keeps parsing', () => {
+    // `[` cannot open a complete literal, so it is emitted as text; `abc` parses on
+    // (moment `a` is am/pm, `bc` is an unknown run) — the engine never throws.
+    expect(m2u('[abc')).toBe('[a\'bc\'')
   })
 })
 

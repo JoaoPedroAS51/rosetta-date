@@ -130,16 +130,17 @@ export const expectations: Record<DialectName, Partial<Record<CanonicalToken, st
 }
 
 /**
- * Extra (non-primary) spellings a dialect accepts when parsing. They normalize
- * to the primary token on render, so they are only checked for parse mapping.
+ * Extra (non-primary) spellings an endpoint accepts when parsing — including a
+ * library's `extends` aliases. They normalize to the primary token on render, so
+ * they are only checked for parse mapping (through the endpoint's grammar).
  */
-export const aliases: Partial<Record<DialectName, ReadonlyArray<readonly [token: string, canonical: CanonicalToken]>>> = {
-  moment: [
+export const aliases: Partial<Record<EndpointName, ReadonlyArray<readonly [token: string, canonical: CanonicalToken]>>> = {
+  'moment': [
     ['Y', Canonical.YearNumeric],
     ['a', Canonical.DayPeriodAbbreviated],
     ['zz', Canonical.TimezoneAbbreviated],
   ],
-  ldml: [
+  'ldml': [
     ['y', Canonical.YearNumeric],
     ['yyy', Canonical.YearNumeric],
     ['G', Canonical.EraAbbreviated],
@@ -151,11 +152,18 @@ export const aliases: Partial<Record<DialectName, ReadonlyArray<readonly [token:
     ['z', Canonical.TimezoneAbbreviated],
     ['zz', Canonical.TimezoneAbbreviated],
   ],
+  'date-fns': [
+    // `R` is date-fns's non-primary spelling of the ISO week-year (primary `RRRR`).
+    ['R', Canonical.IsoWeekYearNumeric],
+  ],
 }
 
 /**
- * Real-world composite formats, per source dialect, exercised through full
- * round trips (source → other → source).
+ * Real-world composite formats per dialect, round-tripped across the literal-style
+ * boundary (dialect → other → dialect). Composites exercise literal escaping and
+ * token adjacency — a dialect-level concern — so they are keyed by dialect, not
+ * endpoint: a library inherits its dialect's literal rules and adds nothing here
+ * (extension-token adjacency lives in the preset tests in `libraries.test.ts`).
  */
 export const composites: Partial<Record<DialectName, readonly string[]>> = {
   moment: [
