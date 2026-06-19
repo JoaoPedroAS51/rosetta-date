@@ -30,7 +30,11 @@ export const Canonical = {
 
   // Quarter
   QuarterNumeric: 'quarter/numeric',
+  QuarterTwoDigit: 'quarter/2-digit',
   QuarterOrdinal: 'quarter/ordinal',
+  QuarterAbbreviated: 'quarter/abbreviated',
+  QuarterWide: 'quarter/wide',
+  QuarterNarrow: 'quarter/narrow',
 
   // Month
   MonthNumeric: 'month/numeric',

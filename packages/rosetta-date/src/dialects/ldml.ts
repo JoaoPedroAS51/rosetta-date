@@ -38,6 +38,10 @@ export const ldml: Dialect = {
 
     // Quarter
     { token: 'Q', canonical: Canonical.QuarterNumeric },
+    { token: 'QQ', canonical: Canonical.QuarterTwoDigit },
+    { token: 'QQQ', canonical: Canonical.QuarterAbbreviated },
+    { token: 'QQQQ', canonical: Canonical.QuarterWide },
+    { token: 'QQQQQ', canonical: Canonical.QuarterNarrow },
 
     // Month
     { token: 'M', canonical: Canonical.MonthNumeric },
