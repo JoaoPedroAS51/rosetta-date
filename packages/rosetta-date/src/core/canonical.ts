@@ -45,6 +45,9 @@ export const Canonical = {
   QuarterAbbreviated: 'quarter/abbreviated',
   QuarterWide: 'quarter/wide',
   QuarterNarrow: 'quarter/narrow',
+  QuarterAbbreviatedStandalone: 'quarter/abbreviated/standalone',
+  QuarterWideStandalone: 'quarter/wide/standalone',
+  QuarterNarrowStandalone: 'quarter/narrow/standalone',
 
   // Month
   MonthNumeric: 'month/numeric',
@@ -53,6 +56,9 @@ export const Canonical = {
   MonthAbbreviated: 'month/abbreviated',
   MonthWide: 'month/wide',
   MonthNarrow: 'month/narrow',
+  MonthAbbreviatedStandalone: 'month/abbreviated/standalone',
+  MonthWideStandalone: 'month/wide/standalone',
+  MonthNarrowStandalone: 'month/narrow/standalone',
 
   // Week of year
   WeekOfYearNumeric: 'week-of-year/numeric',
@@ -78,6 +84,10 @@ export const Canonical = {
   WeekdayWide: 'weekday/wide',
   WeekdayNarrow: 'weekday/narrow',
   WeekdayShort: 'weekday/short',
+  WeekdayAbbreviatedStandalone: 'weekday/abbreviated/standalone',
+  WeekdayWideStandalone: 'weekday/wide/standalone',
+  WeekdayNarrowStandalone: 'weekday/narrow/standalone',
+  WeekdayShortStandalone: 'weekday/short/standalone',
 
   // Weekday as a number
   WeekdayNumeric: 'weekday/numeric',

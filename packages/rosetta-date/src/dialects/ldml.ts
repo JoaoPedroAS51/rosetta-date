@@ -42,6 +42,9 @@ export const ldml: Dialect = {
     { token: 'QQQ', canonical: Canonical.QuarterAbbreviated },
     { token: 'QQQQ', canonical: Canonical.QuarterWide },
     { token: 'QQQQQ', canonical: Canonical.QuarterNarrow },
+    { token: 'qqq', canonical: Canonical.QuarterAbbreviatedStandalone },
+    { token: 'qqqq', canonical: Canonical.QuarterWideStandalone },
+    { token: 'qqqqq', canonical: Canonical.QuarterNarrowStandalone },
 
     // Month
     { token: 'M', canonical: Canonical.MonthNumeric },
@@ -49,6 +52,9 @@ export const ldml: Dialect = {
     { token: 'MMM', canonical: Canonical.MonthAbbreviated },
     { token: 'MMMM', canonical: Canonical.MonthWide },
     { token: 'MMMMM', canonical: Canonical.MonthNarrow },
+    { token: 'LLL', canonical: Canonical.MonthAbbreviatedStandalone },
+    { token: 'LLLL', canonical: Canonical.MonthWideStandalone },
+    { token: 'LLLLL', canonical: Canonical.MonthNarrowStandalone },
 
     // Week of year (local)
     { token: 'w', canonical: Canonical.WeekOfYearNumeric },
@@ -63,13 +69,17 @@ export const ldml: Dialect = {
     { token: 'DD', canonical: Canonical.DayOfYearTwoDigit },
     { token: 'DDD', canonical: Canonical.DayOfYearThreeDigit },
 
-    // Weekday name (formatting `E`)
+    // Weekday name — formatting (`E`) and stand-alone (`c`)
     { token: 'EEE', canonical: Canonical.WeekdayAbbreviated },
     { token: 'E', canonical: Canonical.WeekdayAbbreviated },
     { token: 'EE', canonical: Canonical.WeekdayAbbreviated },
     { token: 'EEEE', canonical: Canonical.WeekdayWide },
     { token: 'EEEEE', canonical: Canonical.WeekdayNarrow },
     { token: 'EEEEEE', canonical: Canonical.WeekdayShort },
+    { token: 'ccc', canonical: Canonical.WeekdayAbbreviatedStandalone },
+    { token: 'cccc', canonical: Canonical.WeekdayWideStandalone },
+    { token: 'ccccc', canonical: Canonical.WeekdayNarrowStandalone },
+    { token: 'cccccc', canonical: Canonical.WeekdayShortStandalone },
 
     // Weekday number — local (`e`); ISO (`i`) is a date-fns extension
     { token: 'e', canonical: Canonical.WeekdayNumeric },
