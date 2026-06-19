@@ -1,0 +1,73 @@
+---
+title: dateFns
+---
+
+import { Callout } from 'nextra/components'
+
+# `dateFns`
+
+The date-fns rendering target. Imported from `rosetta-date/libraries`:
+
+```ts
+import { dateFns } from 'rosetta-date/libraries'
+```
+
+- **Base grammar:** [`ldml`](/reference/dialects/ldml).
+- **Extensions:** ordinal forms, ISO week fields, the Unix epoch, and localized presets.
+- **Support model:** the reference implementation of the `ldml` grammar **plus its own extensions**;
+  it renders the whole effective grammar, so it carries no `supports` set.
+
+<Callout type="info">
+  The extensions below are **not** part of the bare `ldml` dialect — they convert only through the
+  `dateFns` library (`from: momentjs, to: dateFns`). A `dialect → dialect` conversion literalizes
+  them instead.
+</Callout>
+
+## Ordinals
+
+date-fns renders ordinal forms (`…o`) that are not in UTS #35. They convert from the matching
+`moment` ordinals.
+
+| Meaning | Token |
+| ------- | ----- |
+| Quarter, ordinal | `Qo` |
+| Month, ordinal | `Mo` |
+| Local week of year, ordinal | `wo` |
+| Day of month, ordinal | `do` |
+| Day of year, ordinal | `Do` |
+| ISO week of year, ordinal | `Io` |
+
+## ISO week fields & epoch
+
+| Meaning | Token |
+| ------- | ----- |
+| ISO week-numbering year | `RRRR` |
+| ISO week-numbering year, 2-digit | `RR` |
+| ISO week of year | `I` |
+| ISO week of year, 2-digit | `II` |
+| ISO weekday, number | `i` |
+| Unix timestamp, seconds | `t` |
+| Unix timestamp, milliseconds | `T` |
+
+## Localized presets
+
+date-fns spells the full preset range, including widths the `moment` grammar lacks (full date,
+time-with-zone, short date-time). See [Localized presets](/reference/libraries#localized-presets).
+
+| Meaning | Token |
+| ------- | ----- |
+| Date, short / medium / long / full | `P` `PP` `PPP` `PPPP` |
+| Time, short / with seconds / long / full | `p` `pp` `ppp` `pppp` |
+| Date + time, short / medium / long / full | `Pp` `PPpp` `PPPppp` `PPPPpppp` |
+
+## Option-gated tokens
+
+date-fns guards a few tokens behind options you must enable in its `format()` call:
+
+- Day of year (`D`, `DD`) requires `useAdditionalDayOfYearTokens: true`.
+- Local week-year (`YY`, `YYYY`) requires `useAdditionalWeekYearTokens: true`.
+
+`rosetta-date` produces the standards-correct token; enabling these options is the caller's
+responsibility. The converter does not track which options you enabled — if a token needs one you did
+not pass, date-fns throws at `format()` time, which is the authoritative signal for your exact
+version.

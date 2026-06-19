@@ -1,17 +1,17 @@
+allowBuilds:
+  sharp: true
+
+# Keep new deps flowing into the catalog and prune entries no package references.
+catalogMode: prefer
+cleanupUnusedCatalogs: true
+
 packages:
   - packages/*
   - playground
   - docs
 
-allowBuilds:
-  sharp: true
-
 overrides:
   zod: 4.1.12
-
-# Keep new deps flowing into the catalog and prune entries no package references.
-catalogMode: prefer
-cleanupUnusedCatalogs: true
 
 catalog:
   '@antfu/eslint-config': ^9.0.0

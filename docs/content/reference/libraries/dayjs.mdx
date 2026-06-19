@@ -1,0 +1,64 @@
+---
+title: dayjs
+---
+
+import { Callout } from 'nextra/components'
+
+# `dayjs`
+
+The Day.js rendering target. Imported from `rosetta-date/libraries`:
+
+```ts
+import { dayjs } from 'rosetta-date/libraries'
+```
+
+- **Base grammar:** [`moment`](/reference/dialects/moment).
+- **Extensions:** none.
+- **Support model:** `supports` lists the canonical fields Day.js renders with its core formatter
+  plus the **AdvancedFormat** and **LocalizedFormat** plugins.
+
+Day.js *mis-renders* tokens it does not recognize at format time (rather than rejecting them), so
+converting *to* `dayjs` routes an unsupported field through
+[`onUnsupportedToken`](/guides/unsupported-tokens) (reason `unsupported-by-target`) instead of
+emitting something broken.
+
+## Fields Day.js does not render
+
+These canonical fields are outside Day.js's support set, so converting them to `dayjs` is flagged.
+Example `moment` spellings are shown.
+
+| Field | e.g. |
+| ----- | ---- |
+| Era | `N` `NNNN` `NNNNN` |
+| Week-numbering year, 2-digit | `gg` `GG` |
+| Quarter, ordinal | `Qo` |
+| Month, ordinal | `Mo` |
+| ISO week of year, ordinal | `Wo` |
+| Day of year | `DDD` `DDDD` `DDDo` |
+| Weekday, number (ISO) | `E` |
+| Fractional second, 1–2 digit | `S` `SS` |
+
+## Plugin-gated tokens
+
+Some fields Day.js renders **only with a plugin loaded**:
+
+- **AdvancedFormat** — quarter, day-of-month ordinal, week-of-year, ISO week-of-year, hour 1–24,
+  week-numbering years, the Unix epoch, and time-zone name (`Q`, `Do`, `w` / `wo` / `ww`, `W` / `WW`,
+  `k` / `kk`, `gggg` / `GGGG`, `X`, `x`, `z`).
+- **LocalizedFormat** — the `L…` presets.
+
+<Callout type="info">
+  `rosetta-date` emits these as-is; whether the plugin is actually loaded is the consumer's concern
+  (the same boundary `supports` draws between grammar and runtime configuration).
+</Callout>
+
+## Localized presets
+
+Through LocalizedFormat, `dayjs` spells the same `L…` family as
+[`momentjs`](/reference/libraries/momentjs#localized-presets):
+
+| Meaning | Token |
+| ------- | ----- |
+| Date, short / medium / long | `L` `ll` `LL` |
+| Time, short / with seconds | `LT` `LTS` |
+| Date + time, medium / long / full | `lll` `LLL` `LLLL` |

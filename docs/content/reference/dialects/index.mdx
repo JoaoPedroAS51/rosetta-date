@@ -1,0 +1,25 @@
+---
+title: Dialects
+---
+
+# Dialects
+
+A **`Dialect`** is a formatting *language* — its token grammar, literal-escaping rules, and the
+[canonical meaning](/reference/canonical-vocabulary) of each token. It is tool-agnostic; a
+[`Library`](/reference/libraries) builds on one to model a concrete tool.
+
+Built-in dialects are imported from `rosetta-date/dialects`:
+
+```ts
+import { ldml, moment } from 'rosetta-date/dialects'
+```
+
+| Dialect | Grammar | Example | Literals | Reference |
+| ------- | ------- | ------- | -------- | --------- |
+| `moment` | [Moment.js](https://momentjs.com/docs/#/displaying/format/) token grammar | `DD/MM/YYYY` | `[...]` | [moment](/reference/dialects/moment) |
+| `ldml` | [Unicode UTS #35 / LDML](https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table) date field symbols | `dd/MM/yyyy` | `'...'` | [ldml](/reference/dialects/ldml) |
+
+For the side-by-side token comparison across all dialects, see [Token Mapping](/reference/token-mapping).
+Each dialect page below documents its own grammar, literals, aliases, and caveats.
+
+To add a dialect, see the [Contributing guide](/contributing).

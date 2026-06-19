@@ -1,0 +1,38 @@
+---
+title: momentjs
+---
+
+import { Callout } from 'nextra/components'
+
+# `momentjs`
+
+The Moment.js rendering target. Imported from `rosetta-date/libraries`:
+
+```ts
+import { momentjs } from 'rosetta-date/libraries'
+```
+
+- **Base grammar:** [`moment`](/reference/dialects/moment).
+- **Extensions:** none.
+- **Support model:** the reference implementation of the `moment` grammar — it renders every token,
+  so it carries no `supports` set and converting *to* it never flags a grammar token.
+
+## Localized presets
+
+`momentjs` spells the `L…` family. They map preset → preset with date-fns's `P…` (see
+[Localized presets](/reference/libraries#localized-presets)).
+
+| Meaning | Token |
+| ------- | ----- |
+| Date, short / medium / long | `L` `ll` `LL` |
+| Time, short / with seconds | `LT` `LTS` |
+| Date + time, medium / long / full | `lll` `LLL` `LLLL` |
+
+The `moment` grammar has no full-date, time-with-zone, or short date-time preset, so date-fns's
+`PPPP` / `ppp` / `pppp` / `Pp` have no `momentjs` counterpart and literalize when converted to it.
+
+<Callout type="info">
+  **Runtime:** some tokens need a Moment.js companion at runtime even though `momentjs` renders them
+  — e.g. time-zone-name tokens require `moment-timezone`. That is the consumer's concern, not a
+  conversion limit.
+</Callout>

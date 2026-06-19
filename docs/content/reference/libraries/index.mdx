@@ -1,0 +1,62 @@
+---
+title: Libraries
+---
+
+import { Callout } from 'nextra/components'
+
+# Libraries
+
+A **`Library`** models one concrete tool built on a [dialect](/reference/dialects). It refines the
+dialect's grammar in two ways, both keyed by [canonical field](/reference/canonical-vocabulary):
+
+- **`supports`** *narrows* the grammar to the subset of fields the tool renders (e.g. Day.js).
+- **`extends`** *adds* tokens the tool understands beyond the base dialect (e.g. date-fns).
+
+A reference implementation that renders its whole dialect omits `supports`. Converting *to* a library
+routes any field it cannot render through [`onUnsupportedToken`](/guides/unsupported-tokens).
+
+Built-in libraries are imported from `rosetta-date/libraries`:
+
+```ts
+import { dateFns, dayjs, momentjs } from 'rosetta-date/libraries'
+```
+
+| Library | Tool | Speaks | Coverage | Reference |
+| ------- | ---- | ------ | -------- | --------- |
+| `momentjs` | [Moment.js](https://momentjs.com/docs/#/displaying/format/) | `moment` | the full grammar | [momentjs](/reference/libraries/momentjs) |
+| `dayjs` | [Day.js](https://day.js.org/docs/en/display/format) | `moment` | a core subset + common plugins | [dayjs](/reference/libraries/dayjs) |
+| `dateFns` | [date-fns](https://date-fns.org/docs/format) | `ldml` | the full grammar **+ its own extensions** | [dateFns](/reference/libraries/datefns) |
+
+Each library page opens with its base grammar, support model, and extensions, then documents — only
+where they apply — the fields it cannot render, its extension tokens, and its localized presets.
+
+## Localized presets
+
+The `L…` family (Moment.js / Day.js) and `P…` / `p…` (date-fns) render **per the library's loaded
+locale**. `rosetta-date` maps them **preset → preset** — never expanded to a concrete pattern, which
+would hardcode one locale — so the token stays locale-deferred and the target library applies its own
+locale, including the compound connector (`" at "`, `", "`, …) it picks. The canonical preset
+meanings are in the [vocabulary](/reference/canonical-vocabulary#localized-presets); each library page
+lists how it spells them.
+
+<Callout type="warning">
+  **Locale caveat:** conversion rewrites the token, not the date. Matching *output* needs equivalent
+  locales loaded in both libraries; the conversion only guarantees the token stays the locale's
+  preset, never a hardcoded pattern. en-US samples like `LL` vs `PPP` differ only as `June 7, 2024`
+  vs `June 7th, 2024` — each library's locale data, not a conversion error.
+
+  **Match widths:** for date + time, use a matched compound preset or a separator. `rosetta-date`
+  maps each preset faithfully, but gluing mismatched widths can drop a locale connector or re-lex
+  into a different token — a glued mismatched-width input was never valid to begin with. The
+  per-library pages note where a target lacks a given compound width.
+</Callout>
+
+## Unrenderable tokens
+
+When converting *to* a library, a field the tool cannot render is flagged as
+`unsupported-by-target` and handled by [`onUnsupportedToken`](/guides/unsupported-tokens). Note that
+`supports` models the tool's **grammar**, not its runtime configuration — a token a tool renders only
+with a plugin or option loaded is emitted as-is, and the tool signals the problem itself at format
+time.
+
+To add a library, see the [Contributing guide](/contributing).

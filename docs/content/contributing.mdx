@@ -36,11 +36,12 @@ from there — you never touch the parser or renderer.
 Then update the documentation so the new dialect or library is discoverable. The generic suites
 cover the code automatically, but the docs do not — keep these pages in sync by hand:
 
-- [Supported Dialects & Libraries](/reference/supported) — add a row describing it (grammar /
-  coverage, example, literals).
-- [Token Mapping](/reference/token-mapping) — add a column for a new dialect's tokens.
-- [Library Notes](/reference/library-notes) — document a new library's coverage, aliases, and any
-  tokens it cannot render.
+- [Canonical Vocabulary](/reference/canonical-vocabulary) — only if the ecosystem needs a canonical
+  field that does not exist yet.
+- [Dialects](/reference/dialects) — add a row to the index and a page for the new dialect (grammar,
+  literals, aliases, caveats), plus a column in [Token Mapping](/reference/token-mapping).
+- [Libraries](/reference/libraries) — add a row to the index and a page for the new library (its
+  `supports` subset and any `extends` tokens).
 - [API Reference](/reference/api) — list the new export under its entrypoint.
 
 ### TSDoc conventions

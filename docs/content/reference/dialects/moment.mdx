@@ -1,0 +1,100 @@
+---
+title: moment
+---
+
+import { Callout } from 'nextra/components'
+
+# `moment`
+
+The Moment.js-style token grammar. Imported from `rosetta-date/dialects`:
+
+```ts
+import { moment } from 'rosetta-date/dialects'
+```
+
+**Spec:** [Moment.js format tokens](https://momentjs.com/docs/#/displaying/format/). This is the
+grammar; the `momentjs` [library](/reference/libraries/momentjs) is its reference renderer.
+
+## Literals
+
+- Text is wrapped in brackets: `[...]`.
+- The closing bracket `]` has **no in-band escape**, so a literal `]` is emitted between bracketed
+  spans (e.g. `a]b` → `[a]][b]`). The text still round-trips intact.
+
+See [Literals & Adjacency](/guides/literals-and-adjacency) for the cross-dialect rules.
+
+## Tokens
+
+Each token and the [canonical field](/reference/canonical-vocabulary) it maps to. For how these
+compare across dialects, see [Token Mapping](/reference/token-mapping).
+
+| Meaning | Token |
+| ------- | ----- |
+| Era, abbreviated | `N` |
+| Era, wide | `NNNN` |
+| Era, narrow | `NNNNN` |
+| Calendar year | `YYYY` |
+| Calendar year, 2-digit | `YY` |
+| Local week-numbering year | `gggg` |
+| Local week-numbering year, 2-digit | `gg` |
+| ISO week-numbering year | `GGGG` |
+| ISO week-numbering year, 2-digit | `GG` |
+| Quarter | `Q` |
+| Quarter, ordinal | `Qo` |
+| Month | `M` |
+| Month, 2-digit | `MM` |
+| Month, ordinal | `Mo` |
+| Month, abbreviated | `MMM` |
+| Month, wide | `MMMM` |
+| Local week of year | `w` |
+| Local week of year, 2-digit | `ww` |
+| Local week of year, ordinal | `wo` |
+| ISO week of year | `W` |
+| ISO week of year, 2-digit | `WW` |
+| ISO week of year, ordinal | `Wo` |
+| Day of month | `D` |
+| Day of month, 2-digit | `DD` |
+| Day of month, ordinal | `Do` |
+| Day of year | `DDD` |
+| Day of year, 3-digit | `DDDD` |
+| Day of year, ordinal | `DDDo` |
+| Weekday, abbreviated | `ddd` |
+| Weekday, wide | `dddd` |
+| Weekday, short | `dd` |
+| Weekday, number (locale) | `d` |
+| Weekday, number (ISO) | `E` |
+| AM/PM | `A` |
+| Hour 1–12 | `h` `hh` |
+| Hour 0–23 | `H` `HH` |
+| Hour 1–24 | `k` `kk` |
+| Minute | `m` `mm` |
+| Second | `s` `ss` |
+| Fractional second | `S` `SS` `SSS` |
+| Time-zone name | `z` |
+| Offset, `±hh:mm` | `Z` |
+| Offset, `±hhmm` | `ZZ` |
+| Unix timestamp, seconds | `X` |
+| Unix timestamp, milliseconds | `x` |
+| Localized date (short / medium / long) | `L` `ll` `LL` |
+| Localized time (short / with seconds) | `LT` `LTS` |
+| Localized date + time (medium / long / full) | `lll` `LLL` `LLLL` |
+
+## Aliases
+
+Extra spellings that are **parsed** but normalize to the primary token above when rendered:
+
+- `Y` → calendar year (like `YYYY`).
+- `NN` / `NNN` → abbreviated era (like `N`).
+- `a` → AM/PM (like `A`).
+- `zz` → time-zone name (like `z`).
+
+## Caveats
+
+<Callout type="warning">
+  - Narrow era (`NNNNN`) renders the **abbreviation** (e.g. `AD`), not a true one-character form.
+  - Weekday number `d` is `0`–`6` (locale-dependent). Dialects that also expose a locale weekday
+    number may number the days differently, so the numeric value is not guaranteed to match across
+    dialects.
+  - `A` and `a` both mean AM/PM — moment encodes **case**, not width — so the case distinction is not
+    preserved when converting to a dialect that distinguishes by width instead.
+</Callout>

@@ -1,0 +1,178 @@
+---
+title: Canonical Vocabulary
+---
+
+import { Callout } from 'nextra/components'
+
+# Canonical Vocabulary
+
+The canonical vocabulary is the dialect-agnostic set of date-field *meanings* every conversion routes
+through. It is the **join key** for the whole reference: a dialect maps each of its tokens to a
+canonical member ([Token Mapping](/reference/token-mapping)), and a library declares the canonical
+fields it renders ([Libraries](/reference/libraries)). Nothing here depends on how many
+dialects exist.
+
+Values are stable `field/style` identifiers exported as the [`Canonical`](/reference/api#canonical)
+object. Prefer the named members (`Canonical.YearNumeric`) over the raw strings.
+
+<Callout type="info">
+  Adding a member is a minor, additive change; renaming or removing one is breaking. A dialect or
+  library only ever references these members — it never references another dialect.
+</Callout>
+
+## Era
+
+| Member | Value | Meaning |
+| ------ | ----- | ------- |
+| `EraAbbreviated` | `era/abbreviated` | Era, abbreviated (e.g. AD) |
+| `EraWide` | `era/wide` | Era, wide (e.g. Anno Domini) |
+| `EraNarrow` | `era/narrow` | Era, narrow (single character) |
+
+## Calendar year
+
+| Member | Value | Meaning |
+| ------ | ----- | ------- |
+| `YearNumeric` | `year/numeric` | Calendar year, full |
+| `YearTwoDigit` | `year/2-digit` | Calendar year, 2-digit |
+
+## Week-numbering year
+
+The year that owns a given week — local or ISO.
+
+| Member | Value | Meaning |
+| ------ | ----- | ------- |
+| `WeekYearNumeric` | `week-year/numeric` | Local week-numbering year, full |
+| `WeekYearTwoDigit` | `week-year/2-digit` | Local week-numbering year, 2-digit |
+| `IsoWeekYearNumeric` | `iso-week-year/numeric` | ISO week-numbering year, full |
+| `IsoWeekYearTwoDigit` | `iso-week-year/2-digit` | ISO week-numbering year, 2-digit |
+
+## Quarter
+
+| Member | Value | Meaning |
+| ------ | ----- | ------- |
+| `QuarterNumeric` | `quarter/numeric` | Quarter |
+| `QuarterOrdinal` | `quarter/ordinal` | Quarter, ordinal |
+
+## Month
+
+| Member | Value | Meaning |
+| ------ | ----- | ------- |
+| `MonthNumeric` | `month/numeric` | Month |
+| `MonthTwoDigit` | `month/2-digit` | Month, 2-digit |
+| `MonthOrdinal` | `month/ordinal` | Month, ordinal |
+| `MonthAbbreviated` | `month/abbreviated` | Month name, abbreviated |
+| `MonthWide` | `month/wide` | Month name, wide |
+| `MonthNarrow` | `month/narrow` | Month name, narrow |
+
+## Week of year
+
+| Member | Value | Meaning |
+| ------ | ----- | ------- |
+| `WeekOfYearNumeric` | `week-of-year/numeric` | Local week of year |
+| `WeekOfYearTwoDigit` | `week-of-year/2-digit` | Local week of year, 2-digit |
+| `WeekOfYearOrdinal` | `week-of-year/ordinal` | Local week of year, ordinal |
+| `IsoWeekOfYearNumeric` | `iso-week-of-year/numeric` | ISO week of year |
+| `IsoWeekOfYearTwoDigit` | `iso-week-of-year/2-digit` | ISO week of year, 2-digit |
+| `IsoWeekOfYearOrdinal` | `iso-week-of-year/ordinal` | ISO week of year, ordinal |
+
+## Day of month
+
+| Member | Value | Meaning |
+| ------ | ----- | ------- |
+| `DayOfMonthNumeric` | `day-of-month/numeric` | Day of month |
+| `DayOfMonthTwoDigit` | `day-of-month/2-digit` | Day of month, 2-digit |
+| `DayOfMonthOrdinal` | `day-of-month/ordinal` | Day of month, ordinal |
+
+## Day of year
+
+| Member | Value | Meaning |
+| ------ | ----- | ------- |
+| `DayOfYearNumeric` | `day-of-year/numeric` | Day of year |
+| `DayOfYearTwoDigit` | `day-of-year/2-digit` | Day of year, 2-digit |
+| `DayOfYearThreeDigit` | `day-of-year/3-digit` | Day of year, 3-digit |
+| `DayOfYearOrdinal` | `day-of-year/ordinal` | Day of year, ordinal |
+
+## Weekday name
+
+| Member | Value | Meaning |
+| ------ | ----- | ------- |
+| `WeekdayAbbreviated` | `weekday/abbreviated` | Weekday name, abbreviated |
+| `WeekdayWide` | `weekday/wide` | Weekday name, wide |
+| `WeekdayNarrow` | `weekday/narrow` | Weekday name, narrow |
+| `WeekdayShort` | `weekday/short` | Weekday name, short |
+
+## Weekday number
+
+| Member | Value | Meaning |
+| ------ | ----- | ------- |
+| `WeekdayNumeric` | `weekday/numeric` | Weekday as a number, locale-dependent |
+| `IsoWeekdayNumeric` | `iso-weekday/numeric` | Weekday as a number, ISO (1 = Monday) |
+
+## Day period
+
+| Member | Value | Meaning |
+| ------ | ----- | ------- |
+| `DayPeriodAbbreviated` | `day-period/abbreviated` | AM/PM, abbreviated |
+| `DayPeriodWide` | `day-period/wide` | AM/PM, wide |
+| `DayPeriodNarrow` | `day-period/narrow` | AM/PM, narrow |
+
+## Hour
+
+| Member | Value | Meaning |
+| ------ | ----- | ------- |
+| `Hour12Numeric` | `hour-12/numeric` | Hour 1–12 |
+| `Hour12TwoDigit` | `hour-12/2-digit` | Hour 1–12, 2-digit |
+| `Hour24Numeric` | `hour-24/numeric` | Hour 0–23 |
+| `Hour24TwoDigit` | `hour-24/2-digit` | Hour 0–23, 2-digit |
+| `Hour24From1Numeric` | `hour-24-from-1/numeric` | Hour 1–24 |
+| `Hour24From1TwoDigit` | `hour-24-from-1/2-digit` | Hour 1–24, 2-digit |
+| `Hour11Numeric` | `hour-11/numeric` | Hour 0–11 |
+| `Hour11TwoDigit` | `hour-11/2-digit` | Hour 0–11, 2-digit |
+
+## Minute & second
+
+| Member | Value | Meaning |
+| ------ | ----- | ------- |
+| `MinuteNumeric` | `minute/numeric` | Minute |
+| `MinuteTwoDigit` | `minute/2-digit` | Minute, 2-digit |
+| `SecondNumeric` | `second/numeric` | Second |
+| `SecondTwoDigit` | `second/2-digit` | Second, 2-digit |
+| `FractionalSecond1` | `fractional-second/1` | Fractional second, 1 digit |
+| `FractionalSecond2` | `fractional-second/2` | Fractional second, 2 digits |
+| `FractionalSecond3` | `fractional-second/3` | Fractional second, 3 digits |
+
+## Time zone & offset
+
+| Member | Value | Meaning |
+| ------ | ----- | ------- |
+| `TimezoneAbbreviated` | `timezone/abbreviated` | Time-zone name |
+| `OffsetWithColon` | `offset/with-colon` | UTC offset, `±hh:mm` |
+| `OffsetWithoutColon` | `offset/without-colon` | UTC offset, `±hhmm` |
+
+## Unix epoch
+
+| Member | Value | Meaning |
+| ------ | ----- | ------- |
+| `EpochSeconds` | `epoch/seconds` | Seconds since the Unix epoch |
+| `EpochMilliseconds` | `epoch/milliseconds` | Milliseconds since the Unix epoch |
+
+## Localized presets
+
+Deferred to the library's locale at format time, so they map **preset ↔ preset** — never expanded to
+a concrete pattern (which would hardcode one locale). See
+[Libraries → Localized presets](/reference/libraries#localized-presets).
+
+| Member | Value | Meaning |
+| ------ | ----- | ------- |
+| `LocalizedDateShort` | `localized-date/short` | Localized date, short |
+| `LocalizedDateMedium` | `localized-date/medium` | Localized date, medium |
+| `LocalizedDateLong` | `localized-date/long` | Localized date, long |
+| `LocalizedDateFull` | `localized-date/full` | Localized date, full (with weekday) |
+| `LocalizedTimeShort` | `localized-time/short` | Localized time, short |
+| `LocalizedTimeMedium` | `localized-time/medium` | Localized time, with seconds |
+| `LocalizedTimeLong` | `localized-time/long` | Localized time, with time zone |
+| `LocalizedTimeFull` | `localized-time/full` | Localized time, full |
+| `LocalizedDateTimeShort` | `localized-date-time/short` | Localized date + time, short |
+| `LocalizedDateTimeMedium` | `localized-date-time/medium` | Localized date + time, medium |
+| `LocalizedDateTimeLong` | `localized-date-time/long` | Localized date + time, long |
+| `LocalizedDateTimeFull` | `localized-date-time/full` | Localized date + time, full |

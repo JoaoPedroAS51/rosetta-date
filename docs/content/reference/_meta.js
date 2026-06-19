@@ -1,6 +1,7 @@
 export default {
-  'api': 'API Reference',
-  'supported': 'Supported Dialects & Libraries',
+  'canonical-vocabulary': 'Canonical Vocabulary',
   'token-mapping': 'Token Mapping',
-  'library-notes': 'Library Notes',
+  'dialects': 'Dialects',
+  'libraries': 'Libraries',
+  'api': 'API Reference',
 }
