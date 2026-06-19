@@ -1,4 +1,4 @@
 export default {
-  installation: 'Installation',
+  'installation': 'Installation',
   'quick-start': 'Quick Start',
 }

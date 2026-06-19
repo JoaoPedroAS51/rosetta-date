@@ -1,8 +1,8 @@
 {
   "name": "rosetta-date-docs",
+  "type": "module",
   "version": "0.0.0",
   "private": true,
-  "type": "module",
   "description": "Documentation site for rosetta-date, built with Nextra.",
   "scripts": {
     "dev": "next dev",

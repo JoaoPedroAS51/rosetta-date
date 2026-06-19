@@ -1,8 +1,8 @@
 export default {
-  index: 'Introduction',
+  'index': 'Introduction',
   'getting-started': 'Getting Started',
-  concepts: 'Core Concepts',
-  guides: 'Guides',
-  reference: 'Reference',
-  contributing: 'Contributing',
+  'concepts': 'Core Concepts',
+  'guides': 'Guides',
+  'reference': 'Reference',
+  'contributing': 'Contributing',
 }
