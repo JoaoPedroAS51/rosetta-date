@@ -60,8 +60,8 @@ The second handler argument carries:
 - `from` / `to` — the resolved **dialects**.
 - `fromLibrary` / `toLibrary` — present when an endpoint was a `Library`.
 
-Because libraries that share a dialect (Day.js and Moment.js both speak `moment`) resolve to the
-same `to` dialect, `toLibrary` is how a handler tells them apart.
+Because libraries that share a dialect (e.g. Day.js and Moment.js both speak `moment`) resolve to the
+same `to` dialect, `toLibrary` is how a handler distinguishes libraries built on the same dialect.
 
 <Callout type="default">
   The default policy never throws — every token is preserved, as a literal at worst.

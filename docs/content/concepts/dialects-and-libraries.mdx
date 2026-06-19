@@ -26,8 +26,8 @@ convert('DD/MM/YYYY', { from: moment, to: ldml }) // 'dd/MM/yyyy'
 ## Library
 
 A **`Library`** builds on a dialect to model **one specific tool**: the subset of fields it actually
-renders, the aliases it accepts, and the limitations it has. Day.js and Moment.js both *speak* the
-`moment` dialect, but they render different slices of it.
+renders, the aliases it accepts, and the limitations it has. Several libraries can *speak* the same
+dialect (e.g. Day.js and Moment.js both speak `moment`) yet render different slices of it.
 
 Use a library when **tool-specific behavior matters** — most importantly, when you want unrenderable
 tokens to be flagged rather than emitted blindly.
@@ -60,7 +60,7 @@ convert('YYYY-MM-DD', { from: moment, to: dateFns }) // 'yyyy-MM-dd'
 
 | You want to… | Use |
 | ------------ | --- |
-| Rewrite tokens between two grammars | **Dialect** → **Dialect** |
+| Rewrite tokens from one grammar to another | **Dialect** → **Dialect** |
 | Migrate a format string for a specific tool, flagging what it can't render | **Library** → **Library** |
 | Convert generic grammar into a specific tool's input | **Dialect** → **Library** |
 
