@@ -1,0 +1,56 @@
+:root {
+  --page-bg: #0f1115;
+  --page-text: #e6e9ef;
+  --page-muted: #8b93a7;
+  --page-accent: #7aa2f7;
+  --page-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--page-bg);
+  color: var(--page-text);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  display: grid;
+  place-items: start center;
+  min-height: 100vh;
+  padding: 2.5rem 1rem;
+}
+
+.page {
+  width: 100%;
+  max-width: 720px;
+}
+
+.page-head h1 {
+  font-size: 1.5rem;
+  margin: 0 0 0.25rem;
+  font-weight: 650;
+}
+
+.page-head h1 small {
+  color: var(--page-accent);
+  font-weight: 500;
+}
+
+.page-head p {
+  color: var(--page-muted);
+  margin: 0 0 1.5rem;
+}
+
+.page-foot {
+  color: var(--page-muted);
+  font-size: 0.78rem;
+  margin-top: 1.2rem;
+  text-align: center;
+}
+
+.page-foot code {
+  font-family: var(--page-mono);
+  color: var(--page-text);
+}

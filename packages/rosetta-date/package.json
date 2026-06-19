@@ -1,0 +1,70 @@
+{
+  "name": "rosetta-date",
+  "type": "module",
+  "version": "0.2.0",
+  "description": "Bidirectionally convert date-format token strings between the moment/dayjs and Unicode/LDML (date-fns) dialects.",
+  "author": "João Pedro Antunes Silva <joaopedroantunessilva51@gmail.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/JoaoPedroAS51/rosetta-date#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JoaoPedroAS51/rosetta-date.git",
+    "directory": "packages/rosetta-date"
+  },
+  "bugs": {
+    "url": "https://github.com/JoaoPedroAS51/rosetta-date/issues"
+  },
+  "keywords": [
+    "date",
+    "date-format",
+    "date-fns",
+    "moment",
+    "dayjs",
+    "unicode",
+    "ldml",
+    "uts35",
+    "tokens",
+    "converter"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./dialects": {
+      "types": "./dist/dialects/index.d.mts",
+      "import": "./dist/dialects/index.mjs"
+    },
+    "./libraries": {
+      "types": "./dist/libraries/index.d.mts",
+      "import": "./dist/libraries/index.mjs"
+    }
+  },
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "prepublishOnly": "pnpm build && cp ../../README.md README.md"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

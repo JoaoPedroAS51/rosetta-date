@@ -3,23 +3,22 @@
 Documentation site for [rosetta-date](https://github.com/JoaoPedroAS51/rosetta-date), built with
 [Nextra 4](https://nextra.site) (App Router).
 
-This is a **standalone** package — it has its own `package.json` and lockfile and is intentionally
-isolated from the library at the repository root, so installing or building the docs never touches
-the library's dependency tree.
+This is an app in the workspace. It consumes the library via `rosetta-date` (`workspace:*`), so its
+examples exercise the real package.
 
 ## Develop
 
+From the repository root:
+
 ```bash
-cd docs
 pnpm install
-pnpm dev      # http://localhost:3000
+pnpm docs:dev      # builds the library, then http://localhost:3000
 ```
 
 ## Build
 
 ```bash
-pnpm build    # static export-ready production build
-pnpm start    # serve the production build
+pnpm docs:build    # from the root: builds the library, then the production site
 ```
 
 ## Where content lives
@@ -30,5 +29,6 @@ that folder's `_meta.js`.
 
 ## Notes
 
-- `pnpm-workspace.yaml` pins `zod` to `4.1.12` (the version Nextra 4.6 was built against; `4.4.x`
-  rejects an optional `children` prop the theme relies on) and approves `sharp`'s native build.
+- The root `pnpm-workspace.yaml` pins `zod` to `4.1.12` (the version Nextra 4.6 was built against;
+  `4.4.x` rejects an optional `children` prop the theme relies on) and approves `sharp`'s native
+  build.

@@ -4,7 +4,7 @@ import markdownPreferences from 'eslint-plugin-markdown-preferences'
 export default antfu({
   type: 'lib',
   typescript: true,
-  ignores: ['dist', 'coverage', 'playground', 'CHANGELOG.md', 'docs/.next', 'docs/out', 'docs/next-env.d.ts'],
+  ignores: ['**/dist', '**/coverage', '**/CHANGELOG.md', 'docs/.next', 'docs/out', 'docs/next-env.d.ts'],
 })
   .append(markdownPreferences.configs.standard)
   .append({
@@ -14,9 +14,17 @@ export default antfu({
     },
   })
   .append({
-    files: ['docs/**'],
+    files: ['docs/**', 'playground/**'],
     rules: {
       'ts/explicit-function-return-type': 'off',
       'ts/explicit-module-boundary-types': 'off',
+    },
+  })
+  // `trustPolicy: no-downgrade` rejects transitive deps (e.g. semver@6.3.1) and
+  // breaks `pnpm install`, so we don't enforce the pnpm-workspace settings.
+  .append({
+    files: ['pnpm-workspace.yaml'],
+    rules: {
+      'pnpm/yaml-enforce-settings': 'off',
     },
   })

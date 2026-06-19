@@ -1,0 +1,262 @@
+.rd-converter {
+  --rd-panel: #f6f7f9;
+  --rd-inset: #fff;
+  --rd-line: #d7dbe3;
+  --rd-text: #1b1f27;
+  --rd-muted: #6b7280;
+  --rd-accent: #3b6df5;
+  --rd-ok: #0a9d78;
+  --rd-err: #d23f57;
+  --rd-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: var(--rd-panel);
+  border: 1px solid var(--rd-line);
+  border-radius: 14px;
+  padding: 1.25rem;
+  color: var(--rd-text);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Theme follows an explicit `.dark` class on an ancestor (Nextra toggles it on
+   <html>; the standalone playground hardcodes it), so the converter always
+   matches its host instead of the OS preference. */
+:where(html.dark, .dark) .rd-converter {
+  --rd-panel: #171a21;
+  --rd-inset: #0b0d12;
+  --rd-line: #262b36;
+  --rd-text: #e6e9ef;
+  --rd-muted: #8b93a7;
+  --rd-accent: #7aa2f7;
+  --rd-ok: #2dd4a7;
+  --rd-err: #f7768e;
+}
+
+.rd-converter * {
+  box-sizing: border-box;
+}
+
+.rd-field {
+  display: block;
+}
+
+.rd-field > span {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--rd-muted);
+  margin-bottom: 0.35rem;
+}
+
+.rd-converter input[type="text"],
+.rd-converter select {
+  width: 100%;
+  background: var(--rd-inset);
+  color: var(--rd-text);
+  border: 1px solid var(--rd-line);
+  border-radius: 9px;
+  padding: 0.6rem 0.7rem;
+  font: 14px var(--rd-mono);
+}
+
+.rd-converter select {
+  appearance: none;
+  padding-right: 2rem;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b93a7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  background-size: 12px;
+}
+
+.rd-converter input:focus,
+.rd-converter select:focus {
+  outline: none;
+  border-color: var(--rd-accent);
+}
+
+.rd-endpoints {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0.6rem;
+  align-items: end;
+}
+
+.rd-swap {
+  background: var(--rd-inset);
+  border: 1px solid var(--rd-line);
+  color: var(--rd-muted);
+  border-radius: 9px;
+  height: 38px;
+  width: 38px;
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+
+.rd-swap:hover {
+  color: var(--rd-accent);
+  border-color: var(--rd-accent);
+}
+
+.rd-result-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rd-badge {
+  font: 11px var(--rd-mono);
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid var(--rd-line);
+}
+
+.rd-badge.is-ok {
+  color: var(--rd-ok);
+  border-color: color-mix(in srgb, var(--rd-ok) 40%, var(--rd-line));
+}
+
+.rd-badge.is-warn {
+  color: var(--rd-muted);
+}
+
+.rd-result {
+  display: block;
+  min-height: 2.6rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: 9px;
+  font: 15px var(--rd-mono);
+  white-space: pre-wrap;
+  word-break: break-all;
+  background: var(--rd-inset);
+  border: 1px solid var(--rd-line);
+}
+
+.rd-result[data-state="ok"] {
+  color: var(--rd-ok);
+}
+
+.rd-result[data-state="error"] {
+  color: var(--rd-err);
+  border-color: color-mix(in srgb, var(--rd-err) 40%, var(--rd-line));
+}
+
+.rd-unsupported {
+  border: 1px solid color-mix(in srgb, var(--rd-err) 25%, var(--rd-line));
+  border-radius: 9px;
+  padding: 0.7rem 0.8rem;
+  background: color-mix(in srgb, var(--rd-err) 6%, transparent);
+}
+
+.rd-unsupported-head {
+  font-size: 0.8rem;
+  color: var(--rd-muted);
+}
+
+.rd-unsupported ul {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.rd-unsupported li {
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+}
+
+.rd-unsupported li code {
+  font: 13px var(--rd-mono);
+  background: var(--rd-inset);
+  border: 1px solid var(--rd-line);
+  border-radius: 6px;
+  padding: 0.05rem 0.4rem;
+  flex: none;
+}
+
+.rd-reason {
+  font-size: 0.82rem;
+  color: var(--rd-muted);
+}
+
+.rd-reason strong {
+  color: var(--rd-text);
+  font-weight: 600;
+}
+
+.rd-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.rd-chips > span {
+  color: var(--rd-muted);
+  font-size: 0.8rem;
+}
+
+.rd-chips button {
+  background: var(--rd-inset);
+  border: 1px solid var(--rd-line);
+  color: var(--rd-text);
+  border-radius: 999px;
+  padding: 0.25rem 0.6rem;
+  font: 12px var(--rd-mono);
+  cursor: pointer;
+}
+
+.rd-chips button:hover {
+  border-color: var(--rd-accent);
+  color: var(--rd-accent);
+}
+
+.rd-snippet {
+  border: 1px solid var(--rd-line);
+  border-radius: 9px;
+  background: var(--rd-inset);
+}
+
+.rd-snippet summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.82rem;
+  color: var(--rd-muted);
+  list-style: none;
+}
+
+.rd-snippet summary::-webkit-details-marker {
+  display: none;
+}
+
+.rd-snippet summary button {
+  background: transparent;
+  border: 1px solid var(--rd-line);
+  color: var(--rd-muted);
+  border-radius: 6px;
+  padding: 0.15rem 0.5rem;
+  font: 11px var(--rd-mono);
+  cursor: pointer;
+}
+
+.rd-snippet summary button:hover {
+  color: var(--rd-accent);
+  border-color: var(--rd-accent);
+}
+
+.rd-snippet pre {
+  margin: 0;
+  padding: 0.75rem;
+  border-top: 1px solid var(--rd-line);
+  overflow-x: auto;
+  font: 13px/1.5 var(--rd-mono);
+  color: var(--rd-text);
+}

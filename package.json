@@ -1,78 +1,36 @@
 {
-  "name": "rosetta-date",
+  "name": "rosetta-date-workspace",
   "type": "module",
-  "version": "0.2.0",
+  "version": "0.0.0",
+  "private": true,
   "packageManager": "pnpm@11.5.3",
-  "description": "Bidirectionally convert date-format token strings between the moment/dayjs and Unicode/LDML (date-fns) dialects.",
+  "description": "Workspace root for rosetta-date — the library, its playground, and the docs site.",
   "author": "João Pedro Antunes Silva <joaopedroantunessilva51@gmail.com>",
   "license": "MIT",
-  "homepage": "https://github.com/JoaoPedroAS51/rosetta-date#readme",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/JoaoPedroAS51/rosetta-date.git"
-  },
-  "bugs": {
-    "url": "https://github.com/JoaoPedroAS51/rosetta-date/issues"
-  },
-  "keywords": [
-    "date",
-    "date-format",
-    "date-fns",
-    "moment",
-    "dayjs",
-    "unicode",
-    "ldml",
-    "uts35",
-    "tokens",
-    "converter"
-  ],
-  "sideEffects": false,
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.mts",
-      "import": "./dist/index.mjs"
-    },
-    "./dialects": {
-      "types": "./dist/dialects/index.d.mts",
-      "import": "./dist/dialects/index.mjs"
-    },
-    "./libraries": {
-      "types": "./dist/libraries/index.d.mts",
-      "import": "./dist/libraries/index.mjs"
-    }
-  },
-  "main": "./dist/index.mjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.mts",
-  "files": [
-    "dist"
-  ],
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "build": "tsdown",
-    "dev": "tsdown --watch",
-    "playground": "vite playground",
-    "typecheck": "tsc --noEmit",
+    "build": "pnpm --filter rosetta-date build",
+    "dev": "pnpm --filter rosetta-date dev",
+    "test": "pnpm --filter rosetta-date test",
+    "test:watch": "pnpm --filter rosetta-date test:watch",
+    "test:coverage": "pnpm --filter rosetta-date test:coverage",
+    "typecheck": "pnpm -r typecheck",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
-    "release": "pnpm build && changeset publish",
-    "prepublishOnly": "pnpm build"
+    "playground": "pnpm --filter rosetta-date build && pnpm --filter @rosetta-date/playground dev",
+    "playground:build": "pnpm --filter rosetta-date build && pnpm --filter @rosetta-date/playground build",
+    "docs:dev": "pnpm --filter rosetta-date build && pnpm --filter rosetta-date-docs dev",
+    "docs:build": "pnpm --filter rosetta-date build && pnpm --filter rosetta-date-docs build",
+    "release": "pnpm --filter rosetta-date build && changeset publish"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^9.0.0",
-    "@changesets/cli": "^2.31.0",
-    "@types/node": "^25.9.2",
-    "@vitest/coverage-v8": "^4.1.8",
-    "eslint": "^10.4.1",
-    "eslint-plugin-markdown-preferences": "^0.41.1",
-    "tsdown": "^0.22.2",
-    "typescript": "^6.0.3",
-    "vite": "^8.0.16",
-    "vitest": "^4.1.8"
+    "@antfu/eslint-config": "catalog:",
+    "@changesets/cli": "catalog:",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "eslint-plugin-markdown-preferences": "catalog:",
+    "typescript": "catalog:"
   }
 }

@@ -8,3 +8,6 @@ coverage
 !.vscode/extensions.json
 *.tsbuildinfo
 .vercel
+
+# Copied from the repo root by the library's prepublishOnly step.
+packages/rosetta-date/README.md

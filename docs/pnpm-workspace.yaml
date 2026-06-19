@@ -1,4 +1,0 @@
-onlyBuiltDependencies:
-  - sharp
-overrides:
-  zod: 4.1.12

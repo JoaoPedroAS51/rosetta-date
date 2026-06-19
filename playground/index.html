@@ -1,59 +1,12 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>rosetta-date · playground</title>
-    <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
-    <main>
-      <h1>rosetta-date <small>playground</small></h1>
-      <p class="sub">Convert a date-format token string between dialects and libraries.</p>
-
-      <div class="panel">
-        <div class="endpoints">
-          <div><label for="from">From</label><select id="from"></select></div>
-          <button id="swap" title="Swap from / to">⇄</button>
-          <div><label for="to">To</label><select id="to"></select></div>
-        </div>
-
-        <div class="field">
-          <label for="format">Format string</label>
-          <input id="format" type="text" spellcheck="false" autocomplete="off" value="ddd, Do MMM YYYY h:mm A" />
-        </div>
-
-        <div class="field">
-          <label for="result">Result</label>
-          <output id="result" data-state="ok"></output>
-        </div>
-
-        <div class="options">
-          <label for="policy">On unsupported token</label>
-          <select id="policy">
-            <option value="literalize">literalize (default) — escape as a literal</option>
-            <option value="throw">throw — UnsupportedTokenError</option>
-            <option value="drop">drop — omit the token</option>
-          </select>
-        </div>
-
-        <div class="chips">
-          <span>try:</span>
-          <button data-from="momentjs (library)" data-to="date-fns (library)" data-fmt="DD/MM/YYYY">DD/MM/YYYY</button>
-          <button data-from="momentjs (library)" data-to="date-fns (library)" data-fmt="YYYY-MM-DD[T]HH:mm:ss">ISO</button>
-          <button data-from="momentjs (library)" data-to="date-fns (library)" data-fmt="LLL">LLL (preset)</button>
-          <button data-from="momentjs (library)" data-to="date-fns (library)" data-fmt="[week] WW, GGGG">ISO week (ext)</button>
-          <button data-from="momentjs (library)" data-to="date-fns (library)" data-fmt="X">X (epoch)</button>
-          <button data-from="momentjs (library)" data-to="dayjs (library)" data-fmt="Mo">Mo (dayjs can't)</button>
-          <button data-from="dayjs (library)" data-to="momentjs (library)" data-fmt="HH:mm z">z (zone)</button>
-        </div>
-      </div>
-
-      <footer>
-        Imports the live <code>src/</code> — edit the library and reload. Pick a <code>dialect</code> for the pure
-        spec, a <code>library</code> for the tool (its extensions plus the subset of tokens it renders).
-      </footer>
-    </main>
-    <script type="module" src="./main.ts"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
