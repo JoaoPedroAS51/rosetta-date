@@ -24,10 +24,10 @@ Although `YYYY-MM-DD` and `yyyy-MM-dd` look different, they express the same dat
 - 🔁 **Bidirectional** — every mapping works in both directions.
 - 🧭 **Canonical semantic model** — tokens convert through a shared meaning, never dialect-to-dialect.
 - 🧩 **Extensible by design** — a new dialect or library connects to the hub with two mappings, not a fleet of pairwise converters.
-- 🪶 **Zero runtime dependencies**.
-- 🌳 **Tree-shakeable** — dialects and libraries ship from their own entrypoints.
 - 🛡️ **Escape-aware tokenizer** — literals round-trip intact across dialects.
 - 🌐 **Native `Intl` bridge** — turn a token pattern into `Intl.DateTimeFormat` options, and back.
+- 🌳 **Tree-shakeable** — dialects and libraries ship from their own entrypoints.
+- 🪶 **Zero runtime dependencies**.
 
 ## Documentation
 
@@ -35,10 +35,10 @@ This README is a quick start. The **[full documentation](https://rosetta-date.ve
 
 - [How it works](https://rosetta-date.vercel.app/concepts/how-it-works) — the canonical model behind every conversion.
 - [Dialects & Libraries](https://rosetta-date.vercel.app/concepts/dialects-and-libraries) — when to use which.
-- [Custom dialects & libraries](https://rosetta-date.vercel.app/guides/custom-dialects) — teach it a new ecosystem.
+- [Custom dialects & libraries](https://rosetta-date.vercel.app/guides/custom-dialects) — teach it a new dialect or library.
 - [Unsupported tokens](https://rosetta-date.vercel.app/guides/unsupported-tokens) — what happens when a token has no clean target.
 - [Token mapping](https://rosetta-date.vercel.app/reference/token-mapping) — the full per-token grammar tables.
-- [Library notes](https://rosetta-date.vercel.app/reference/library-notes) — tool-specific coverage and caveats.
+- [Libraries](https://rosetta-date.vercel.app/reference/libraries) — tool-specific coverage and caveats.
 - [API reference](https://rosetta-date.vercel.app/reference/api) — every export, signature, and type.
 
 ## Install
@@ -130,7 +130,7 @@ and [Custom dialects & libraries](https://rosetta-date.vercel.app/guides/custom-
 | `dateFns`  | [date-fns][date-fns-docs]  | `ldml`   | the full grammar **+ its own extensions** (`P…`, `t`/`T`, `R`/`I`/`i`); some tokens gated behind date-fns options |
 
 The per-token grammar tables are in [Token mapping](https://rosetta-date.vercel.app/reference/token-mapping); tool-specific
-behaviour is in [Library notes](https://rosetta-date.vercel.app/reference/library-notes).
+behaviour is in [Libraries](https://rosetta-date.vercel.app/reference/libraries).
 
 ## How it works
 
@@ -143,7 +143,7 @@ Source Library  →  Source Dialect  →  Canonical Representation  →  Target 
 
 Because every dialect maps to and from that one shared vocabulary, a dialect needs only **two** mappings to
 interoperate with all the others, and the engine stays the single place that has to be correct. That is what makes
-the model extensible: a new ecosystem connects to the canonical hub, not to every dialect that already exists.
+the model extensible: a new dialect or library connects to the canonical hub, not to every dialect that already exists.
 
 ## Contributing
 
