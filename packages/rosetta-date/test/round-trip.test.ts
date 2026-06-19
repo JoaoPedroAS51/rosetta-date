@@ -1,24 +1,25 @@
 import type { CanonicalToken } from '../src/core/canonical'
 import type { DialectName } from '../src/dialects/registry'
+import type { EndpointName } from './fixtures'
 import { describe, expect, it } from 'vitest'
 import { convert } from '../src'
 import { dialects } from '../src/dialects/registry'
-import { composites, expectations } from './fixtures'
+import { composites, endpoints, renderOracle } from './fixtures'
 
-const names = Object.keys(expectations) as DialectName[]
-const pairs: ReadonlyArray<readonly [DialectName, DialectName]> = names.flatMap(
+const names = Object.keys(endpoints) as EndpointName[]
+const pairs: ReadonlyArray<readonly [EndpointName, EndpointName]> = names.flatMap(
   from => names.filter(to => to !== from).map(to => [from, to] as const),
 )
 
-function roundTrip(format: string, from: DialectName, to: DialectName): string {
-  const forward = convert(format, { from: dialects[from], to: dialects[to] })
-  return convert(forward, { from: dialects[to], to: dialects[from] })
+function roundTrip(format: string, from: EndpointName, to: EndpointName): string {
+  const forward = convert(format, { from: endpoints[from], to: endpoints[to] })
+  return convert(forward, { from: endpoints[to], to: endpoints[from] })
 }
 
-describe('single-token round trips (canonicals shared by both dialects)', () => {
+describe('single-token round trips (canonicals shared by both endpoints)', () => {
   for (const [from, to] of pairs) {
-    const fromMap = expectations[from]
-    const toMap = expectations[to]
+    const fromMap = renderOracle(from)
+    const toMap = renderOracle(to)
     const shared = (Object.keys(fromMap) as CanonicalToken[]).filter(c => toMap[c] !== undefined)
 
     describe(`${from} → ${to} → ${from}`, () => {
@@ -31,7 +32,13 @@ describe('single-token round trips (canonicals shared by both dialects)', () => 
 })
 
 describe('composite formats round-trip', () => {
-  for (const [from, to] of pairs) {
+  // Real-world format strings stay dialect-level (dialect → dialect → dialect).
+  const dialectNames = Object.keys(dialects) as DialectName[]
+  const dialectPairs = dialectNames.flatMap(
+    from => dialectNames.filter(to => to !== from).map(to => [from, to] as const),
+  )
+
+  for (const [from, to] of dialectPairs) {
     const formats = composites[from] ?? []
     if (formats.length === 0)
       continue

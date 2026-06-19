@@ -1,6 +1,10 @@
 import type { CanonicalToken } from '../src/core/canonical'
+import type { Dialect } from '../src/core/types'
 import type { DialectName } from '../src/dialects/registry'
+import type { LibraryName } from '../src/libraries/registry'
 import { Canonical } from '../src/core/canonical'
+import { dialects } from '../src/dialects/registry'
+import { libraries } from '../src/libraries/registry'
 
 /**
  * Each dialect's primary spelling for every canonical symbol it can express —
@@ -168,4 +172,98 @@ export const composites: Partial<Record<DialectName, readonly string[]>> = {
     'EEE, dd MMM yyyy',
     'h:mm a',
   ],
+}
+
+/**
+ * Every conversion endpoint — dialects and libraries — keyed by name. The generic
+ * suites iterate this, so adding either kind earns conformance, matrix, round-trip,
+ * and totality coverage with no new test code (TypeScript requires a delta entry
+ * for a new library, just as it requires an `expectations` entry for a new dialect).
+ */
+export const endpoints = { ...dialects, ...libraries }
+export type EndpointName = keyof typeof endpoints
+
+/**
+ * Per-library delta over its base dialect's oracle, authored **independently** of
+ * the library's own `supports`/`extends` so the two cross-check: `excludes` are the
+ * base fields the library does NOT render — the opposite polarity of the library's
+ * positive `supports`, which is what makes the check non-circular — and `extends`
+ * are the fields it adds on top, each with the spelling it renders them as.
+ */
+export const libraryDeltas: Record<LibraryName, {
+  readonly base: DialectName
+  readonly excludes?: readonly CanonicalToken[]
+  readonly extends?: Partial<Record<CanonicalToken, string>>
+}> = {
+  'momentjs': { base: 'moment' },
+  'dayjs': {
+    base: 'moment',
+    excludes: [
+      Canonical.EraAbbreviated,
+      Canonical.EraWide,
+      Canonical.EraNarrow,
+      Canonical.WeekYearTwoDigit,
+      Canonical.IsoWeekYearTwoDigit,
+      Canonical.QuarterOrdinal,
+      Canonical.MonthOrdinal,
+      Canonical.IsoWeekOfYearOrdinal,
+      Canonical.DayOfYearNumeric,
+      Canonical.DayOfYearThreeDigit,
+      Canonical.DayOfYearOrdinal,
+      Canonical.IsoWeekdayNumeric,
+      Canonical.FractionalSecond1,
+      Canonical.FractionalSecond2,
+    ],
+  },
+  'date-fns': {
+    base: 'ldml',
+    extends: {
+      [Canonical.QuarterOrdinal]: 'Qo',
+      [Canonical.MonthOrdinal]: 'Mo',
+      [Canonical.WeekOfYearOrdinal]: 'wo',
+      [Canonical.DayOfMonthOrdinal]: 'do',
+      [Canonical.DayOfYearOrdinal]: 'Do',
+      [Canonical.IsoWeekOfYearOrdinal]: 'Io',
+      [Canonical.IsoWeekYearNumeric]: 'RRRR',
+      [Canonical.IsoWeekYearTwoDigit]: 'RR',
+      [Canonical.IsoWeekOfYearNumeric]: 'I',
+      [Canonical.IsoWeekOfYearTwoDigit]: 'II',
+      [Canonical.IsoWeekdayNumeric]: 'i',
+      [Canonical.EpochSeconds]: 't',
+      [Canonical.EpochMilliseconds]: 'T',
+      [Canonical.LocalizedDateShort]: 'P',
+      [Canonical.LocalizedDateMedium]: 'PP',
+      [Canonical.LocalizedDateLong]: 'PPP',
+      [Canonical.LocalizedDateFull]: 'PPPP',
+      [Canonical.LocalizedTimeShort]: 'p',
+      [Canonical.LocalizedTimeMedium]: 'pp',
+      [Canonical.LocalizedTimeLong]: 'ppp',
+      [Canonical.LocalizedTimeFull]: 'pppp',
+      [Canonical.LocalizedDateTimeShort]: 'Pp',
+      [Canonical.LocalizedDateTimeMedium]: 'PPpp',
+      [Canonical.LocalizedDateTimeLong]: 'PPPppp',
+      [Canonical.LocalizedDateTimeFull]: 'PPPPpppp',
+    },
+  },
+}
+
+/**
+ * The canonical → primary-spelling map an endpoint renders: a dialect's oracle as
+ * written, or a library's base oracle transformed by its delta (drop `excludes`,
+ * add `extends`). The keys are exactly the fields the endpoint renders.
+ */
+export function renderOracle(name: EndpointName): Partial<Record<CanonicalToken, string>> {
+  if (!(name in libraryDeltas))
+    return expectations[name as DialectName]
+  const delta = libraryDeltas[name as LibraryName]
+  const oracle = { ...expectations[delta.base] }
+  for (const canonical of delta.excludes ?? [])
+    delete oracle[canonical]
+  return { ...oracle, ...delta.extends }
+}
+
+/** The grammar an endpoint parses through — a library resolves to its effective dialect. */
+export function grammarOf(name: EndpointName): Dialect {
+  const endpoint = endpoints[name]
+  return 'resolved' in endpoint ? endpoint.resolved.dialect : endpoint
 }
