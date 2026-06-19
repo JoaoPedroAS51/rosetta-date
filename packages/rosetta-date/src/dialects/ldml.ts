@@ -82,14 +82,14 @@ export const ldml: Dialect = {
     { token: 'aaaaa', canonical: Canonical.DayPeriodNarrow },
 
     // Hour
-    { token: 'h', canonical: Canonical.Hour12Numeric },
-    { token: 'hh', canonical: Canonical.Hour12TwoDigit },
-    { token: 'H', canonical: Canonical.Hour24Numeric },
-    { token: 'HH', canonical: Canonical.Hour24TwoDigit },
-    { token: 'k', canonical: Canonical.Hour24From1Numeric },
-    { token: 'kk', canonical: Canonical.Hour24From1TwoDigit },
-    { token: 'K', canonical: Canonical.Hour11Numeric },
-    { token: 'KK', canonical: Canonical.Hour11TwoDigit },
+    { token: 'h', canonical: Canonical.HourNumericH12 },
+    { token: 'hh', canonical: Canonical.HourTwoDigitH12 },
+    { token: 'H', canonical: Canonical.HourNumericH23 },
+    { token: 'HH', canonical: Canonical.HourTwoDigitH23 },
+    { token: 'k', canonical: Canonical.HourNumericH24 },
+    { token: 'kk', canonical: Canonical.HourTwoDigitH24 },
+    { token: 'K', canonical: Canonical.HourNumericH11 },
+    { token: 'KK', canonical: Canonical.HourTwoDigitH11 },
 
     // Minute / second
     { token: 'm', canonical: Canonical.MinuteNumeric },

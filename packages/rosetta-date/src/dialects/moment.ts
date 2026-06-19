@@ -28,8 +28,8 @@ export const moment: Dialect = {
     // Week-numbering year
     { token: 'gggg', canonical: Canonical.WeekYearNumeric },
     { token: 'gg', canonical: Canonical.WeekYearTwoDigit },
-    { token: 'GGGG', canonical: Canonical.IsoWeekYearNumeric },
-    { token: 'GG', canonical: Canonical.IsoWeekYearTwoDigit },
+    { token: 'GGGG', canonical: Canonical.WeekYearNumericIso },
+    { token: 'GG', canonical: Canonical.WeekYearTwoDigitIso },
 
     // Era — moment's narrow (`NNNNN`) renders the abbreviation, not a 1-char form
     { token: 'N', canonical: Canonical.EraAbbreviated },
@@ -53,9 +53,9 @@ export const moment: Dialect = {
     { token: 'w', canonical: Canonical.WeekOfYearNumeric },
     { token: 'ww', canonical: Canonical.WeekOfYearTwoDigit },
     { token: 'wo', canonical: Canonical.WeekOfYearOrdinal },
-    { token: 'W', canonical: Canonical.IsoWeekOfYearNumeric },
-    { token: 'WW', canonical: Canonical.IsoWeekOfYearTwoDigit },
-    { token: 'Wo', canonical: Canonical.IsoWeekOfYearOrdinal },
+    { token: 'W', canonical: Canonical.WeekOfYearNumericIso },
+    { token: 'WW', canonical: Canonical.WeekOfYearTwoDigitIso },
+    { token: 'Wo', canonical: Canonical.WeekOfYearOrdinalIso },
 
     // Day of month
     { token: 'D', canonical: Canonical.DayOfMonthNumeric },
@@ -72,19 +72,19 @@ export const moment: Dialect = {
     { token: 'ddd', canonical: Canonical.WeekdayAbbreviated },
     { token: 'dd', canonical: Canonical.WeekdayShort },
     { token: 'd', canonical: Canonical.WeekdayNumeric },
-    { token: 'E', canonical: Canonical.IsoWeekdayNumeric },
+    { token: 'E', canonical: Canonical.WeekdayNumericIso },
 
     // Day period (AM/PM) — moment encodes case, not width
     { token: 'A', canonical: Canonical.DayPeriodAbbreviated },
     { token: 'a', canonical: Canonical.DayPeriodAbbreviated },
 
     // Hour
-    { token: 'H', canonical: Canonical.Hour24Numeric },
-    { token: 'HH', canonical: Canonical.Hour24TwoDigit },
-    { token: 'h', canonical: Canonical.Hour12Numeric },
-    { token: 'hh', canonical: Canonical.Hour12TwoDigit },
-    { token: 'k', canonical: Canonical.Hour24From1Numeric },
-    { token: 'kk', canonical: Canonical.Hour24From1TwoDigit },
+    { token: 'H', canonical: Canonical.HourNumericH23 },
+    { token: 'HH', canonical: Canonical.HourTwoDigitH23 },
+    { token: 'h', canonical: Canonical.HourNumericH12 },
+    { token: 'hh', canonical: Canonical.HourTwoDigitH12 },
+    { token: 'k', canonical: Canonical.HourNumericH24 },
+    { token: 'kk', canonical: Canonical.HourTwoDigitH24 },
 
     // Minute / second
     { token: 'm', canonical: Canonical.MinuteNumeric },

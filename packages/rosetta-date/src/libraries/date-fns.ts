@@ -30,19 +30,19 @@ export const dateFns: Library = defineLibrary({
     { token: 'wo', canonical: Canonical.WeekOfYearOrdinal },
     { token: 'do', canonical: Canonical.DayOfMonthOrdinal },
     { token: 'Do', canonical: Canonical.DayOfYearOrdinal },
-    { token: 'Io', canonical: Canonical.IsoWeekOfYearOrdinal },
+    { token: 'Io', canonical: Canonical.WeekOfYearOrdinalIso },
 
     // ISO week-numbering year
-    { token: 'RRRR', canonical: Canonical.IsoWeekYearNumeric },
-    { token: 'R', canonical: Canonical.IsoWeekYearNumeric },
-    { token: 'RR', canonical: Canonical.IsoWeekYearTwoDigit },
+    { token: 'RRRR', canonical: Canonical.WeekYearNumericIso },
+    { token: 'R', canonical: Canonical.WeekYearNumericIso },
+    { token: 'RR', canonical: Canonical.WeekYearTwoDigitIso },
 
     // ISO week of year
-    { token: 'I', canonical: Canonical.IsoWeekOfYearNumeric },
-    { token: 'II', canonical: Canonical.IsoWeekOfYearTwoDigit },
+    { token: 'I', canonical: Canonical.WeekOfYearNumericIso },
+    { token: 'II', canonical: Canonical.WeekOfYearTwoDigitIso },
 
     // ISO day of week
-    { token: 'i', canonical: Canonical.IsoWeekdayNumeric },
+    { token: 'i', canonical: Canonical.WeekdayNumericIso },
 
     // Unix epoch
     { token: 't', canonical: Canonical.EpochSeconds },

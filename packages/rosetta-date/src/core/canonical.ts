@@ -9,8 +9,18 @@
  * of these members through `TokenRule.canonical`. Prefer named members over raw
  * string values.
  *
- * Stability: values are stable `field/style` identifiers. Adding a member is a
- * minor, additive change. Renaming or removing a member is breaking.
+ * Grammar: values use `field/style[/qualifier...]`.
+ *
+ * A `qualifier` refines a base `field/style` pair. Examples include `iso` for
+ * week-numbering rules, hour-cycle qualifiers such as `h11`/`h12`/`h23`/`h24`,
+ * and `standalone` for grammatical context. No qualifier means the default form.
+ *
+ * Member names are PascalCase names derived from their value segments, so names
+ * and values stay aligned: `week-of-year/ordinal/iso` maps to
+ * `WeekOfYearOrdinalIso`.
+ *
+ * Stability: values are stable identifiers. Adding a member is a minor, additive
+ * change. Renaming or removing a member is breaking.
  */
 export const Canonical = {
   // Era — e.g. AD / Anno Domini
@@ -25,8 +35,8 @@ export const Canonical = {
   // Week-numbering year (the year that owns a given ISO/locale week)
   WeekYearNumeric: 'week-year/numeric',
   WeekYearTwoDigit: 'week-year/2-digit',
-  IsoWeekYearNumeric: 'iso-week-year/numeric',
-  IsoWeekYearTwoDigit: 'iso-week-year/2-digit',
+  WeekYearNumericIso: 'week-year/numeric/iso',
+  WeekYearTwoDigitIso: 'week-year/2-digit/iso',
 
   // Quarter
   QuarterNumeric: 'quarter/numeric',
@@ -48,9 +58,9 @@ export const Canonical = {
   WeekOfYearNumeric: 'week-of-year/numeric',
   WeekOfYearTwoDigit: 'week-of-year/2-digit',
   WeekOfYearOrdinal: 'week-of-year/ordinal',
-  IsoWeekOfYearNumeric: 'iso-week-of-year/numeric',
-  IsoWeekOfYearTwoDigit: 'iso-week-of-year/2-digit',
-  IsoWeekOfYearOrdinal: 'iso-week-of-year/ordinal',
+  WeekOfYearNumericIso: 'week-of-year/numeric/iso',
+  WeekOfYearTwoDigitIso: 'week-of-year/2-digit/iso',
+  WeekOfYearOrdinalIso: 'week-of-year/ordinal/iso',
 
   // Day of month
   DayOfMonthNumeric: 'day-of-month/numeric',
@@ -71,28 +81,23 @@ export const Canonical = {
 
   // Weekday as a number
   WeekdayNumeric: 'weekday/numeric',
-  IsoWeekdayNumeric: 'iso-weekday/numeric',
+  WeekdayNumericIso: 'weekday/numeric/iso',
 
   // Day period — AM/PM
   DayPeriodAbbreviated: 'day-period/abbreviated',
   DayPeriodWide: 'day-period/wide',
   DayPeriodNarrow: 'day-period/narrow',
 
-  // Hour, 1–12
-  Hour12Numeric: 'hour-12/numeric',
-  Hour12TwoDigit: 'hour-12/2-digit',
-
-  // Hour, 0–23
-  Hour24Numeric: 'hour-24/numeric',
-  Hour24TwoDigit: 'hour-24/2-digit',
-
-  // Hour, 1–24
-  Hour24From1Numeric: 'hour-24-from-1/numeric',
-  Hour24From1TwoDigit: 'hour-24-from-1/2-digit',
-
-  // Hour, 0–11
-  Hour11Numeric: 'hour-11/numeric',
-  Hour11TwoDigit: 'hour-11/2-digit',
+  // Hour — the `hX` qualifier is the cycle
+  // h12 = 1–12, h23 = 0–23, h24 = 1–24, h11 = 0–11
+  HourNumericH12: 'hour/numeric/h12',
+  HourTwoDigitH12: 'hour/2-digit/h12',
+  HourNumericH23: 'hour/numeric/h23',
+  HourTwoDigitH23: 'hour/2-digit/h23',
+  HourNumericH24: 'hour/numeric/h24',
+  HourTwoDigitH24: 'hour/2-digit/h24',
+  HourNumericH11: 'hour/numeric/h11',
+  HourTwoDigitH11: 'hour/2-digit/h11',
 
   // Minute
   MinuteNumeric: 'minute/numeric',

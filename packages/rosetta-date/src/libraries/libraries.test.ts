@@ -135,8 +135,8 @@ describe('handler library context (fromLibrary / toLibrary)', () => {
 
 describe('defineLibrary validation', () => {
   it('rejects a supported canonical the dialect cannot express', () => {
-    expect(() => defineLibrary({ name: 'broken', dialect: moment, supports: new Set([Canonical.Hour11Numeric]) }))
-      .toThrowError(/hour-11/)
+    expect(() => defineLibrary({ name: 'broken', dialect: moment, supports: new Set([Canonical.HourNumericH11]) }))
+      .toThrowError(/h11/)
   })
 
   it('accepts a subset whose canonicals the dialect all expresses', () => {

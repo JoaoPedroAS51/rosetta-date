@@ -12,8 +12,10 @@ canonical member ([Token Mapping](/reference/token-mapping)), and a library decl
 fields it renders ([Libraries](/reference/libraries)). Nothing here depends on how many
 dialects exist.
 
-Values are stable `field/style` identifiers exported as the [`Canonical`](/reference/api#canonical)
-object. Prefer the named members (`Canonical.YearNumeric`) over the raw strings.
+Values are stable `field/style[/qualifier]` identifiers exported as the
+[`Canonical`](/reference/api#canonical) object — the optional `qualifier` (e.g. `iso`, the hour cycle
+`h12`, `standalone`) refines a base field/style, and its absence is the default. Prefer the named
+members (`Canonical.YearNumeric`) over the raw strings.
 
 <Callout type="info">
   Adding a member is a minor, additive change; renaming or removing one is breaking. A dialect or
@@ -43,8 +45,8 @@ The year that owns a given week — local or ISO.
 | ------ | ----- | ------- |
 | `WeekYearNumeric` | `week-year/numeric` | Local week-numbering year, full |
 | `WeekYearTwoDigit` | `week-year/2-digit` | Local week-numbering year, 2-digit |
-| `IsoWeekYearNumeric` | `iso-week-year/numeric` | ISO week-numbering year, full |
-| `IsoWeekYearTwoDigit` | `iso-week-year/2-digit` | ISO week-numbering year, 2-digit |
+| `WeekYearNumericIso` | `week-year/numeric/iso` | ISO week-numbering year, full |
+| `WeekYearTwoDigitIso` | `week-year/2-digit/iso` | ISO week-numbering year, 2-digit |
 
 ## Quarter
 
@@ -75,9 +77,9 @@ The year that owns a given week — local or ISO.
 | `WeekOfYearNumeric` | `week-of-year/numeric` | Local week of year |
 | `WeekOfYearTwoDigit` | `week-of-year/2-digit` | Local week of year, 2-digit |
 | `WeekOfYearOrdinal` | `week-of-year/ordinal` | Local week of year, ordinal |
-| `IsoWeekOfYearNumeric` | `iso-week-of-year/numeric` | ISO week of year |
-| `IsoWeekOfYearTwoDigit` | `iso-week-of-year/2-digit` | ISO week of year, 2-digit |
-| `IsoWeekOfYearOrdinal` | `iso-week-of-year/ordinal` | ISO week of year, ordinal |
+| `WeekOfYearNumericIso` | `week-of-year/numeric/iso` | ISO week of year |
+| `WeekOfYearTwoDigitIso` | `week-of-year/2-digit/iso` | ISO week of year, 2-digit |
+| `WeekOfYearOrdinalIso` | `week-of-year/ordinal/iso` | ISO week of year, ordinal |
 
 ## Day of month
 
@@ -110,7 +112,7 @@ The year that owns a given week — local or ISO.
 | Member | Value | Meaning |
 | ------ | ----- | ------- |
 | `WeekdayNumeric` | `weekday/numeric` | Weekday as a number, locale-dependent |
-| `IsoWeekdayNumeric` | `iso-weekday/numeric` | Weekday as a number, ISO (1 = Monday) |
+| `WeekdayNumericIso` | `weekday/numeric/iso` | Weekday as a number, ISO (1 = Monday) |
 
 ## Day period
 
@@ -124,14 +126,14 @@ The year that owns a given week — local or ISO.
 
 | Member | Value | Meaning |
 | ------ | ----- | ------- |
-| `Hour12Numeric` | `hour-12/numeric` | Hour 1–12 |
-| `Hour12TwoDigit` | `hour-12/2-digit` | Hour 1–12, 2-digit |
-| `Hour24Numeric` | `hour-24/numeric` | Hour 0–23 |
-| `Hour24TwoDigit` | `hour-24/2-digit` | Hour 0–23, 2-digit |
-| `Hour24From1Numeric` | `hour-24-from-1/numeric` | Hour 1–24 |
-| `Hour24From1TwoDigit` | `hour-24-from-1/2-digit` | Hour 1–24, 2-digit |
-| `Hour11Numeric` | `hour-11/numeric` | Hour 0–11 |
-| `Hour11TwoDigit` | `hour-11/2-digit` | Hour 0–11, 2-digit |
+| `HourNumericH12` | `hour/numeric/h12` | Hour 1–12 |
+| `HourTwoDigitH12` | `hour/2-digit/h12` | Hour 1–12, 2-digit |
+| `HourNumericH23` | `hour/numeric/h23` | Hour 0–23 |
+| `HourTwoDigitH23` | `hour/2-digit/h23` | Hour 0–23, 2-digit |
+| `HourNumericH24` | `hour/numeric/h24` | Hour 1–24 |
+| `HourTwoDigitH24` | `hour/2-digit/h24` | Hour 1–24, 2-digit |
+| `HourNumericH11` | `hour/numeric/h11` | Hour 0–11 |
+| `HourTwoDigitH11` | `hour/2-digit/h11` | Hour 0–11, 2-digit |
 
 ## Minute & second
 

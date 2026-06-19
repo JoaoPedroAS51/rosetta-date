@@ -31,7 +31,7 @@ export const dayjs: Library = defineLibrary({
     Canonical.YearNumeric,
     Canonical.YearTwoDigit,
     Canonical.WeekYearNumeric,
-    Canonical.IsoWeekYearNumeric,
+    Canonical.WeekYearNumericIso,
 
     // Quarter / month
     Canonical.QuarterNumeric,
@@ -44,8 +44,8 @@ export const dayjs: Library = defineLibrary({
     Canonical.WeekOfYearNumeric,
     Canonical.WeekOfYearTwoDigit,
     Canonical.WeekOfYearOrdinal,
-    Canonical.IsoWeekOfYearNumeric,
-    Canonical.IsoWeekOfYearTwoDigit,
+    Canonical.WeekOfYearNumericIso,
+    Canonical.WeekOfYearTwoDigitIso,
 
     // Day of month
     Canonical.DayOfMonthNumeric,
@@ -62,12 +62,12 @@ export const dayjs: Library = defineLibrary({
     Canonical.DayPeriodAbbreviated,
 
     // Hour / minute / second
-    Canonical.Hour24Numeric,
-    Canonical.Hour24TwoDigit,
-    Canonical.Hour12Numeric,
-    Canonical.Hour12TwoDigit,
-    Canonical.Hour24From1Numeric,
-    Canonical.Hour24From1TwoDigit,
+    Canonical.HourNumericH23,
+    Canonical.HourTwoDigitH23,
+    Canonical.HourNumericH12,
+    Canonical.HourTwoDigitH12,
+    Canonical.HourNumericH24,
+    Canonical.HourTwoDigitH24,
     Canonical.MinuteNumeric,
     Canonical.MinuteTwoDigit,
     Canonical.SecondNumeric,

@@ -38,12 +38,35 @@ Then update the documentation so the new dialect or library is discoverable. The
 cover the code automatically, but the docs do not — keep these pages in sync by hand:
 
 - [Canonical Vocabulary](/reference/canonical-vocabulary) — only if the ecosystem needs a canonical
-  field that does not exist yet.
+  field that does not exist yet; add the new member here, following the
+  [naming grammar](#adding-a-canonical-field) below.
 - [Dialects](/reference/dialects) — add a row to the index and a page for the new dialect (grammar,
   literals, aliases, caveats), plus a column in [Token Mapping](/reference/token-mapping).
 - [Libraries](/reference/libraries) — add a row to the index and a page for the new library (its
   `supports` subset and any `extends` tokens).
 - [API Reference](/reference/api) — list the new export under its entrypoint.
+
+### Adding a canonical field
+
+Most ecosystems reuse existing canonical fields — you add one only when a token expresses a meaning
+no member covers yet. Canonical values follow a small grammar:
+
+```text
+field/style[/qualifier...]
+```
+
+- **`field`** — the date component (`month`, `hour`, `week-of-year`, …).
+- **`style`** — how it is represented (`numeric`, `2-digit`, `ordinal`, `wide`, …).
+- **`qualifier`** (optional, repeatable) — refines the base `field/style`; its absence is the default
+  form. Examples: `iso` (ISO week rules), the hour cycle `h11` / `h12` / `h23` / `h24`, and
+  `standalone` (grammatical context).
+
+The member name is the PascalCase of the value's segments, so name and value stay in lockstep:
+`week-of-year/ordinal/iso` ↔ `WeekOfYearOrdinalIso`, `month/wide/standalone` ↔ `MonthWideStandalone`.
+
+Prefer refining an existing `field/style` with a qualifier over inventing a parallel field — it keeps
+related meanings grouped and lets conversions share the base. Adding a member is a minor (additive)
+change; renaming or removing one is breaking.
 
 ### TSDoc conventions
 
