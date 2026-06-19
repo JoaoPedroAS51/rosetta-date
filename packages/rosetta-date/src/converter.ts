@@ -1,12 +1,8 @@
 import type { Dialect, Library } from './core/types'
 import type { UnsupportedTokenPolicy } from './core/unsupported'
+import { sourceDialect } from './core/endpoint'
 import { parse } from './core/parse'
 import { render } from './core/render'
-
-/** The dialect an endpoint parses through — a library's precomputed effective grammar, or the dialect itself. */
-function sourceDialect(endpoint: Dialect | Library): Dialect {
-  return 'resolved' in endpoint ? endpoint.resolved.dialect : endpoint
-}
 
 /**
  * A bound, single-direction converter: give it a format string, get the
