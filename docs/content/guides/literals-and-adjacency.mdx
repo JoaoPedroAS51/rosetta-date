@@ -1,0 +1,54 @@
+---
+title: Literals & Adjacency
+---
+
+import { Callout } from 'nextra/components'
+
+# Literals & Adjacency
+
+Text you meant as literal stays literal, and two adjacent tokens never silently merge into a
+different token when the output is read back. `rosetta-date` calls this guarantee **round-trip
+safety at the token boundary**.
+
+## Literals
+
+Literal (verbatim) text is preserved across dialects, even though each dialect escapes it
+differently:
+
+- `moment` brackets `[...]` ↔ `ldml` quotes `'...'`.
+- A literal apostrophe is `''` in `ldml` (e.g. `'o''clock'` → `o'clock`).
+- Only the **letter-bearing span** is escaped, so separators stay clean: `DD/MM` ↔ `dd/MM`, not
+  `dd'/'MM`.
+- A literal `]` has no in-band escape inside a moment `[...]` run, so it is emitted *between*
+  bracketed spans (e.g. `a]b` → `[a]][b]`); the text still round-trips intact.
+
+## Adjacent tokens
+
+When a conversion would place two tokens that **collide** — i.e. reading the output back would lex
+them as one different token — `rosetta-date` separates them with the target dialect's **empty
+literal**.
+
+For example, date-fns `PPPp` (a long date next to a short time) becomes moment `LL` + `LT`. But
+gluing them as `LLLT` would re-read as `LLL` (the long localized date preset) + `T`, a different
+parse. So the converter inserts `[]`:
+
+```ts
+import { convert } from 'rosetta-date'
+import { dateFns, momentjs } from 'rosetta-date/libraries'
+
+convert('PPPp', { from: dateFns, to: momentjs }) // 'LL[]LT' — '[]' keeps LL and LT apart
+```
+
+## When a dialect has no empty literal
+
+A quote-style dialect like `ldml` has no empty literal — `''` is a literal apostrophe, not nothing —
+so it **cannot** express such an adjacency. There the second token is routed through
+[`onUnsupportedToken`](/guides/unsupported-tokens) with reason `unrepresentable-adjacency`:
+
+- the **default** emits it anyway (matching the merged output), while
+- `'throw'` lets a mass migration catch it.
+
+<Callout type="info">
+  This is why adjacency is one of the four unsupported-token reasons rather than a silent fix-up: in
+  a quote-style target the merge is genuinely unrepresentable, and you may want to know.
+</Callout>

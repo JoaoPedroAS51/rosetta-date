@@ -1,0 +1,55 @@
+---
+title: Introduction
+---
+
+# rosetta-date
+
+> A translation engine for date-formatting languages.
+
+`rosetta-date` translates date-format strings between formatting languages by routing every token
+through a canonical intermediate representation before rendering it into the target language.
+
+```ts
+import { convert } from 'rosetta-date'
+import { ldml, moment } from 'rosetta-date/dialects'
+
+convert('YYYY-MM-DD', { from: moment, to: ldml }) // 'yyyy-MM-dd'
+```
+
+Although `YYYY-MM-DD` and `yyyy-MM-dd` look different, they express the same date format using
+different formatting languages. `rosetta-date` understands the difference and rewrites the tokens —
+not the date.
+
+## Why it exists
+
+Moving a format string from one date library to another is deceptively error-prone. `YYYY` means a
+calendar year in Moment.js but a *week-numbering* year in LDML; `D` is a day of month in one and a
+day of year in another. Hand-translating these tables is exactly the kind of work that looks trivial
+and quietly ships bugs. Migrating a Moment.js format to date-fns is one call:
+
+```ts
+import { convert } from 'rosetta-date'
+import { dateFns, momentjs } from 'rosetta-date/libraries'
+
+convert('dddd, MMMM Do YYYY', { from: momentjs, to: dateFns }) // 'EEEE, MMMM do yyyy'
+```
+
+`rosetta-date` encodes the full token grammar once, in one place. A token that converts cleanly
+round-trips faithfully; one with no clean counterpart is handled by a policy you control —
+preserved as a safe literal by default.
+
+## Highlights
+
+- 🔁 **Bidirectional** — every mapping works in both directions.
+- 🧭 **Canonical semantic model** — tokens convert through a shared meaning, never dialect-to-dialect.
+- 🧩 **Extensible by design** — a new dialect or library connects to the hub with two mappings, not a fleet of pairwise converters.
+- 🪶 **Zero runtime dependencies**.
+- 🌳 **Tree-shakeable** — dialects and libraries ship from their own entrypoints.
+- 🛡️ **Escape-aware tokenizer** — literals round-trip intact across dialects.
+
+## Where to go next
+
+- New here? Start with [Installation](/getting-started/installation) and the
+  [Quick start](/getting-started/quick-start).
+- Want to understand the design? Read [How it works](/concepts/how-it-works).
+- Looking for a specific token? Jump to the [Token mapping](/reference/token-mapping) reference.

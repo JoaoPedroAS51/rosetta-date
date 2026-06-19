@@ -1,0 +1,86 @@
+---
+title: Dialects & Libraries
+---
+
+import { Callout } from 'nextra/components'
+
+# Dialects & Libraries
+
+`rosetta-date` works with two kinds of endpoint, and both `from` and `to` accept either one.
+
+## Dialect
+
+A **`Dialect`** represents a formatting *language*: its token grammar, its literal escaping rules,
+and the canonical meaning of each token. It is tool-agnostic.
+
+Use a dialect when you want **pure grammar conversion** — rewriting tokens from one language to
+another without caring which concrete tool will consume the result.
+
+```ts
+import { convert } from 'rosetta-date'
+import { ldml, moment } from 'rosetta-date/dialects'
+
+convert('DD/MM/YYYY', { from: moment, to: ldml }) // 'dd/MM/yyyy'
+```
+
+## Library
+
+A **`Library`** builds on a dialect to model **one specific tool**: the subset of tokens it actually
+renders, the aliases it accepts, and the limitations it has. Day.js and Moment.js both *speak* the
+`moment` dialect, but they render different slices of it.
+
+Use a library when **tool-specific behavior matters** — most importantly, when you want unrenderable
+tokens to be flagged rather than emitted blindly.
+
+```ts
+import { convert } from 'rosetta-date'
+import { dateFns, momentjs } from 'rosetta-date/libraries'
+
+convert('DD/MM/YYYY', { from: momentjs, to: dateFns }) // 'dd/MM/yyyy'
+```
+
+Converting *to* a library routes any token it cannot render through
+[`onUnsupportedToken`](/guides/unsupported-tokens). A reference implementation (such as `momentjs`
+or `dateFns`) renders its whole dialect.
+
+## Mixing them
+
+Because both endpoints accept either type, you can mix freely — e.g. convert from a bare dialect
+into a specific library:
+
+```ts
+import { convert } from 'rosetta-date'
+import { moment } from 'rosetta-date/dialects'
+import { dateFns } from 'rosetta-date/libraries'
+
+convert('YYYY-MM-DD', { from: moment, to: dateFns }) // 'yyyy-MM-dd'
+```
+
+## Choosing one
+
+| You want to… | Use |
+| ------------ | --- |
+| Rewrite tokens between two grammars | **Dialect** → **Dialect** |
+| Migrate a format string for a specific tool, flagging what it can't render | **Library** → **Library** |
+| Convert generic grammar into a specific tool's input | **Dialect** → **Library** |
+
+## Name-driven resolution
+
+For a path where the endpoint is chosen at runtime (e.g. from config), `getDialect` / `getLibrary`
+resolve a name string to its object:
+
+```ts
+import { convert } from 'rosetta-date'
+import { getDialect } from 'rosetta-date/dialects'
+import { getLibrary } from 'rosetta-date/libraries'
+
+convert(format, { from: getDialect(config.from), to: getLibrary(config.to) })
+```
+
+<Callout type="warning">
+  By design, each reference pulls in every built-in, so reach for `getDialect` / `getLibrary` only
+  when the direction is genuinely dynamic. When the direction is known, import the specific dialect
+  or library directly to stay tree-shakeable.
+</Callout>
+
+See the full list of built-ins in [Supported dialects & libraries](/reference/supported).

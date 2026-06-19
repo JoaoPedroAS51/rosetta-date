@@ -1,0 +1,78 @@
+---
+title: Quick Start
+---
+
+import { Callout } from 'nextra/components'
+
+# Quick Start
+
+The conversion API lives at the package root; **dialects** and **libraries** are imported from their
+own entrypoints and passed in.
+
+## One-off conversions
+
+The direction travels with the call — `from` and `to` are part of the options:
+
+```ts
+import { convert } from 'rosetta-date'
+import { ldml, moment } from 'rosetta-date/dialects'
+
+convert('DD/MM/YYYY', { from: moment, to: ldml }) // 'dd/MM/yyyy'
+convert('yyyy-MM-dd', { from: ldml, to: moment }) // 'YYYY-MM-DD'
+```
+
+## Reusing a fixed direction
+
+When you convert in the same direction many times, bind it once with `createConverter` and call the
+result like a plain function:
+
+```ts
+import { createConverter } from 'rosetta-date'
+import { ldml, moment } from 'rosetta-date/dialects'
+
+const toLdml = createConverter(moment, ldml)
+
+toLdml('YYYY-MM-DD') // 'yyyy-MM-dd'
+toLdml('hh:mm A') // 'hh:mm a'
+```
+
+`createConverter` returns a `(format: string) => string`, handy to store or pass around as a
+callback.
+
+## Dialects & Libraries
+
+You can convert between **dialects** (pure grammar) or **libraries** (tool-specific behavior). Both
+`from` and `to` accept a `Dialect` *or* a `Library`, so you can mix them freely:
+
+```ts
+import { convert } from 'rosetta-date'
+import { dateFns, momentjs } from 'rosetta-date/libraries'
+
+// Library → library reads like the intent:
+convert('DD/MM/YYYY', { from: momentjs, to: dateFns }) // 'dd/MM/yyyy'
+```
+
+Converting to a *library* additionally flags tokens the target tool cannot render. For example,
+Day.js can't render `Mo` (the ordinal month) and would mis-format it, so a strict converter throws
+instead of passing through something broken:
+
+```ts
+import { createConverter } from 'rosetta-date'
+import { dayjs, momentjs } from 'rosetta-date/libraries'
+
+const safeForDayjs = createConverter(momentjs, dayjs, { onUnsupportedToken: 'throw' })
+
+safeForDayjs('YYYY-MM-DD') // 'YYYY-MM-DD'
+safeForDayjs('Mo') // throws UnsupportedTokenError
+```
+
+<Callout type="info">
+  Not sure whether to reach for a dialect or a library? See
+  [Dialects & Libraries](/concepts/dialects-and-libraries).
+</Callout>
+
+## Next steps
+
+- [How it works](/concepts/how-it-works) — the canonical model behind every conversion.
+- [Unsupported tokens](/guides/unsupported-tokens) — what happens when a token has no clean target.
+- [Custom dialects & libraries](/guides/custom-dialects) — teach `rosetta-date` a new dialect or library.

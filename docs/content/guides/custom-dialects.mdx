@@ -1,0 +1,80 @@
+---
+title: Custom Dialects & Libraries
+---
+
+import { Callout } from 'nextra/components'
+
+# Custom Dialects & Libraries
+
+You can teach `rosetta-date` a new formatting language with `defineDialect`, or model a new tool on
+top of an existing dialect with `defineLibrary`.
+
+## The key idea: map to *meaning*
+
+Map each token to a **canonical symbol** — what it *means* (year, 2-digit month, …), **not** another
+dialect's spelling. `Canonical` is the neutral vocabulary every built-in dialect routes through, so
+a token you map to `Canonical.YearNumeric` converts to and from every other dialect for free.
+
+## `defineDialect`
+
+```ts
+import { Canonical, convert, defineDialect } from 'rosetta-date'
+import { ldml } from 'rosetta-date/dialects'
+
+const custom = defineDialect({
+  name: 'custom',
+  literal: { open: '{', close: '}' },
+  tokens: [
+    { token: 'yr', canonical: Canonical.YearNumeric },
+    { token: 'mo', canonical: Canonical.MonthTwoDigit },
+    { token: 'dy', canonical: Canonical.DayOfMonthTwoDigit },
+  ],
+})
+
+convert('yr-mo-dy', { from: custom, to: ldml }) // 'yyyy-MM-dd'
+```
+
+## `defineLibrary`
+
+A library extends a dialect — adding a tool's own tokens via `extends` (and, in the built-ins,
+declaring a `supports` set). Here we add an LDML-flavoured tool that understands the Unix epoch:
+
+```ts
+import { Canonical, convert, defineLibrary } from 'rosetta-date'
+import { ldml } from 'rosetta-date/dialects'
+import { dateFns } from 'rosetta-date/libraries'
+
+const ldmlPlus = defineLibrary({
+  name: 'ldml-plus',
+  dialect: ldml,
+  extends: [{ token: 'u', canonical: Canonical.EpochSeconds }],
+})
+
+convert('u', { from: ldmlPlus, to: dateFns }) // 't' — bridged by the canonical symbol
+```
+
+The token `u` is not in the bare `ldml` dialect, but because it maps to `Canonical.EpochSeconds`, it
+bridges straight to date-fns's `t`.
+
+## Validation happens once
+
+<Callout type="warning">
+  `defineDialect` and `defineLibrary` validate a definition **once, at definition time** — they
+  throw on an incoherent token table or literal rules — and return a stable object you reuse across
+  conversions. That object identity matters: per-dialect compilation is cached by object, so
+  constructing a fresh definition on every `convert` call silently misses the cache and recompiles
+  each time. **Define once, reuse everywhere.**
+</Callout>
+
+## Canonical symbols
+
+`Canonical` values are stable identifiers shaped as `field/style`, versioned by semver:
+
+- Adding a symbol is a **minor** (additive) change.
+- Renaming or removing one is **breaking**.
+
+Prefer the named members (`Canonical.YearNumeric`) over the raw strings. The full vocabulary is
+exported from the package root, and the `TokenRule` and `LiteralRules` types are available for
+annotating your token tables and literals.
+
+See the [API Reference](/reference/api) for the exact signatures and types.

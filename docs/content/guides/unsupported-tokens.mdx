@@ -1,0 +1,77 @@
+---
+title: Unsupported Tokens
+---
+
+import { Callout } from 'nextra/components'
+
+# Unsupported Tokens
+
+A token can lack a clean conversion. The `onUnsupportedToken` option decides what happens, and
+`rosetta-date` classifies *why* so a handler can react. The default never throws.
+
+## The policy
+
+`onUnsupportedToken` accepts a string preset or a handler function:
+
+```ts
+import { convert, Unsupported, UnsupportedTokenError } from 'rosetta-date'
+import { ldml, moment } from 'rosetta-date/dialects'
+
+// 'literalize' (default) — escape it as a literal, so it can never be re-read as a token:
+convert('K', { from: ldml, to: moment }) // '[K]'
+
+// 'throw' — fail fast (handy for migrations / validation):
+convert('K', { from: ldml, to: moment, onUnsupportedToken: 'throw' }) // throws UnsupportedTokenError
+
+// handler — decide per token, keyed on `info.reason` (the reasons are listed below):
+convert('K', {
+  from: ldml,
+  to: moment,
+  onUnsupportedToken: (token, info) =>
+    info.reason === 'unmappable' ? Unsupported.drop : Unsupported.literalize,
+})
+```
+
+## Handler return values
+
+A handler's return value is emitted **verbatim** — return a string to substitute your own text. Or
+use a sentinel to express intent:
+
+- `Unsupported.drop` — omit the token entirely.
+- `Unsupported.literalize` — defer to the default (escape it as a literal).
+- `''` and `undefined` are accepted as shorthands: `''` drops, `undefined` literalizes.
+
+## The four reasons
+
+`rosetta-date` tags each unsupported token with a `reason`, which a handler reads from `info`:
+
+| `reason` | Meaning |
+| -------- | ------- |
+| `unrecognized` | The source dialect does not define this token. |
+| `unmappable` | A valid source field with no token in the target *dialect*. |
+| `unsupported-by-target` | The target dialect has the field, but the target *library* does not render it (e.g. Day.js can't render `Mo`). |
+| `unrepresentable-adjacency` | The token converts, but would merge with its neighbour and the target has no empty literal to separate them. See [Literals & Adjacency](/guides/literals-and-adjacency). |
+
+## The `info` argument
+
+The second handler argument carries:
+
+- `reason` — one of the four reasons above.
+- `from` / `to` — the resolved **dialects**.
+- `fromLibrary` / `toLibrary` — present when an endpoint was a `Library`.
+
+Because libraries that share a dialect (Day.js and Moment.js both speak `moment`) resolve to the
+same `to` dialect, `toLibrary` is how a handler tells them apart.
+
+<Callout type="default">
+  The default policy never throws — every token is preserved, as a literal at worst.
+</Callout>
+
+## What the `supports` set does *not* cover
+
+A `Library`'s `supports` set models "what tokens this tool can render" — it is what flags
+`unsupported-by-target`. It does **not** model the consumer's runtime configuration. A token a
+library renders only with a plugin or option loaded (Day.js's `Q`, date-fns's `D`) is emitted
+as-is. Whether that plugin or option is actually enabled is the target library's concern, and it
+signals the problem itself at format time — date-fns throws, Day.js mangles. See the
+[Library notes](/reference/library-notes) for the specifics per tool.

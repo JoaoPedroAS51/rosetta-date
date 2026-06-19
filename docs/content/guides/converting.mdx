@@ -1,0 +1,69 @@
+---
+title: Converting
+---
+
+import { Callout } from 'nextra/components'
+
+# Converting
+
+There are two ways to run a conversion. Both live at the package root.
+
+## `convert` — one-off
+
+`convert(format, options)` takes the format string and an options object carrying the direction:
+
+```ts
+import { convert } from 'rosetta-date'
+import { ldml, moment } from 'rosetta-date/dialects'
+
+convert('DD/MM/YYYY', { from: moment, to: ldml }) // 'dd/MM/yyyy'
+convert('yyyy-MM-dd', { from: ldml, to: moment }) // 'YYYY-MM-DD'
+```
+
+The direction travels with each call, so `convert` is ideal when the source and target vary.
+
+## `createConverter` — fixed direction
+
+When you convert repeatedly in the same direction, bind it once. `createConverter(from, to, options?)`
+returns a plain `(format: string) => string`:
+
+```ts
+import { createConverter } from 'rosetta-date'
+import { ldml, moment } from 'rosetta-date/dialects'
+
+const toLdml = createConverter(moment, ldml)
+
+toLdml('YYYY-MM-DD') // 'yyyy-MM-dd'
+toLdml('hh:mm A') // 'hh:mm a'
+```
+
+The returned function is easy to store on an object or pass as a callback. Per-dialect compilation is
+cached, so a bound converter avoids recompiling the dialects on every call.
+
+## Options
+
+Both APIs accept the same options (`convert` merges them into its options object alongside `from` /
+`to`):
+
+| Option | Type | Default | Purpose |
+| ------ | ---- | ------- | ------- |
+| `onUnsupportedToken` | `'literalize'` \| `'throw'` \| handler | `'literalize'` | What to do when a token has no clean target — see [Unsupported tokens](/guides/unsupported-tokens). |
+
+```ts
+import { createConverter } from 'rosetta-date'
+import { dayjs, momentjs } from 'rosetta-date/libraries'
+
+const safe = createConverter(momentjs, dayjs, { onUnsupportedToken: 'throw' })
+```
+
+<Callout type="info">
+  The default policy never throws — every token is preserved, escaped as a literal at worst. Opt
+  into `'throw'` when you are validating or running a mass migration and want failures to surface.
+</Callout>
+
+## Performance: reuse dialect objects
+
+Per-dialect compilation is cached by object identity, so reuse the same `Dialect` / `Library`
+instances across calls rather than rebuilding them. The built-in dialects and libraries are already
+shared singletons, so importing them is free. If you define your own, see
+[Validation happens once](/guides/custom-dialects#validation-happens-once) for the full rationale.

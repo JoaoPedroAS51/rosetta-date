@@ -1,0 +1,51 @@
+---
+title: How It Works
+---
+
+import { Callout } from 'nextra/components'
+
+# How It Works
+
+`rosetta-date` never converts one dialect directly into another. Every token is first mapped to a
+**canonical semantic representation** — what it *means*, independent of any dialect — and only then
+rendered into the target:
+
+```text
+Source Library  →  Source Dialect  →  Canonical Representation  →  Target Dialect  →  Target Library
+```
+
+## The canonical hub
+
+The canonical model is a neutral vocabulary of date-field meanings: "calendar year", "2-digit
+month", "day of year, ordinal", and so on. Each dialect declares how its tokens map to and from this
+vocabulary — nothing more.
+
+Because every dialect maps to and from that one shared vocabulary, a dialect needs only **two**
+mappings to interoperate with all the others, and the engine stays the single place that has to be
+correct.
+
+<Callout type="info">
+  This is what makes the model extensible: a new dialect or library connects to the canonical hub,
+  not to every other dialect that already exists.
+</Callout>
+
+## Why route through meaning?
+
+Consider `YYYY`. In the Moment.js grammar it is a calendar year; in LDML it is a *week-numbering*
+year, and the calendar year is `yyyy`. A naive find-and-replace would silently corrupt the format.
+By resolving each token to its canonical meaning first, `rosetta-date` always emits the token the
+target dialect uses for *that meaning* — `YYYY` (moment) → `yyyy` (ldml), and moment's
+week-numbering `gggg` → ldml's `YYYY`.
+
+## The two layers
+
+The model is split into two layers, and each page in this site lives on one of them:
+
+| Layer | What it models | Where it lives |
+| ----- | -------------- | -------------- |
+| **Grammar** (dialect) | A formatting language: token grammar, literal escaping, canonical meanings | [Token mapping](/reference/token-mapping) |
+| **Tool** (library) | One specific tool built on a dialect: which tokens it renders, its aliases, its limitations | [Library notes](/reference/library-notes) |
+
+Translating between **dialects** gives you pure grammar conversion. Translating between
+**libraries** layers tool-specific behavior on top — surfacing tokens a tool cannot render. See
+[Dialects & Libraries](/concepts/dialects-and-libraries) for how to choose.

@@ -1,0 +1,161 @@
+---
+title: API Reference
+---
+
+# API Reference
+
+Everything below is exported from the package root (`rosetta-date`) unless noted. Dialects and
+libraries are exported from `rosetta-date/dialects` and `rosetta-date/libraries`.
+
+## `convert`
+
+```ts
+function convert(format: string, options: ConvertOptions): string
+```
+
+Convert a date-format token string from one endpoint to another. Direction travels with the call.
+
+```ts
+import { convert } from 'rosetta-date'
+import { ldml, moment } from 'rosetta-date/dialects'
+
+convert('DD/MM/YYYY', { from: moment, to: ldml }) // 'dd/MM/yyyy'
+```
+
+## `createConverter`
+
+```ts
+function createConverter(
+  from: Dialect | Library,
+  to: Dialect | Library,
+  options?: ConverterOptions,
+): Converter
+```
+
+Bind a fixed direction once and return a reusable `Converter`.
+
+```ts
+import { createConverter } from 'rosetta-date'
+import { ldml, moment } from 'rosetta-date/dialects'
+
+const toLdml = createConverter(moment, ldml)
+toLdml('YYYY-MM-DD') // 'yyyy-MM-dd'
+```
+
+## Types
+
+### `Converter`
+
+```ts
+type Converter = (format: string) => string
+```
+
+### `ConverterOptions`
+
+```ts
+interface ConverterOptions {
+  readonly onUnsupportedToken?: UnsupportedTokenPolicy
+}
+```
+
+### `ConvertOptions`
+
+```ts
+interface ConvertOptions extends ConverterOptions {
+  readonly from: Dialect | Library
+  readonly to: Dialect | Library
+}
+```
+
+Each side may be a `Dialect` (pure grammar) or a `Library` (a concrete tool) — mix them freely.
+
+## Defining endpoints
+
+### `defineDialect`
+
+```ts
+function defineDialect(definition: {
+  name: string
+  literal: LiteralRules
+  tokens: TokenRule[]
+}): Dialect
+```
+
+Validates the definition once and returns a stable, cacheable `Dialect`. See
+[Custom Dialects & Libraries](/guides/custom-dialects).
+
+### `defineLibrary`
+
+```ts
+function defineLibrary(definition: LibraryDefinition): Library
+```
+
+Builds a `Library` on top of a dialect, optionally adding tokens via `extends`.
+
+## The canonical vocabulary
+
+### `Canonical`
+
+An object of stable, semver-versioned canonical symbols shaped as `field/style`
+(e.g. `Canonical.YearNumeric`, `Canonical.MonthTwoDigit`). Map your tokens to these so they
+interoperate with every dialect. The `CanonicalToken` type names the union of these values.
+
+## Unsupported tokens
+
+### `Unsupported`
+
+```ts
+const Unsupported: { readonly drop: unique symbol, readonly literalize: unique symbol }
+```
+
+Two unique-symbol sentinels returned from an `onUnsupportedToken` handler — `Unsupported.drop`
+omits the token, `Unsupported.literalize` defers to the default. They are the named members of
+`UnsupportedTokenResult`.
+
+### `UnsupportedTokenError`
+
+Thrown when `onUnsupportedToken: 'throw'` meets a token that cannot be converted. Carries `token`
+and `reason` fields.
+
+### Policy & handler types
+
+| Type | Shape |
+| ---- | ----- |
+| `UnsupportedTokenPolicy` | `'literalize' \| 'throw' \| UnsupportedTokenHandler` |
+| `UnsupportedTokenHandler` | `(token, info) => UnsupportedTokenResult \| undefined` |
+| `UnsupportedTokenResult` | `string \| typeof Unsupported.drop \| typeof Unsupported.literalize` |
+| `UnsupportedTokenInfo` | `{ reason, from, to, fromLibrary?, toLibrary? }` |
+| `UnsupportedTokenReason` | `'unrecognized' \| 'unmappable' \| 'unsupported-by-target' \| 'unrepresentable-adjacency'` |
+
+See [Unsupported Tokens](/guides/unsupported-tokens) for behaviour.
+
+## Built-in dialects — `rosetta-date/dialects`
+
+The importable surface. For what each dialect *is* — its grammar, literals, and examples — see
+[Supported Dialects & Libraries](/reference/supported).
+
+| Export | Type |
+| ------ | ---- |
+| `moment` | `Dialect` |
+| `ldml` | `Dialect` |
+| `getDialect` | `(name: DialectName) => Dialect` |
+| `DialectName` | `type` — union of built-in dialect names |
+
+`getDialect` resolves a name string to its `Dialect` object for a name-driven path. By design it
+pulls in every built-in, so reach for it only when the direction is dynamic — otherwise import the
+specific dialect to stay tree-shakeable.
+
+## Built-in libraries — `rosetta-date/libraries`
+
+The importable surface. For each library's coverage and tool-specific behaviour, see
+[Supported Dialects & Libraries](/reference/supported) and [Library Notes](/reference/library-notes).
+
+| Export | Type |
+| ------ | ---- |
+| `momentjs` | `Library` |
+| `dayjs` | `Library` |
+| `dateFns` | `Library` |
+| `getLibrary` | `(name: LibraryName) => Library` |
+| `LibraryName` | `type` — union of built-in library names |
+
+`getLibrary` mirrors `getDialect` — name-driven resolution that pulls in every built-in.

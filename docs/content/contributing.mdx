@@ -1,0 +1,71 @@
+---
+title: Contributing
+---
+
+# Contributing
+
+Adding a dialect or library is two mappings, not a fleet of pairwise converters — the engine stays
+dialect-agnostic, and every dialect maps to and from the shared canonical model.
+
+## Local setup
+
+Prerequisites: Node ≥ 22 and [pnpm](https://pnpm.io).
+
+```bash
+git clone https://github.com/JoaoPedroAS51/rosetta-date.git
+cd rosetta-date
+pnpm install
+```
+
+| Script | Purpose |
+| ------ | ------- |
+| `pnpm dev` | Rebuild on change (`tsdown --watch`). |
+| `pnpm build` | Emit the ESM bundle and types to `dist/`. |
+| `pnpm playground` | Serve the interactive playground from `playground/`. |
+| `pnpm typecheck` | Type-check without emitting. |
+| `pnpm lint` / `pnpm lint:fix` | Lint, and autofix, with the antfu config. |
+| `pnpm test` | Run the suite once. |
+| `pnpm test:coverage` | Run with coverage, gated at 100%. |
+
+## Adding a dialect or library
+
+To add a dialect, register it in `src/dialects/registry.ts` (or a library in
+`src/libraries/registry.ts`) and give it a `test/fixtures.ts` entry. The generic suites pick it up
+from there — you never touch the parser or renderer.
+
+Then update the documentation so the new dialect or library is discoverable. The generic suites
+cover the code automatically, but the docs do not — keep these pages in sync by hand:
+
+- [Supported Dialects & Libraries](/reference/supported) — add a row describing it (grammar /
+  coverage, example, literals).
+- [Token Mapping](/reference/token-mapping) — add a column for a new dialect's tokens.
+- [Library Notes](/reference/library-notes) — document a new library's coverage, aliases, and any
+  tokens it cannot render.
+- [API Reference](/reference/api) — list the new export under its entrypoint.
+
+CI runs `lint`, `typecheck`, `test:coverage`, and `build` on every pull request. Record user-facing
+changes with a changeset:
+
+```bash
+pnpm changeset
+```
+
+## Testing
+
+Where a test lives signals what it covers.
+
+| Location | Scope | Examples |
+| -------- | ----- | -------- |
+| Beside the module (`src/`) | One module's units, in isolation | `literal.test.ts` next to `literal.ts` |
+| `test/` | Cross-cutting behaviour across every dialect | `matrix.test.ts`, `round-trip.test.ts` |
+
+Unit tests sit next to the code they exercise, so they travel with it on a refactor. The
+cross-cutting suites span every dialect pair and derive from one shared oracle, `test/fixtures.ts`.
+Adding a dialect to the registry makes TypeScript require its `fixtures.ts` entry, so the matrix and
+round-trip suites cover the new dialect automatically.
+
+Run `pnpm test` for both, or `pnpm test:coverage` to enforce the 100% threshold.
+
+## License
+
+[MIT](https://github.com/JoaoPedroAS51/rosetta-date/blob/main/LICENSE) © João Pedro Antunes Silva.

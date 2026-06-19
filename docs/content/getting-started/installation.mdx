@@ -1,0 +1,51 @@
+---
+title: Installation
+---
+
+import { Callout, Tabs } from 'nextra/components'
+
+# Installation
+
+<Tabs items={['npm', 'pnpm', 'yarn', 'bun']}>
+  <Tabs.Tab>
+    ```bash
+    npm install rosetta-date
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```bash
+    pnpm add rosetta-date
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```bash
+    yarn add rosetta-date
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```bash
+    bun add rosetta-date
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+## Requirements
+
+- **Node ≥ 22.**
+- **An ESM project.** `import` the package — it ships as ESM only and cannot be `require()`d.
+
+<Callout type="info">
+  `rosetta-date` has **zero runtime dependencies** and is fully tree-shakeable. The conversion API
+  lives at the package root, while dialects and libraries are imported from their own entrypoints —
+  so a build only pulls in the ecosystems you actually reference.
+</Callout>
+
+## Entrypoints
+
+| Import | What it provides |
+| ------ | ---------------- |
+| `rosetta-date` | `convert`, `createConverter`, `defineDialect`, `defineLibrary`, `Canonical`, error and option types |
+| `rosetta-date/dialects` | Built-in dialects (`moment`, `ldml`) and `getDialect` |
+| `rosetta-date/libraries` | Built-in libraries (`momentjs`, `dayjs`, `dateFns`) and `getLibrary` |
+
+Continue to the [Quick start](/getting-started/quick-start) to make your first conversion.
