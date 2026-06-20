@@ -2,7 +2,7 @@
   "name": "rosetta-date",
   "type": "module",
   "version": "0.2.0",
-  "description": "Bidirectionally convert date-format token strings between the moment/dayjs and Unicode/LDML (date-fns) dialects.",
+  "description": "A translation engine for date-formatting languages.",
   "author": "João Pedro Antunes Silva <joaopedroantunessilva51@gmail.com>",
   "license": "MIT",
   "homepage": "https://github.com/JoaoPedroAS51/rosetta-date#readme",
