@@ -10,8 +10,9 @@ import { Callout } from 'nextra/components'
 
 ## Dialect
 
-A **`Dialect`** represents a formatting *language*: its token grammar, its literal escaping rules,
-and the canonical meaning of each token. It is tool-agnostic.
+A **`Dialect`** represents a formatting *language*: its token grammar, the tokenization
+[family](/reference/dialects#syntax-families) its `syntax` belongs to (letter tokens with `[…]`/`'…'`
+literals, or `%`-style directives), and the canonical meaning of each token. It is tool-agnostic.
 
 Use a dialect when you want **pure grammar conversion** — rewriting tokens from one language to
 another without caring which concrete tool will consume the result.

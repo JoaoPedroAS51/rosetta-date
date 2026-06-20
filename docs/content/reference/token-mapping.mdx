@@ -22,104 +22,107 @@ in [Libraries](/reference/libraries); the tokens below are the dialect grammars 
 
 ## Era & year
 
-| Meaning | `moment` | `ldml` |
-| ------- | -------- | ------ |
-| Era, abbreviated | `N` | `GGG` |
-| Era, wide | `NNNN` | `GGGG` |
-| Era, narrow | `NNNNN` | `GGGGG` |
-| Calendar year | `YYYY` | `yyyy` |
-| Calendar year, 2-digit | `YY` | `yy` |
-| Local week-numbering year | `gggg` | `YYYY` |
-| Local week-numbering year, 2-digit | `gg` | `YY` |
-| ISO week-numbering year | `GGGG` | — |
-| ISO week-numbering year, 2-digit | `GG` | — |
+| Meaning | `moment` | `ldml` | `strftime` |
+| ------- | -------- | ------ | ---------- |
+| Era, abbreviated | `N` | `GGG` | — |
+| Era, wide | `NNNN` | `GGGG` | — |
+| Era, narrow | `NNNNN` | `GGGGG` | — |
+| Calendar year | `YYYY` | `yyyy` | `%Y` |
+| Calendar year, 2-digit | `YY` | `yy` | `%y` |
+| Local week-numbering year | `gggg` | `YYYY` | — |
+| Local week-numbering year, 2-digit | `gg` | `YY` | — |
+| ISO week-numbering year | `GGGG` | — | `%G` |
+| ISO week-numbering year, 2-digit | `GG` | — | — |
 
 ## Month & quarter
 
-| Meaning | `moment` | `ldml` |
-| ------- | -------- | ------ |
-| Quarter | `Q` | `Q` |
-| Quarter, 2-digit | — | `QQ` |
-| Quarter, ordinal | `Qo` | — |
-| Quarter, abbreviated | — | `QQQ` |
-| Quarter, wide | — | `QQQQ` |
-| Quarter, narrow | — | `QQQQQ` |
-| Quarter, abbreviated, stand-alone | — | `qqq` |
-| Quarter, wide, stand-alone | — | `qqqq` |
-| Quarter, narrow, stand-alone | — | `qqqqq` |
-| Month | `M` | `M` |
-| Month, 2-digit | `MM` | `MM` |
-| Month, ordinal | `Mo` | — |
-| Month, abbreviated | `MMM` | `MMM` |
-| Month, wide | `MMMM` | `MMMM` |
-| Month, narrow | — | `MMMMM` |
-| Month, abbreviated, stand-alone | — | `LLL` |
-| Month, wide, stand-alone | — | `LLLL` |
-| Month, narrow, stand-alone | — | `LLLLL` |
+| Meaning | `moment` | `ldml` | `strftime` |
+| ------- | -------- | ------ | ---------- |
+| Quarter | `Q` | `Q` | — |
+| Quarter, 2-digit | — | `QQ` | — |
+| Quarter, ordinal | `Qo` | — | — |
+| Quarter, abbreviated | — | `QQQ` | — |
+| Quarter, wide | — | `QQQQ` | — |
+| Quarter, narrow | — | `QQQQQ` | — |
+| Quarter, abbreviated, stand-alone | — | `qqq` | — |
+| Quarter, wide, stand-alone | — | `qqqq` | — |
+| Quarter, narrow, stand-alone | — | `qqqqq` | — |
+| Month | `M` | `M` | — |
+| Month, 2-digit | `MM` | `MM` | `%m` |
+| Month, ordinal | `Mo` | — | — |
+| Month, abbreviated | `MMM` | `MMM` | `%b` |
+| Month, wide | `MMMM` | `MMMM` | `%B` |
+| Month, narrow | — | `MMMMM` | — |
+| Month, abbreviated, stand-alone | — | `LLL` | — |
+| Month, wide, stand-alone | — | `LLLL` | — |
+| Month, narrow, stand-alone | — | `LLLLL` | — |
 
 ## Week & day
 
-| Meaning | `moment` | `ldml` |
-| ------- | -------- | ------ |
-| Local week of year | `w` | `w` |
-| Local week of year, 2-digit | `ww` | `ww` |
-| Local week of year, ordinal | `wo` | — |
-| ISO week of year | `W` | — |
-| ISO week of year, 2-digit | `WW` | — |
-| ISO week of year, ordinal | `Wo` | — |
-| Day of month | `D` | `d` |
-| Day of month, 2-digit | `DD` | `dd` |
-| Day of month, ordinal | `Do` | — |
-| Day of year | `DDD` | `D` |
-| Day of year, 2-digit | — | `DD` |
-| Day of year, 3-digit | `DDDD` | `DDD` |
-| Day of year, ordinal | `DDDo` | — |
+| Meaning | `moment` | `ldml` | `strftime` |
+| ------- | -------- | ------ | ---------- |
+| Local week of year | `w` | `w` | — |
+| Local week of year, 2-digit | `ww` | `ww` | — |
+| Local week of year, ordinal | `wo` | — | — |
+| ISO week of year | `W` | — | — |
+| ISO week of year, 2-digit | `WW` | — | `%V` |
+| ISO week of year, ordinal | `Wo` | — | — |
+| Day of month | `D` | `d` | — |
+| Day of month, 2-digit | `DD` | `dd` | `%d` |
+| Day of month, space-padded | — | — | `%e` |
+| Day of month, ordinal | `Do` | — | — |
+| Day of year | `DDD` | `D` | — |
+| Day of year, 2-digit | — | `DD` | — |
+| Day of year, 3-digit | `DDDD` | `DDD` | `%j` |
+| Day of year, ordinal | `DDDo` | — | — |
 
 ## Weekday
 
-| Meaning | `moment` | `ldml` |
-| ------- | -------- | ------ |
-| Weekday, abbreviated | `ddd` | `EEE` |
-| Weekday, wide | `dddd` | `EEEE` |
-| Weekday, narrow | — | `EEEEE` |
-| Weekday, short | `dd` | `EEEEEE` |
-| Weekday, abbreviated, stand-alone | — | `ccc` |
-| Weekday, wide, stand-alone | — | `cccc` |
-| Weekday, narrow, stand-alone | — | `ccccc` |
-| Weekday, short, stand-alone | — | `cccccc` |
-| Weekday, number (locale) | `d` | `e` |
-| Weekday, number (ISO) | `E` | — |
+| Meaning | `moment` | `ldml` | `strftime` |
+| ------- | -------- | ------ | ---------- |
+| Weekday, abbreviated | `ddd` | `EEE` | `%a` |
+| Weekday, wide | `dddd` | `EEEE` | `%A` |
+| Weekday, narrow | — | `EEEEE` | — |
+| Weekday, short | `dd` | `EEEEEE` | — |
+| Weekday, abbreviated, stand-alone | — | `ccc` | — |
+| Weekday, wide, stand-alone | — | `cccc` | — |
+| Weekday, narrow, stand-alone | — | `ccccc` | — |
+| Weekday, short, stand-alone | — | `cccccc` | — |
+| Weekday, number (locale) | `d` | `e` | `%w` |
+| Weekday, number (ISO) | `E` | — | `%u` |
 
 ## Day period & time
 
-| Meaning | `moment` | `ldml` |
-| ------- | -------- | ------ |
-| AM/PM | `A` | `a` |
-| AM/PM, wide | — | `aaaa` |
-| AM/PM, narrow | — | `aaaaa` |
-| Hour 1–12 | `h` | `h` |
-| Hour 1–12, 2-digit | `hh` | `hh` |
-| Hour 0–23 | `H` | `H` |
-| Hour 0–23, 2-digit | `HH` | `HH` |
-| Hour 1–24 | `k` | `k` |
-| Hour 1–24, 2-digit | `kk` | `kk` |
-| Hour 0–11 | — | `K` |
-| Hour 0–11, 2-digit | — | `KK` |
-| Minute | `m` | `m` |
-| Minute, 2-digit | `mm` | `mm` |
-| Second | `s` | `s` |
-| Second, 2-digit | `ss` | `ss` |
-| Fractional second (1–3 digits) | `S` `SS` `SSS` | `S` `SS` `SSS` |
+| Meaning | `moment` | `ldml` | `strftime` |
+| ------- | -------- | ------ | ---------- |
+| AM/PM | `A` | `a` | `%p` |
+| AM/PM, wide | — | `aaaa` | — |
+| AM/PM, narrow | — | `aaaaa` | — |
+| Hour 1–12 | `h` | `h` | — |
+| Hour 1–12, 2-digit | `hh` | `hh` | `%I` |
+| Hour 1–12, space-padded | — | — | `%l` |
+| Hour 0–23 | `H` | `H` | — |
+| Hour 0–23, 2-digit | `HH` | `HH` | `%H` |
+| Hour 0–23, space-padded | — | — | `%k` |
+| Hour 1–24 | `k` | `k` | — |
+| Hour 1–24, 2-digit | `kk` | `kk` | — |
+| Hour 0–11 | — | `K` | — |
+| Hour 0–11, 2-digit | — | `KK` | — |
+| Minute | `m` | `m` | — |
+| Minute, 2-digit | `mm` | `mm` | `%M` |
+| Second | `s` | `s` | — |
+| Second, 2-digit | `ss` | `ss` | `%S` |
+| Fractional second (1–3 digits) | `S` `SS` `SSS` | `S` `SS` `SSS` | — |
 
 ## Time zone & epoch
 
-| Meaning | `moment` | `ldml` |
-| ------- | -------- | ------ |
-| Time-zone name | `z` | `zzz` |
-| Offset, `±hh:mm` | `Z` | `xxx` |
-| Offset, `±hhmm` | `ZZ` | `xx` |
-| Unix timestamp, seconds | `X` | — |
-| Unix timestamp, milliseconds | `x` | — |
+| Meaning | `moment` | `ldml` | `strftime` |
+| ------- | -------- | ------ | ---------- |
+| Time-zone name | `z` | `zzz` | `%Z` |
+| Offset, `±hh:mm` | `Z` | `xxx` | — |
+| Offset, `±hhmm` | `ZZ` | `xx` | `%z` |
+| Unix timestamp, seconds | `X` | — | `%s` |
+| Unix timestamp, milliseconds | `x` | — | — |
 
 <Callout type="info">
   The `ldml` dialect itself defines no Unix-epoch tokens — those are date-fns extensions
@@ -135,16 +138,16 @@ them: where a column shows `—` here, the presets are supplied by a *library* l
 (e.g. `dateFns` over `ldml`), not by the bare dialect itself. See
 [Libraries → Localized presets](/reference/libraries#localized-presets).
 
-| Meaning | `moment` | `ldml` |
-| ------- | -------- | ------ |
-| Date, short | `L` | — |
-| Date, medium | `ll` | — |
-| Date, long | `LL` | — |
-| Time, short | `LT` | — |
-| Time, with seconds | `LTS` | — |
-| Date + time, medium | `lll` | — |
-| Date + time, long | `LLL` | — |
-| Date + time, full | `LLLL` | — |
+| Meaning | `moment` | `ldml` | `strftime` |
+| ------- | -------- | ------ | ---------- |
+| Date, short | `L` | — | `%x` |
+| Date, medium | `ll` | — | — |
+| Date, long | `LL` | — | — |
+| Time, short | `LT` | — | — |
+| Time, with seconds | `LTS` | — | `%X` |
+| Date + time, medium | `lll` | — | — |
+| Date + time, long | `LLL` | — | — |
+| Date + time, full | `LLLL` | — | `%c` |
 
 ## Aliases & caveats
 
@@ -153,3 +156,4 @@ casing), are documented per dialect — they are properties of one grammar, not 
 
 - [`moment`](/reference/dialects/moment)
 - [`ldml`](/reference/dialects/ldml)
+- [`strftime`](/reference/dialects/strftime)

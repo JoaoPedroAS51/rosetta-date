@@ -4,20 +4,35 @@ title: Dialects
 
 # Dialects
 
-A **`Dialect`** is a formatting *language* — its token grammar, literal-escaping rules, and the
-[canonical meaning](/reference/canonical-vocabulary) of each token. It is tool-agnostic; a
+A **`Dialect`** is a formatting *language* — its token grammar, the [`syntax`
+family](#syntax-families) that separates tokens from literal text, and the [canonical
+meaning](/reference/canonical-vocabulary) of each token. It is tool-agnostic; a
 [`Library`](/reference/libraries) builds on one to model a concrete tool.
 
 Built-in dialects are imported from `rosetta-date/dialects`:
 
 ```ts
-import { ldml, moment } from 'rosetta-date/dialects'
+import { ldml, moment, strftime } from 'rosetta-date/dialects'
 ```
 
 | Dialect | Grammar | Example | Literals | Reference |
 | ------- | ------- | ------- | -------- | --------- |
 | `moment` | [Moment.js](https://momentjs.com/docs/#/displaying/format/) token grammar | `DD/MM/YYYY` | `[...]` | [moment](/reference/dialects/moment) |
 | `ldml` | [Unicode UTS #35 / LDML](https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table) date field symbols | `dd/MM/yyyy` | `'...'` | [ldml](/reference/dialects/ldml) |
+| `strftime` | [C / POSIX `strftime`](https://pubs.opengroup.org/onlinepubs/9699919799/functions/strftime.html) directives | `%d/%m/%Y` | `%%` | [strftime](/reference/dialects/strftime) |
+
+## Syntax families
+
+A dialect's `syntax` belongs to a tokenization **family**, which decides how tokens are told apart
+from literal text:
+
+- **`delimited`** (`moment`, `ldml`) — ASCII letters are token characters; literal text is set off by
+  delimiters (`[...]`, `'...'`).
+- **`directive`** (`strftime`) — every token is introduced by a marker (`%`); all other text,
+  letters included, is literal, and the marker is escaped by doubling it (`%%`).
+
+The parser and renderer are generic over the family, so a new grammar is a new strategy rather than an
+engine change.
 
 For the side-by-side token comparison across all dialects, see [Token Mapping](/reference/token-mapping).
 Each dialect page below documents its own grammar, literals, aliases, and caveats.

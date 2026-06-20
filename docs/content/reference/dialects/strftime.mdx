@@ -1,0 +1,84 @@
+---
+title: strftime
+---
+
+import { Callout } from 'nextra/components'
+
+# `strftime`
+
+The C / POSIX `strftime` token grammar — the `%`-directives shared by C, Python, Ruby, and PHP.
+Imported from `rosetta-date/dialects`:
+
+```ts
+import { convert } from 'rosetta-date'
+import { moment, strftime } from 'rosetta-date/dialects'
+
+convert('%Y-%m-%d', { from: strftime, to: moment }) // 'YYYY-MM-DD'
+convert('DD/MM/YYYY', { from: moment, to: strftime }) // '%d/%m/%Y'
+```
+
+**Spec:** [POSIX `strftime`](https://pubs.opengroup.org/onlinepubs/9699919799/functions/strftime.html).
+
+## A directive grammar
+
+`strftime` is a **directive** family, the mirror image of `moment` and `ldml`: every token is
+introduced by the `%` marker, and *all other text — letters included — is literal*. So `Y` on its own
+is the literal letter `Y`; only `%Y` is the year. Because each directive is self-delimiting, adjacent
+directives never need a separator (`%H%M` is unambiguous).
+
+## Literals
+
+- Any run that is not a `%`-directive is literal, verbatim — no quoting needed.
+- A literal `%` is written `%%`.
+
+## Tokens
+
+Each directive and the [canonical field](/reference/canonical-vocabulary) it maps to. For how these
+compare across dialects, see [Token Mapping](/reference/token-mapping).
+
+| Meaning | Token |
+| ------- | ----- |
+| Calendar year | `%Y` |
+| Calendar year, 2-digit | `%y` |
+| ISO week-numbering year | `%G` |
+| Month, 2-digit | `%m` |
+| Month, abbreviated | `%b` |
+| Month, wide | `%B` |
+| Day of month, 2-digit | `%d` |
+| Day of month, space-padded | `%e` |
+| Day of year, 3-digit | `%j` |
+| ISO week of year, 2-digit | `%V` |
+| Weekday, number (locale) | `%w` |
+| Weekday, number (ISO) | `%u` |
+| Weekday, abbreviated | `%a` |
+| Weekday, wide | `%A` |
+| AM/PM | `%p` |
+| Hour 0–23, 2-digit | `%H` |
+| Hour 0–23, space-padded | `%k` |
+| Hour 1–12, 2-digit | `%I` |
+| Hour 1–12, space-padded | `%l` |
+| Minute | `%M` |
+| Second | `%S` |
+| Time-zone name | `%Z` |
+| Offset, `±hhmm` | `%z` |
+| Unix timestamp, seconds | `%s` |
+| Localized date (short) | `%x` |
+| Localized time (with seconds) | `%X` |
+| Localized date + time (full) | `%c` |
+
+## Aliases
+
+`%h` is parsed as an abbreviated month, the same as `%b`; it normalizes to `%b` when rendered.
+
+## Caveats
+
+<Callout type="warning">
+  - **Composite directives are not yet modeled** — `%T` (`%H:%M:%S`), `%F` (`%Y-%m-%d`), `%D`, `%R`,
+    and `%r` expand to several fields, which the current grammar does not represent. They surface as
+    unrecognized directives for now.
+  - **`%e` / `%k` / `%l` are blank-padded.** No other built-in dialect has a blank-padded form, so
+    converting one to `moment` or `ldml` has no clean target (it falls to the unsupported-token
+    policy). They round-trip cleanly between `strftime`-family dialects.
+  - **The locale presets (`%c` / `%x` / `%X`) map at a fixed width.** POSIX leaves their exact form to
+    the locale, so the date/time-style mapping is a reasonable approximation, not an exact one.
+</Callout>

@@ -29,10 +29,16 @@ pnpm install
 
 ## Adding a dialect or library
 
-To add a dialect, register it in `src/dialects/registry.ts` and give it an `expectations` entry in
-`test/fixtures.ts`; to add a library, register it in `src/libraries/registry.ts` and give it a
-`libraryDeltas` entry there. Registering it is all it takes — the generic suites and the shared
-engine handle the rest, since a new dialect or library is data, not new code.
+To add a dialect, register it in `src/dialects/registry.ts`; to add a library, register it in
+`src/libraries/registry.ts` and give it a `libraryDeltas` entry in `test/fixtures.ts`. A dialect in an
+existing **syntax family** (`delimited` or `directive`) is pure data — pick its `syntax` and map its
+tokens. A grammar that needs a *new* family adds one strategy module under `src/core/syntax/` and one
+member to the `TokenSyntax` union; the parser and renderer stay untouched.
+
+The cross-endpoint matrix in `test/fixtures.ts` is a curated oracle (its flat `canonical → spelling`
+shape currently fits the delimited dialects). A `delimited` dialect joins it with an `expectations`
+entry; a `directive` dialect like `strftime` is exercised by its own focused test
+(`src/dialects/strftime.test.ts`) until that oracle is extended.
 
 Then update the documentation so the new dialect or library is discoverable. The generic suites
 cover the code automatically, but the docs do not — keep these pages in sync by hand:
@@ -106,15 +112,15 @@ Where a test lives signals what it covers.
 
 | Location | Scope | Examples |
 | -------- | ----- | -------- |
-| Beside the module (`src/`) | One module's units, plus the mechanics the oracle cannot express | `literal.test.ts`; the unsupported-token reasons in `libraries.test.ts` |
-| `test/` | Systematic behaviour across every endpoint (dialect or library) | `matrix.test.ts`, `round-trip.test.ts` |
+| Beside the module (`src/`) | One module's units, plus the mechanics the oracle cannot express | `syntax/delimited.test.ts`, `dialects/strftime.test.ts`; the unsupported-token reasons in `libraries.test.ts` |
+| `test/` | Systematic behaviour across the curated endpoints | `matrix.test.ts`, `round-trip.test.ts` |
 
 Unit tests sit next to the code they exercise, so they travel with it on a refactor. The
-cross-cutting suites span every endpoint pair and derive from one shared oracle, `test/fixtures.ts`
-(each dialect's `expectations`, plus each library's `libraryDeltas`). Registering a dialect or
-library makes TypeScript require its oracle entry, so conformance, the matrix, round-trip, and
-totality cover it automatically — leaving the colocated tests for the per-tool mechanics
-(unsupported-token reasons, handler context, adjacency) the oracle does not express.
+cross-cutting suites span every pair of curated endpoints and derive from one shared oracle,
+`test/fixtures.ts` (each dialect's `expectations`, plus each library's `libraryDeltas`). A delimited
+endpoint with an oracle entry earns conformance, the matrix, round-trip, and totality automatically;
+the colocated tests carry the per-tool mechanics (unsupported-token reasons, handler context,
+adjacency) and any endpoint not yet in the matrix oracle (such as the `strftime` dialect).
 
 Run `pnpm test` for both, or `pnpm test:coverage` to enforce the 100% threshold.
 

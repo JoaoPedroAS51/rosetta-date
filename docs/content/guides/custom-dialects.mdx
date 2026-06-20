@@ -23,7 +23,7 @@ import { ldml } from 'rosetta-date/dialects'
 
 const custom = defineDialect({
   name: 'custom',
-  literal: { open: '{', close: '}' },
+  syntax: { kind: 'delimited', open: '{', close: '}' },
   tokens: [
     { token: 'yr', canonical: Canonical.YearNumeric },
     { token: 'mo', canonical: Canonical.MonthTwoDigit },
@@ -32,6 +32,24 @@ const custom = defineDialect({
 })
 
 convert('yr-mo-dy', { from: custom, to: ldml }) // 'yyyy-MM-dd'
+```
+
+The `syntax` chooses a tokenization **family**. The example above is `delimited` (letter tokens, with
+`{...}` literals). For a `%`-directive grammar like strftime, use the `directive` family — token
+spellings include the marker, and a literal marker is the marker doubled:
+
+```ts
+const percent = defineDialect({
+  name: 'percent',
+  syntax: { kind: 'directive', marker: '%' },
+  tokens: [
+    { token: '%Y', canonical: Canonical.YearNumeric },
+    { token: '%m', canonical: Canonical.MonthTwoDigit },
+    { token: '%d', canonical: Canonical.DayOfMonthTwoDigit },
+  ],
+})
+
+convert('%Y-%m-%d', { from: percent, to: ldml }) // 'yyyy-MM-dd'
 ```
 
 ## `defineLibrary`
@@ -80,7 +98,7 @@ convert('Mo', { from: moment, to: dayjsLike }) // '[Mo]' — month ordinal isn't
 
 <Callout type="warning">
   `defineDialect` and `defineLibrary` validate a definition **once, at definition time** — they
-  throw on an incoherent token table or literal rules — and return a stable object you reuse across
+  throw on an incoherent token table or syntax (including a directive token that omits its marker) — and return a stable object you reuse across
   conversions. That object identity matters: per-dialect compilation is cached by object, so
   constructing a fresh definition on every `convert` call silently misses the cache and recompiles
   each time. **Define once, reuse everywhere.**
@@ -94,7 +112,7 @@ convert('Mo', { from: moment, to: dayjsLike }) // '[Mo]' — month ordinal isn't
 - Renaming or removing one is **breaking**.
 
 Prefer the named members (`Canonical.YearNumeric`) over the raw strings. The full vocabulary is
-exported from the package root, and the `TokenRule` and `LiteralRules` types are available for
-annotating your token tables and literals.
+exported from the package root, and the `TokenRule` and `TokenSyntax` types are available for
+annotating your token tables and syntax.
 
 See the [API Reference](/reference/api) for the exact signatures and types.

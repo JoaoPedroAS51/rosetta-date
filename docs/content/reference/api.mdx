@@ -221,13 +221,31 @@ Each side may be a `Dialect` (pure grammar) or a `Library` (a concrete tool) —
 ```ts
 function defineDialect(definition: {
   name: string
-  literal: LiteralRules
+  syntax: TokenSyntax
   tokens: TokenRule[]
 }): Dialect
 ```
 
 Validates the definition once and returns a stable, cacheable `Dialect`. See
 [Custom Dialects & Libraries](/guides/custom-dialects).
+
+`TokenSyntax` is a discriminated union over tokenization families:
+
+```ts
+interface DelimitedSyntax {
+  readonly kind: 'delimited'
+  readonly open: string // e.g. '[' or "'"
+  readonly close: string // e.g. ']' or "'"
+  readonly escapedDelimiter?: string // a doubled quote, for quote-style literals
+}
+
+interface DirectiveSyntax {
+  readonly kind: 'directive'
+  readonly marker: string // e.g. '%'; doubling it is a literal marker
+}
+
+type TokenSyntax = DelimitedSyntax | DirectiveSyntax
+```
 
 ### `defineLibrary`
 

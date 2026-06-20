@@ -134,10 +134,11 @@ and [Custom dialects & libraries](https://rosetta-date.vercel.app/guides/custom-
 
 **Dialects** — at `rosetta-date/dialects`:
 
-| Dialect  | Grammar                                                          | Example      | Literals |
-| -------- | ---------------------------------------------------------------- | ------------ | -------- |
-| `moment` | [Moment.js][momentjs-docs] token grammar                         | `DD/MM/YYYY` | `[...]`  |
-| `ldml`   | [Unicode Technical Standard #35 / LDML][ldml] date field symbols | `dd/MM/yyyy` | `'...'`  |
+| Dialect    | Grammar                                                          | Example      | Literals |
+| ---------- | ---------------------------------------------------------------- | ------------ | -------- |
+| `moment`   | [Moment.js][momentjs-docs] token grammar                         | `DD/MM/YYYY` | `[...]`  |
+| `ldml`     | [Unicode Technical Standard #35 / LDML][ldml] date field symbols | `dd/MM/yyyy` | `'...'`  |
+| `strftime` | [C / POSIX `strftime`][strftime] `%`-directive grammar           | `%d/%m/%Y`   | `%%`     |
 
 **Libraries** — at `rosetta-date/libraries`:
 
@@ -176,3 +177,4 @@ project scripts, the testing layout, and how to add a new dialect or library.
 [dayjs-docs]: https://day.js.org/docs/en/display/format
 [ldml]: https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table
 [momentjs-docs]: https://momentjs.com/docs/#/displaying/format/
+[strftime]: https://pubs.opengroup.org/onlinepubs/9699919799/functions/strftime.html
