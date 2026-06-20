@@ -1,7 +1,6 @@
-import type { CanonicalToken } from '../core/canonical'
 import type { Dialect, Library, Segment } from '../core/types'
 import type { UnsupportedTokenReason } from '../core/unsupported'
-import { sourceDialect } from '../core/endpoint'
+import { definesCanonical, sourceDialect } from '../core/endpoint'
 import { UnsupportedTokenError } from '../core/errors'
 import { parse } from '../core/parse'
 import { render, renderedTokens } from '../core/render'
@@ -36,12 +35,6 @@ export interface FromIntlOptions {
   readonly to: Dialect | Library
   /** What to do with an option the target cannot render. Defaults to `'drop'`. */
   readonly onUnsupportedToken?: IntlUnsupportedPolicy
-}
-
-/** Whether the target's grammar defines a token for `canonical`, ignoring library support. */
-function definesCanonical(target: Dialect | Library, canonical: CanonicalToken): boolean {
-  const dialect = 'resolved' in target ? target.resolved.dialect : target
-  return dialect.tokens.some(rule => rule.canonical === canonical)
 }
 
 /**
