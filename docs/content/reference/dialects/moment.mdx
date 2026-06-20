@@ -12,16 +12,9 @@ The Moment.js-style token grammar. Imported from `rosetta-date/dialects`:
 import { moment } from 'rosetta-date/dialects'
 ```
 
-**Spec:** [Moment.js format tokens](https://momentjs.com/docs/#/displaying/format/). This is the
-grammar; the `momentjs` [library](/reference/libraries/momentjs) is its reference renderer.
-
-## Literals
-
-- Text is wrapped in brackets: `[...]`.
-- The closing bracket `]` has **no in-band escape**, so a literal `]` is emitted between bracketed
-  spans (e.g. `a]b` → `[a]][b]`). The text still round-trips intact.
-
-See [Literals & Adjacency](/guides/literals-and-adjacency) for the cross-dialect rules.
+- **Spec:** [Moment.js format tokens](https://momentjs.com/docs/#/displaying/format/)
+- **Family:** [`delimited`](/reference/dialects#syntax-families) — ASCII letters are token characters
+- **Literals:** brackets `[...]` — see [Literals & Adjacency](/guides/literals-and-adjacency)
 
 ## Tokens
 
@@ -97,4 +90,6 @@ Extra spellings that are **parsed** but normalize to the primary token above whe
     dialects.
   - `A` and `a` both mean AM/PM — moment encodes **case**, not width — so the case distinction is not
     preserved when converting to a dialect that distinguishes by width instead.
+  - A literal `]` has no in-band escape inside a `[...]` run, so it is emitted between bracketed spans
+    (`a]b` → `[a]][b]`); the text still round-trips intact.
 </Callout>

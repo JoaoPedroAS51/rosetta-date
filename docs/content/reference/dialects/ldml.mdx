@@ -12,16 +12,9 @@ The Unicode LDML (UTS #35) date-field grammar. Imported from `rosetta-date/diale
 import { ldml } from 'rosetta-date/dialects'
 ```
 
-**Spec:** [Unicode UTS #35 Date Field Symbol Table](https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table).
-This is the bare grammar; the `dateFns` [library](/reference/libraries/datefns) is its reference
-renderer and adds its own extensions on top.
-
-## Literals
-
-- Text is quoted with `'...'`.
-- A literal apostrophe is `''` (e.g. `'o''clock'` → `o'clock`).
-
-See [Literals & Adjacency](/guides/literals-and-adjacency) for the cross-dialect rules.
+- **Spec:** [Unicode UTS #35 Date Field Symbol Table](https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table)
+- **Family:** [`delimited`](/reference/dialects#syntax-families) — ASCII letters are token characters
+- **Literals:** quotes `'...'`; a literal apostrophe is `''` — see [Literals & Adjacency](/guides/literals-and-adjacency)
 
 ## Tokens
 
@@ -99,7 +92,6 @@ Extra spellings that are **parsed** but normalize to the primary token above whe
   - Case is significant: `y` (calendar year) and `Y` (local week-numbering year) are different
     fields, as are `d` (day of month) and `D` (day of year).
   - Ordinals (`Mo`, `Qo`, `wo`, `Do`…), ISO week fields, the Unix epoch, and localized presets are
-    **not** part of the bare `ldml` dialect — they are date-fns extensions. A `dialect → dialect`
-    conversion literalizes them; convert through the `dateFns`
-    [library](/reference/libraries/datefns) to get them.
+    **not** part of the bare `ldml` dialect. A `dialect → dialect` conversion literalizes them; a
+    [library](/reference/libraries) that extends `ldml` (e.g. date-fns) provides them.
 </Callout>

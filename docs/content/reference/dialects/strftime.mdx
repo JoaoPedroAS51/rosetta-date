@@ -17,19 +17,17 @@ convert('%Y-%m-%d', { from: strftime, to: moment }) // 'YYYY-MM-DD'
 convert('DD/MM/YYYY', { from: moment, to: strftime }) // '%d/%m/%Y'
 ```
 
-**Spec:** [POSIX `strftime`](https://pubs.opengroup.org/onlinepubs/9699919799/functions/strftime.html).
+- **Spec:** [POSIX `strftime`](https://pubs.opengroup.org/onlinepubs/9699919799/functions/strftime.html)
+- **Family:** [`directive`](/reference/dialects#syntax-families) — every token is introduced by `%`
+- **Literals:** any non-directive text is literal verbatim; a literal `%` is `%%` — see [Literals & Adjacency](/guides/literals-and-adjacency)
 
 ## A directive grammar
 
-`strftime` is a **directive** family, the mirror image of `moment` and `ldml`: every token is
-introduced by the `%` marker, and *all other text — letters included — is literal*. So `Y` on its own
-is the literal letter `Y`; only `%Y` is the year. Because each directive is self-delimiting, adjacent
-directives never need a separator (`%H%M` is unambiguous).
-
-## Literals
-
-- Any run that is not a `%`-directive is literal, verbatim — no quoting needed.
-- A literal `%` is written `%%`.
+`strftime` belongs to the **directive** family — the mirror image of the [**delimited**
+family](/reference/dialects#syntax-families): every token is introduced by the `%` marker, and *all
+other text — letters included — is literal*. So `Y` on its own is the literal letter `Y`; only `%Y` is
+the year. Because each directive is self-delimiting, adjacent directives never need a separator
+(`%H%M` is unambiguous).
 
 ## Tokens
 
@@ -77,8 +75,8 @@ compare across dialects, see [Token Mapping](/reference/token-mapping).
     and `%r` expand to several fields, which the current grammar does not represent. They surface as
     unrecognized directives for now.
   - **`%e` / `%k` / `%l` are blank-padded.** No other built-in dialect has a blank-padded form, so
-    converting one to `moment` or `ldml` has no clean target (it falls to the unsupported-token
-    policy). They round-trip cleanly between `strftime`-family dialects.
+    converting one to a dialect that lacks it has no clean target — it falls to the unsupported-token
+    policy. A dialect that does define the blank-padded form round-trips cleanly.
   - **The locale presets (`%c` / `%x` / `%X`) map at a fixed width.** POSIX leaves their exact form to
     the locale, so the date/time-style mapping is a reasonable approximation, not an exact one.
 </Callout>

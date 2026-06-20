@@ -12,15 +12,15 @@ safety at the token boundary**.
 
 ## Literals
 
-Literal (verbatim) text is preserved across dialects, even though each dialect escapes it
-differently:
+Literal (verbatim) text is preserved across dialects, though each
+[`syntax` family](/reference/dialects#syntax-families) marks it differently:
 
-- `moment` brackets `[...]` ↔ `ldml` quotes `'...'`.
-- A literal apostrophe is `''` in `ldml` (e.g. `'o''clock'` → `o'clock`).
-- Only the **letter-bearing span** is escaped, so separators stay clean: `DD/MM` ↔ `dd/MM`, not
-  `dd'/'MM`.
-- A literal `]` has no in-band escape inside a moment `[...]` run, so it is emitted *between*
-  bracketed spans (e.g. `a]b` → `[a]][b]`); the text still round-trips intact.
+- **Delimited** dialects (e.g. `moment` `[...]`, `ldml` `'...'`) wrap literal text in delimiters. Only
+  the **letter-bearing span** is escaped, so separators stay clean (`DD/MM` ↔ `dd/MM`, not `dd'/'MM`);
+  a literal apostrophe is `''` in `ldml` (`'o''clock'` → `o'clock`), and a literal `]` — which has no
+  in-band escape inside a `moment` `[...]` run — is emitted between bracketed spans (`a]b` → `[a]][b]`).
+- **Directive** dialects (e.g. `strftime`) treat all non-directive text as literal verbatim — no
+  wrapping needed — and escape only the marker by doubling it (`%%` → `%`).
 
 ## Adjacent tokens
 

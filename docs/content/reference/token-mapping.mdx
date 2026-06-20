@@ -17,8 +17,8 @@ caveats, see its page under [Dialects](/reference/dialects).
   (default: escaped as a literal). Adding a dialect adds a column — no row is pairwise.
 </Callout>
 
-Behaviour specific to a concrete tool (date-fns extensions, Day.js gaps, option-gated tokens) lives
-in [Libraries](/reference/libraries); the tokens below are the dialect grammars themselves.
+Behaviour specific to a concrete tool (e.g. extensions, unrenderable tokens, option-gated tokens)
+lives in [Libraries](/reference/libraries); the tokens below are the dialect grammars themselves.
 
 ## Era & year
 
@@ -125,10 +125,9 @@ in [Libraries](/reference/libraries); the tokens below are the dialect grammars 
 | Unix timestamp, milliseconds | `x` | — | — |
 
 <Callout type="info">
-  The `ldml` dialect itself defines no Unix-epoch tokens — those are date-fns extensions
-  (`t` / `T`), so they convert only through the `dateFns` library. The same applies to ISO week
-  fields and ordinals, which are not part of the bare dialect. See
-  [dateFns](/reference/libraries/datefns).
+  The `ldml` dialect itself defines no Unix-epoch tokens, ISO week fields, or ordinals — those are
+  library extensions (e.g. date-fns adds `t` / `T` for the epoch), not part of the bare dialect, so a
+  `dialect → dialect` conversion literalizes them. See [Libraries](/reference/libraries).
 </Callout>
 
 ## Localized presets
