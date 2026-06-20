@@ -2,8 +2,8 @@ import type { CanonicalToken } from './canonical'
 import type { Dialect, Library, ResolvedLibrary, Segment } from './types'
 import type { UnsupportedTokenInfo, UnsupportedTokenPolicy, UnsupportedTokenReason } from './unsupported'
 import { UnsupportedTokenError } from './errors'
-import { boundaryFor, escapeLiteral } from './literal'
-import { compile as compileRules, mergesAfter } from './tokenize'
+import { resolveSyntax } from './syntax'
+import { compile as compileRules } from './tokenize'
 import { Unsupported } from './unsupported'
 
 /** A bare dialect renders every token; only a library narrows the set. */
@@ -96,26 +96,25 @@ type Resolution
  * separately could emit a stray delimiter between them (e.g. `'L'` + `'T'` would
  * read back as the apostrophe `L'T`, not `LT`).
  *
- * Two adjacent field tokens whose concatenation would re-tokenize differently in
- * the target (e.g. moment `LL` + `LT` → `LLLT`, which reads back as `LLL` + `T`)
- * are separated by the dialect's empty literal (`LL[]LT`). When the dialect has
- * none — a quote-style dialect like LDML, where `''` is an apostrophe, not empty —
- * the second token is routed to the policy as `unrepresentable-adjacency`.
+ * Some syntax families need a separator between adjacent tokens so the output
+ * does not re-tokenize as a different token. The target syntax provides that
+ * separator. When it cannot, the second token is routed to the policy as
+ * `unrepresentable-adjacency`.
  */
 export function render(segments: readonly Segment[], to: Dialect | Library, options?: RenderOptions): string {
   const { dialect, tokens, canonicals } = compileTarget(to)
   const toLibrary = 'resolved' in to ? to : undefined
+  const strategy = resolveSyntax(dialect.syntax)
   const rules = compileRules(dialect)
-  const boundary = boundaryFor(dialect.literal)
   let output = ''
   let literal = ''
   // The last field token emitted with nothing after it, or `undefined` when the
-  // tail is literal/verbatim text (so the next field cannot merge into it).
+  // tail is literal text, so the next field cannot merge into it.
   let last: string | undefined
 
   const flush = (): void => {
     if (literal !== '') {
-      output += escapeLiteral(literal, dialect.literal)
+      output += strategy.escapeLiteral(literal)
       literal = ''
       last = undefined
     }
@@ -139,20 +138,19 @@ export function render(segments: readonly Segment[], to: Dialect | Library, opti
 
   const emitToken = (token: string): void => {
     flush()
-    if (last !== undefined && mergesAfter(rules, last, token)) {
-      if (boundary !== undefined) {
-        output += boundary + token
-        last = token
-      }
-      else {
+    if (last !== undefined) {
+      const separator = strategy.separator(last, token, rules)
+      if (separator === undefined) {
         // The token converts, but this dialect cannot separate it from `last`.
         apply(resolveUnsupported(token, 'unrepresentable-adjacency', dialect, toLibrary, options, { kind: 'emit', text: token, isToken: true }))
+        return
       }
-    }
-    else {
-      output += token
+      output += separator + token
       last = token
+      return
     }
+    output += token
+    last = token
   }
 
   for (const segment of segments) {

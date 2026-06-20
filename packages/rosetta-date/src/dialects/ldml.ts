@@ -17,7 +17,7 @@ import { Canonical } from '../core/canonical'
  */
 export const ldml: Dialect = {
   name: 'ldml',
-  literal: { open: '\'', close: '\'', escapedDelimiter: '\'\'' },
+  syntax: { kind: 'delimited', open: '\'', close: '\'', escapedDelimiter: '\'\'' },
   tokens: [
     // Era
     { token: 'GGG', canonical: Canonical.EraAbbreviated },
@@ -32,7 +32,7 @@ export const ldml: Dialect = {
     { token: 'yyy', canonical: Canonical.YearNumeric },
     { token: 'yy', canonical: Canonical.YearTwoDigit },
 
-    // Week-numbering year (local), gated in date-fns by useAdditionalWeekYearTokens
+    // Week-numbering year (local)
     { token: 'YYYY', canonical: Canonical.WeekYearNumeric },
     { token: 'YY', canonical: Canonical.WeekYearTwoDigit },
 
@@ -64,7 +64,7 @@ export const ldml: Dialect = {
     { token: 'd', canonical: Canonical.DayOfMonthNumeric },
     { token: 'dd', canonical: Canonical.DayOfMonthTwoDigit },
 
-    // Day of year, gated in date-fns by useAdditionalDayOfYearTokens
+    // Day of year
     { token: 'D', canonical: Canonical.DayOfYearNumeric },
     { token: 'DD', canonical: Canonical.DayOfYearTwoDigit },
     { token: 'DDD', canonical: Canonical.DayOfYearThreeDigit },
@@ -81,7 +81,7 @@ export const ldml: Dialect = {
     { token: 'ccccc', canonical: Canonical.WeekdayNarrowStandalone },
     { token: 'cccccc', canonical: Canonical.WeekdayShortStandalone },
 
-    // Weekday number — local (`e`); ISO (`i`) is a date-fns extension
+    // Weekday number (local)
     { token: 'e', canonical: Canonical.WeekdayNumeric },
 
     // Day period (AM/PM)
@@ -119,7 +119,6 @@ export const ldml: Dialect = {
     { token: 'xxx', canonical: Canonical.OffsetWithColon },
     { token: 'xx', canonical: Canonical.OffsetWithoutColon },
 
-    // Epoch (`t`/`T`) and the localized presets (`P…`/`p…`) are date-fns
-    // extensions, not UTS#35 — they are defined on the `dateFns` library.
+    // Epoch and localized presets are outside this UTS #35 subset.
   ],
 }

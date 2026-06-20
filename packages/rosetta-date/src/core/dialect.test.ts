@@ -6,7 +6,7 @@ import { defineDialect } from './dialect'
 
 const bracketed: Dialect = {
   name: 'bracketed',
-  literal: { open: '[', close: ']' },
+  syntax: { kind: 'delimited', open: '[', close: ']' },
   tokens: [{ token: 'YYYY', canonical: Canonical.YearNumeric }],
 }
 
@@ -18,15 +18,23 @@ describe('defineDialect', () => {
   it('accepts a quote-style dialect with an escapedDelimiter', () => {
     expect(() => defineDialect({
       name: 'quoted',
-      literal: { open: '\'', close: '\'', escapedDelimiter: '\'\'' },
+      syntax: { kind: 'delimited', open: '\'', close: '\'', escapedDelimiter: '\'\'' },
       tokens: [{ token: 'yyyy', canonical: Canonical.YearNumeric }],
+    })).not.toThrow()
+  })
+
+  it('accepts a directive dialect with a marker', () => {
+    expect(() => defineDialect({
+      name: 'directive',
+      syntax: { kind: 'directive', marker: '%' },
+      tokens: [{ token: '%Y', canonical: Canonical.YearNumeric }],
     })).not.toThrow()
   })
 
   it('accepts aliases (several tokens sharing one canonical symbol)', () => {
     expect(() => defineDialect({
       name: 'aliased',
-      literal: { open: '[', close: ']' },
+      syntax: { kind: 'delimited', open: '[', close: ']' },
       tokens: [
         { token: 'Y', canonical: Canonical.YearNumeric },
         { token: 'YYYY', canonical: Canonical.YearNumeric },
@@ -37,7 +45,7 @@ describe('defineDialect', () => {
   it('rejects a token spelling listed twice', () => {
     expect(() => defineDialect({
       name: 'dup',
-      literal: { open: '[', close: ']' },
+      syntax: { kind: 'delimited', open: '[', close: ']' },
       tokens: [
         { token: 'YY', canonical: Canonical.YearTwoDigit },
         { token: 'YY', canonical: Canonical.YearNumeric },
@@ -45,10 +53,34 @@ describe('defineDialect', () => {
     })).toThrowError(/more than once/)
   })
 
+  it('rejects an empty directive marker', () => {
+    expect(() => defineDialect({
+      name: 'no-marker',
+      syntax: { kind: 'directive', marker: '' },
+      tokens: [],
+    })).toThrowError(/non-empty directive "marker"/)
+  })
+
+  it('rejects a directive token that does not begin with the marker', () => {
+    expect(() => defineDialect({
+      name: 'bare-directive',
+      syntax: { kind: 'directive', marker: '%' },
+      tokens: [{ token: 'Y', canonical: Canonical.YearNumeric }],
+    })).toThrowError(/must begin with the marker/)
+  })
+
+  it('rejects an unhandled syntax kind (exhaustiveness guard)', () => {
+    expect(() => defineDialect({
+      name: 'mystery',
+      syntax: { kind: 'mystery' } as unknown as Dialect['syntax'],
+      tokens: [],
+    })).toThrowError(/Unhandled variant/)
+  })
+
   it('rejects an empty open delimiter', () => {
     expect(() => defineDialect({
       name: 'no-open',
-      literal: { open: '', close: ']' },
+      syntax: { kind: 'delimited', open: '', close: ']' },
       tokens: [],
     })).toThrowError(/non-empty/)
   })
@@ -56,7 +88,7 @@ describe('defineDialect', () => {
   it('rejects an empty close delimiter', () => {
     expect(() => defineDialect({
       name: 'no-close',
-      literal: { open: '[', close: '' },
+      syntax: { kind: 'delimited', open: '[', close: '' },
       tokens: [],
     })).toThrowError(/non-empty/)
   })
@@ -64,7 +96,7 @@ describe('defineDialect', () => {
   it('rejects an escapedDelimiter on a bracketed dialect', () => {
     expect(() => defineDialect({
       name: 'bad-escape',
-      literal: { open: '[', close: ']', escapedDelimiter: ']]' },
+      syntax: { kind: 'delimited', open: '[', close: ']', escapedDelimiter: ']]' },
       tokens: [],
     })).toThrowError(/quote-style/)
   })
@@ -72,7 +104,7 @@ describe('defineDialect', () => {
   it('rejects matching open/close with no escapedDelimiter (bracketed dialect)', () => {
     expect(() => defineDialect({
       name: 'ambiguous',
-      literal: { open: '|', close: '|' },
+      syntax: { kind: 'delimited', open: '|', close: '|' },
       tokens: [],
     })).toThrowError(/must differ/)
   })
@@ -80,7 +112,7 @@ describe('defineDialect', () => {
   it('rejects an empty token', () => {
     expect(() => defineDialect({
       name: 'empty-token',
-      literal: { open: '[', close: ']' },
+      syntax: { kind: 'delimited', open: '[', close: ']' },
       tokens: [{ token: '', canonical: Canonical.YearNumeric }],
     })).toThrowError(/empty token/)
   })
@@ -88,7 +120,7 @@ describe('defineDialect', () => {
   it('rejects an empty escapedDelimiter on a quote-style dialect', () => {
     expect(() => defineDialect({
       name: 'empty-escape',
-      literal: { open: '\'', close: '\'', escapedDelimiter: '' },
+      syntax: { kind: 'delimited', open: '\'', close: '\'', escapedDelimiter: '' },
       tokens: [],
     })).toThrowError(/empty "escapedDelimiter"/)
   })

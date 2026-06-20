@@ -2,9 +2,9 @@ import type { CanonicalToken } from '../src/core/canonical'
 import type { EndpointName } from './fixtures'
 import { describe, expect, it } from 'vitest'
 import { convert } from '../src'
-import { escapeLiteral } from '../src/core/literal'
 import { parse } from '../src/core/parse'
 import { render, renderedTokens } from '../src/core/render'
+import { resolveSyntax } from '../src/core/syntax'
 import { aliases, endpoints, grammarOf, renderOracle } from './fixtures'
 
 const names = Object.keys(endpoints) as EndpointName[]
@@ -75,7 +75,7 @@ describe('cross-endpoint conversion matrix', () => {
       if (oneSided.length > 0) {
         it.each(oneSided)('%s has no %s token → escaped literal', (canonical) => {
           const token = fromMap[canonical]!
-          expect(convert(token, { from: endpoints[from], to: endpoints[to] })).toBe(escapeLiteral(token, grammarOf(to).literal))
+          expect(convert(token, { from: endpoints[from], to: endpoints[to] })).toBe(resolveSyntax(grammarOf(to).syntax).escapeLiteral(token))
         })
       }
     })

@@ -61,7 +61,7 @@ describe('tokenization and caching', () => {
     // `Y` is declared before `YYYY`; longest-match must still pick `YYYY`, not Y×4.
     const dialect: Dialect = {
       name: 'order',
-      literal: { open: '[', close: ']' },
+      syntax: { kind: 'delimited', open: '[', close: ']' },
       tokens: [
         { token: 'Y', canonical: Canonical.YearTwoDigit },
         { token: 'YYYY', canonical: Canonical.YearNumeric },
@@ -123,7 +123,7 @@ describe('unrepresentable adjacency (a quote-style target with no empty literal)
   // has no empty literal (`''` is an apostrophe), so the merge cannot be separated.
   const bracket: Dialect = {
     name: 'bracket',
-    literal: { open: '[', close: ']' },
+    syntax: { kind: 'delimited', open: '[', close: ']' },
     tokens: [
       { token: 'A', canonical: Canonical.EpochSeconds },
       { token: 'B', canonical: Canonical.EpochMilliseconds },
@@ -131,7 +131,7 @@ describe('unrepresentable adjacency (a quote-style target with no empty literal)
   }
   const quote: Dialect = {
     name: 'quote',
-    literal: { open: '\'', close: '\'', escapedDelimiter: '\'\'' },
+    syntax: { kind: 'delimited', open: '\'', close: '\'', escapedDelimiter: '\'\'' },
     tokens: [
       { token: 'y', canonical: Canonical.EpochSeconds },
       { token: 'yy', canonical: Canonical.EpochMilliseconds },

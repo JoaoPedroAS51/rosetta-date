@@ -18,7 +18,7 @@ import { Canonical } from '../core/canonical'
  */
 export const moment: Dialect = {
   name: 'moment',
-  literal: { open: '[', close: ']' },
+  syntax: { kind: 'delimited', open: '[', close: ']' },
   tokens: [
     // Calendar year
     { token: 'YYYY', canonical: Canonical.YearNumeric },
@@ -107,8 +107,8 @@ export const moment: Dialect = {
     { token: 'X', canonical: Canonical.EpochSeconds },
     { token: 'x', canonical: Canonical.EpochMilliseconds },
 
-    // Localized presets — the `L…` family. moment has no full-date-only,
-    // tz-bearing time, or short date-time preset, so those slots are ldml-only.
+    // Localized presets — the `L…` family. This grammar has no full-date-only,
+    // timezone-bearing time, or short date-time preset.
     { token: 'L', canonical: Canonical.LocalizedDateShort },
     { token: 'll', canonical: Canonical.LocalizedDateMedium },
     { token: 'LL', canonical: Canonical.LocalizedDateLong },

@@ -71,6 +71,7 @@ export const Canonical = {
   // Day of month
   DayOfMonthNumeric: 'day-of-month/numeric',
   DayOfMonthTwoDigit: 'day-of-month/2-digit',
+  DayOfMonthSpacePadded: 'day-of-month/space-padded',
   DayOfMonthOrdinal: 'day-of-month/ordinal',
 
   // Day of year
@@ -102,8 +103,10 @@ export const Canonical = {
   // h12 = 1–12, h23 = 0–23, h24 = 1–24, h11 = 0–11
   HourNumericH12: 'hour/numeric/h12',
   HourTwoDigitH12: 'hour/2-digit/h12',
+  HourSpacePaddedH12: 'hour/space-padded/h12',
   HourNumericH23: 'hour/numeric/h23',
   HourTwoDigitH23: 'hour/2-digit/h23',
+  HourSpacePaddedH23: 'hour/space-padded/h23',
   HourNumericH24: 'hour/numeric/h24',
   HourTwoDigitH24: 'hour/2-digit/h24',
   HourNumericH11: 'hour/numeric/h11',

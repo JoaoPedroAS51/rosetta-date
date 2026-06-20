@@ -1,16 +1,18 @@
 import type { CanonicalToken } from './canonical'
 
 /**
- * How a dialect delimits and escapes literal (verbatim) text.
+ * A grammar where ASCII letters are token characters and literal text is set off
+ * by delimiters.
  *
  * @remarks
- * Common delimiter models include:
+ * Two delimiter models:
  * - **Bracketed**: text between distinct `open` and `close` delimiters is
  *   literal. There is no in-band escape for the closing delimiter.
  * - **Quoted**: text between matching `open`/`close` delimiters is literal, and
  *   `escapedDelimiter` represents one literal delimiter character.
  */
-export interface LiteralRules {
+export interface DelimitedSyntax {
+  readonly kind: 'delimited'
   /** Opening delimiter, e.g. `[` or `'`. */
   readonly open: string
   /** Closing delimiter, e.g. `]` or `'`. */
@@ -21,6 +23,28 @@ export interface LiteralRules {
    */
   readonly escapedDelimiter?: string
 }
+
+/**
+ * A grammar where every token is introduced by a `marker` prefix, such as `%Y`
+ * or `%m`. Everything else, including letters, is literal. The marker is escaped
+ * by doubling it, so `%%` represents a literal `%`.
+ *
+ * @remarks
+ * Token spellings include the marker (`'%Y'`, not `'Y'`). Because each token is
+ * self-delimiting, adjacent tokens never re-merge, so this family needs no
+ * boundary between them.
+ */
+export interface DirectiveSyntax {
+  readonly kind: 'directive'
+  /** The prefix that introduces a token, e.g. `%`. Doubling it is a literal marker. */
+  readonly marker: string
+}
+
+/**
+ * How a dialect separates tokens from literal text. Each union member represents
+ * one tokenization family.
+ */
+export type TokenSyntax = DelimitedSyntax | DirectiveSyntax
 
 /**
  * One row of a dialect's token table.
@@ -43,7 +67,7 @@ export interface TokenRule {
  * Defines a token grammar as immutable data.
  *
  * @remarks
- * Scope: literal rules plus token-to-canonical mappings.
+ * Scope: a tokenization syntax plus token-to-canonical mappings.
  *
  * Usage: define a dialect once and reuse that object. Compiled token tables are
  * cached by object identity, so rebuilding a dialect for every conversion misses
@@ -52,9 +76,9 @@ export interface TokenRule {
 export interface Dialect {
   /** Stable identifier for this dialect. */
   readonly name: string
-  /** How this dialect delimits and escapes literal text. */
-  readonly literal: LiteralRules
-  /** The token ↔ canonical mappings that define this dialect. */
+  /** How this dialect separates tokens from literal text. */
+  readonly syntax: TokenSyntax
+  /** The token-to-canonical mappings that define this dialect. */
   readonly tokens: readonly TokenRule[]
 }
 
@@ -124,7 +148,7 @@ export interface ResolvedLibrary {
  * target should honor library-specific extensions or support subsets.
  */
 export interface Library extends LibraryDefinition {
-  /** Precomputed effective grammar and render predicate — read by the engine. */
+  /** Precomputed effective grammar and render predicate read by the engine. */
   readonly resolved: ResolvedLibrary
 }
 
@@ -136,7 +160,7 @@ export interface Library extends LibraryDefinition {
  * rendering.
  */
 export type Segment
-  /** Verbatim text that must survive conversion unchanged. */
+  /** Decoded literal text that must survive conversion as literal text. */
   = | { readonly kind: 'literal', readonly value: string }
   /** A recognized field, normalized to its canonical symbol. */
     | { readonly kind: 'field', readonly canonical: CanonicalToken, readonly raw: string }

@@ -141,6 +141,35 @@ export const expectations: Record<DialectName, Partial<Record<CanonicalToken, st
     [Canonical.OffsetWithColon]: 'xxx',
     [Canonical.OffsetWithoutColon]: 'xx',
   },
+  strftime: {
+    [Canonical.YearNumeric]: '%Y',
+    [Canonical.YearTwoDigit]: '%y',
+    [Canonical.WeekYearNumericIso]: '%G',
+    [Canonical.MonthTwoDigit]: '%m',
+    [Canonical.MonthAbbreviated]: '%b',
+    [Canonical.MonthWide]: '%B',
+    [Canonical.DayOfMonthTwoDigit]: '%d',
+    [Canonical.DayOfMonthSpacePadded]: '%e',
+    [Canonical.DayOfYearThreeDigit]: '%j',
+    [Canonical.WeekOfYearTwoDigitIso]: '%V',
+    [Canonical.WeekdayNumeric]: '%w',
+    [Canonical.WeekdayNumericIso]: '%u',
+    [Canonical.WeekdayAbbreviated]: '%a',
+    [Canonical.WeekdayWide]: '%A',
+    [Canonical.DayPeriodAbbreviated]: '%p',
+    [Canonical.HourTwoDigitH12]: '%I',
+    [Canonical.HourSpacePaddedH12]: '%l',
+    [Canonical.HourTwoDigitH23]: '%H',
+    [Canonical.HourSpacePaddedH23]: '%k',
+    [Canonical.MinuteTwoDigit]: '%M',
+    [Canonical.SecondTwoDigit]: '%S',
+    [Canonical.TimezoneAbbreviated]: '%Z',
+    [Canonical.OffsetWithoutColon]: '%z',
+    [Canonical.EpochSeconds]: '%s',
+    [Canonical.LocalizedDateShort]: '%x',
+    [Canonical.LocalizedTimeMedium]: '%X',
+    [Canonical.LocalizedDateTimeFull]: '%c',
+  },
 }
 
 /**
@@ -170,6 +199,10 @@ export const aliases: Partial<Record<EndpointName, ReadonlyArray<readonly [token
     // `R` is date-fns's non-primary spelling of the ISO week-year (primary `RRRR`).
     ['R', Canonical.WeekYearNumericIso],
   ],
+  'strftime': [
+    // `%h` is a non-primary spelling of the abbreviated month (primary `%b`).
+    ['%h', Canonical.MonthAbbreviated],
+  ],
 }
 
 /**
@@ -194,13 +227,21 @@ export const composites: Partial<Record<DialectName, readonly string[]>> = {
     'EEE, dd MMM yyyy',
     'h:mm a',
   ],
+  strftime: [
+    '%Y-%m-%d',
+    '%d/%m/%Y %H:%M:%S',
+    '%Y%m%d',
+    '%a, %d %b %Y',
+    '%Y %%done%%',
+  ],
 }
 
 /**
  * Every conversion endpoint — dialects and libraries — keyed by name. The generic
  * suites iterate this, so adding either kind earns conformance, matrix, round-trip,
- * and totality coverage with no new test code (TypeScript requires a delta entry
- * for a new library, just as it requires an `expectations` entry for a new dialect).
+ * and totality coverage with no new test code: TypeScript requires an `expectations`
+ * entry for a new dialect and a `libraryDeltas` entry for a new library, since
+ * `test/` is type-checked.
  */
 export const endpoints = { ...dialects, ...libraries }
 export type EndpointName = keyof typeof endpoints

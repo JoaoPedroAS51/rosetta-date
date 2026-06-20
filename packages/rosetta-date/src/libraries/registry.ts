@@ -14,8 +14,8 @@ export const libraries = {
 } satisfies Record<string, Library>
 
 /**
- * The name of a supported library, e.g. `'momentjs'` or `'date-fns'`. Derived
- * from {@link libraries} so it stays in sync automatically.
+ * The name of a supported library. Derived from {@link libraries} so it stays in
+ * sync automatically.
  */
 export type LibraryName = keyof typeof libraries
 

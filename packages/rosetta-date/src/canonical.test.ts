@@ -1,4 +1,4 @@
-import type { Dialect, LiteralRules, TokenRule } from './index'
+import type { Dialect, TokenRule, TokenSyntax } from './index'
 import { describe, expect, it } from 'vitest'
 import { ldml } from './dialects'
 import { Canonical, convert, defineDialect, defineLibrary } from './index'
@@ -11,13 +11,13 @@ describe('canonical vocabulary as public extension API', () => {
   })
 
   it('builds a custom dialect that converts against a built-in', () => {
-    const literal: LiteralRules = { open: '{', close: '}' }
+    const syntax: TokenSyntax = { kind: 'delimited', open: '{', close: '}' }
     const tokens: readonly TokenRule[] = [
       { token: 'yr', canonical: Canonical.YearNumeric },
       { token: 'mo', canonical: Canonical.MonthTwoDigit },
       { token: 'dy', canonical: Canonical.DayOfMonthTwoDigit },
     ]
-    const custom: Dialect = defineDialect({ name: 'custom', literal, tokens })
+    const custom: Dialect = defineDialect({ name: 'custom', syntax, tokens })
 
     expect(convert('yr-mo-dy', { from: custom, to: ldml })).toBe('yyyy-MM-dd')
     expect(convert('yyyy/MM/dd', { from: ldml, to: custom })).toBe('yr/mo/dy')

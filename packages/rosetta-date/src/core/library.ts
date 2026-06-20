@@ -13,7 +13,7 @@ function effectiveDialect(def: LibraryDefinition): Dialect {
     return def.dialect
   return {
     name: def.name,
-    literal: def.dialect.literal,
+    syntax: def.dialect.syntax,
     tokens: [...def.dialect.tokens, ...def.extends],
   }
 }

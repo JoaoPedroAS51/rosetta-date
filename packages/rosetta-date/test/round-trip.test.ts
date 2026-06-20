@@ -3,8 +3,8 @@ import type { DialectName } from '../src/dialects/registry'
 import type { EndpointName } from './fixtures'
 import { describe, expect, it } from 'vitest'
 import { convert } from '../src'
-import { dialects } from '../src/dialects/registry'
-import { composites, endpoints, renderOracle } from './fixtures'
+import { parse } from '../src/core/parse'
+import { composites, endpoints, grammarOf, renderOracle } from './fixtures'
 
 const names = Object.keys(endpoints) as EndpointName[]
 const pairs: ReadonlyArray<readonly [EndpointName, EndpointName]> = names.flatMap(
@@ -33,14 +33,24 @@ describe('single-token round trips (canonicals shared by both endpoints)', () =>
 
 describe('composite formats round-trip', () => {
   // Composites test literal/adjacency mechanics — a dialect-level concern — so they
-  // round-trip across the literal-style boundary (dialect → other → dialect).
-  const dialectNames = Object.keys(dialects) as DialectName[]
+  // round-trip across the literal-style boundary (dialect → other → dialect),
+  // including the directive↔delimited boundary that `strftime` adds.
+  const dialectNames = Object.keys(composites) as DialectName[]
   const dialectPairs = dialectNames.flatMap(
     from => dialectNames.filter(to => to !== from).map(to => [from, to] as const),
   )
 
+  // A composite only round-trips through a partner that renders all of its fields:
+  // dialects do not fully overlap (e.g. `strftime` has no numeric 12-hour like `h`).
+  function renderable(format: string, from: DialectName, to: DialectName): boolean {
+    const oracle = renderOracle(to)
+    return parse(format, grammarOf(from)).every(
+      segment => segment.kind !== 'field' || oracle[segment.canonical] !== undefined,
+    )
+  }
+
   for (const [from, to] of dialectPairs) {
-    const formats = composites[from] ?? []
+    const formats = (composites[from] ?? []).filter(format => renderable(format, from, to))
     if (formats.length === 0)
       continue
 
