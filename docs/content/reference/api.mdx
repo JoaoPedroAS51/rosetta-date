@@ -91,6 +91,45 @@ type DescribedSegment =
   | { readonly kind: 'unknown', readonly value: string }
 ```
 
+## `explain`
+
+```ts
+function explain(format: string, options: ExplainOptions): ExplainedSegment[]
+```
+
+A read-only dry run of `convert`: report, per field, whether the target can render it (and as which
+token) or why it cannot. Builds on `describe`. See the [Explaining Conversions](/guides/explain) guide.
+
+```ts
+import { explain } from 'rosetta-date'
+import { dayjs, momentjs } from 'rosetta-date/libraries'
+
+explain('DDD', { from: momentjs, to: dayjs })
+// [ { kind: 'field', token: 'DDD', canonical: 'day-of-year/numeric', field: 'day-of-year', style: 'numeric', qualifiers: [], status: 'unsupported', reason: 'unsupported-by-target' } ]
+```
+
+### `explain` types
+
+```ts
+interface ExplainOptions {
+  readonly from: Dialect | Library
+  readonly to: Dialect | Library
+}
+
+// The subset of `UnsupportedTokenReason` a per-token `explain` can produce.
+type ExplainedReason = 'unmappable' | 'unsupported-by-target'
+
+type ExplainedField = DescribedField & (
+  | { readonly status: 'converted', readonly target: string }
+  | { readonly status: 'unsupported', readonly reason: ExplainedReason }
+)
+
+type ExplainedSegment =
+  | { readonly kind: 'literal', readonly value: string }
+  | ExplainedField
+  | { readonly kind: 'unknown', readonly value: string }
+```
+
 ## `Intl` adapter — `rosetta-date/intl`
 
 Bridges token strings and native `Intl.DateTimeFormat` options. See the [Intl Options](/guides/intl)

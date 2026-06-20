@@ -26,7 +26,7 @@ Although `YYYY-MM-DD` and `yyyy-MM-dd` look different, they express the same dat
 - 🧩 **Extensible by design** — a new dialect or library connects to the hub with two mappings, not a fleet of pairwise converters.
 - 🛡️ **Escape-aware tokenizer** — literals round-trip intact across dialects.
 - 🌐 **Native `Intl` bridge** — turn a token pattern into `Intl.DateTimeFormat` options, and back.
-- 🔍 **Introspectable** — `describe` a pattern to see what each token means, without converting.
+- 🔍 **Introspectable** — `describe` what a pattern means and `explain` what a conversion would do, without converting.
 - 🌳 **Tree-shakeable** — dialects and libraries ship from their own entrypoints.
 - 🪶 **Zero runtime dependencies**.
 
@@ -110,19 +110,24 @@ toIntlOptions('DD/MM/YYYY', { from: moment }) // { day: '2-digit', month: '2-dig
 fromIntlOptions({ dateStyle: 'short' }, { to: dayjs }) // 'L'
 ```
 
-Or just inspect a pattern without converting it, with `describe`:
+Or inspect without converting — `describe` what a pattern means, or `explain` what a conversion would do:
 
 ```ts
-import { describe } from 'rosetta-date'
+import { describe, explain } from 'rosetta-date'
 import { moment } from 'rosetta-date/dialects'
+import { dayjs } from 'rosetta-date/libraries'
 
 describe('DD/MM', moment)
 // [ { kind: 'field', token: 'DD', canonical: 'day-of-month/2-digit', field: 'day-of-month', style: '2-digit', qualifiers: [] },
 //   { kind: 'literal', value: '/' },
 //   { kind: 'field', token: 'MM', canonical: 'month/2-digit', field: 'month', style: '2-digit', qualifiers: [] } ]
+
+// Dry-run a conversion to audit it — `DDD` (day of year) has no Day.js token:
+explain('DDD', { from: moment, to: dayjs })
+// [ { kind: 'field', token: 'DDD', canonical: 'day-of-year/numeric', ..., status: 'unsupported', reason: 'unsupported-by-target' } ]
 ```
 
-See [Converting](https://rosetta-date.vercel.app/guides/converting), [Describing formats](https://rosetta-date.vercel.app/guides/describe), [Intl Options](https://rosetta-date.vercel.app/guides/intl), [Dialects & Libraries](https://rosetta-date.vercel.app/concepts/dialects-and-libraries),
+See [Converting](https://rosetta-date.vercel.app/guides/converting), [Describing formats](https://rosetta-date.vercel.app/guides/describe), [Explaining conversions](https://rosetta-date.vercel.app/guides/explain), [Intl Options](https://rosetta-date.vercel.app/guides/intl), [Dialects & Libraries](https://rosetta-date.vercel.app/concepts/dialects-and-libraries),
 and [Custom dialects & libraries](https://rosetta-date.vercel.app/guides/custom-dialects) for the full guides.
 
 ## Supported dialects & libraries

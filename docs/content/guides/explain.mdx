@@ -1,0 +1,53 @@
+---
+title: Explaining Conversions
+---
+
+import { Callout } from 'nextra/components'
+
+# Explaining Conversions
+
+`explain(format, { from, to })` is a read-only dry run of [`convert`](/guides/converting): it reports,
+token by token, what a conversion *would* do — without producing the converted string. It builds on
+[`describe`](/guides/describe), adding the per-field outcome.
+
+```ts
+import { explain } from 'rosetta-date'
+import { dayjs, momentjs } from 'rosetta-date/libraries'
+
+explain('DDD', { from: momentjs, to: dayjs })
+// [{ kind: 'field', token: 'DDD', canonical: 'day-of-year/numeric', field: 'day-of-year',
+//    style: 'numeric', qualifiers: [], status: 'unsupported', reason: 'unsupported-by-target' }]
+```
+
+This is the diagnostic for a migration: see what a conversion keeps, remaps, or drops before you run
+it.
+
+## Field outcomes
+
+Every recognized field carries the same decoded semantics as `describe`, plus a `status`:
+
+- **`'converted'`** — the target renders it; `target` holds the token spelling it becomes.
+- **`'unsupported'`** — the target cannot render it; `reason` says why:
+  - `'unmappable'` — the target grammar has no token for this field at all.
+  - `'unsupported-by-target'` — the grammar *has* a token, but the target library does not render it
+    (a `supports` narrowing).
+
+```ts
+import { explain } from 'rosetta-date'
+import { ldml, moment } from 'rosetta-date/dialects'
+
+explain('DD/MM', { from: moment, to: ldml })
+// [ { kind: 'field', token: 'DD', canonical: 'day-of-month/2-digit', ..., status: 'converted', target: 'dd' },
+//   { kind: 'literal', value: '/' },
+//   { kind: 'field', token: 'MM', canonical: 'month/2-digit', ..., status: 'converted', target: 'MM' } ]
+```
+
+Literals and unrecognized runs pass through unchanged, mirroring the input in order.
+
+<Callout type="info">
+  Each field is classified on its own. Whole-string rendering effects — chiefly
+  `unrepresentable-adjacency`, where two tokens that each convert cleanly would re-merge once placed
+  side by side — belong to the rendered output, so [`convert`](/guides/converting) surfaces them
+  (through its [`onUnsupportedToken`](/guides/unsupported-tokens) policy), not `explain`. `explain`
+  answers "can each token map?"; `convert` produces the final string.
+</Callout>

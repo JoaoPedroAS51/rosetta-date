@@ -18,3 +18,5 @@ export type {
 } from './core/unsupported'
 export { describe } from './describe'
 export type { DescribedField, DescribedSegment } from './describe'
+export { explain } from './explain'
+export type { ExplainedField, ExplainedReason, ExplainedSegment, ExplainOptions } from './explain'
