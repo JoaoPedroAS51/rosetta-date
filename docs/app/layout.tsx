@@ -29,7 +29,7 @@ const footer = (
     {' '}
     {new Date().getFullYear()}
     {' '}
-    © rosetta-date.
+    © João Pedro Antunes Silva.
   </Footer>
 )
 
