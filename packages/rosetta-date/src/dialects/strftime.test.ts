@@ -1,5 +1,7 @@
+import type { Dialect } from '../core/types'
 import { describe, expect, it } from 'vitest'
 import { convert } from '../converter'
+import { Canonical } from '../core/canonical'
 import { ldml } from './ldml'
 import { moment } from './moment'
 import { strftime } from './strftime'
@@ -50,5 +52,35 @@ describe('strftime dialect', () => {
   it('maps weekday names, the day period, and locale presets', () => {
     expect(convert('%A %p', { from: strftime, to: moment })).toBe('dddd A')
     expect(convert('%c', { from: strftime, to: moment })).toBe('LLLL')
+  })
+
+  describe('composite directives', () => {
+    it('expands a composite to its sub-pattern when converting out', () => {
+      expect(convert('%T', { from: strftime, to: moment })).toBe('HH:mm:ss')
+      expect(convert('%R', { from: strftime, to: moment })).toBe('HH:mm')
+      expect(convert('%F', { from: strftime, to: ldml })).toBe('yyyy-MM-dd')
+      expect(convert('%D', { from: strftime, to: moment })).toBe('MM/DD/YY')
+      expect(convert('%r', { from: strftime, to: moment })).toBe('hh:mm:ss A')
+    })
+
+    it('normalizes a composite to its expansion on a round trip (parse-only)', () => {
+      expect(convert('%T', { from: strftime, to: strftime })).toBe('%H:%M:%S')
+    })
+
+    it('expands composites mixed with literals and atomic directives', () => {
+      expect(convert('%F %T', { from: strftime, to: moment })).toBe('YYYY-MM-DD HH:mm:ss')
+    })
+
+    it('surfaces an unrecognized token inside a composite expansion', () => {
+      // Built without `defineDialect`, so the malformed expansion is not rejected;
+      // parsing degrades gracefully and routes the unknown to the policy.
+      const broken: Dialect = {
+        name: 'broken',
+        syntax: { kind: 'directive', marker: '%' },
+        tokens: [{ token: '%H', canonical: Canonical.HourTwoDigitH23 }],
+        composites: [{ token: '%T', expandsTo: '%H%Q' }],
+      }
+      expect(() => convert('%T', { from: broken, to: moment, onUnsupportedToken: 'throw' })).toThrow(/%Q/)
+    })
   })
 })

@@ -155,7 +155,7 @@ export function delimitedStrategy(config: DelimitedSyntax): SyntaxStrategy {
   const boundary = boundaryFor(config)
 
   return {
-    scan(input, index, tokens): Scan {
+    scan(input, index, tokens, composites): Scan {
       const literal = readLiteral(input, index, config)
       if (literal !== null)
         return { kind: 'literal', value: literal.value, next: literal.next }
@@ -167,6 +167,10 @@ export function delimitedStrategy(config: DelimitedSyntax): SyntaxStrategy {
       const match = matchToken(tokens, input, index)
       if (match !== undefined && !runExtendsBeyond(match.token, input, index))
         return { kind: 'token', token: match.token, canonical: match.canonical, next: index + match.token.length }
+
+      const composite = matchToken(composites, input, index)
+      if (composite !== undefined && !runExtendsBeyond(composite.token, input, index))
+        return { kind: 'composite', token: composite.token, expandsTo: composite.expandsTo, next: index + composite.token.length }
 
       // A single-letter-run token that only matched a prefix of a longer run the
       // dialect does not define: consume the whole run as one unrecognized token.

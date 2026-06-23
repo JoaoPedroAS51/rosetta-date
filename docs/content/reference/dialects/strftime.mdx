@@ -64,6 +64,23 @@ compare across dialects, see [Token Mapping](/reference/token-mapping).
 | Localized time (with seconds) | `%X` |
 | Localized date + time (full) | `%c` |
 
+## Composite directives
+
+A handful of directives are **composites** — a single spelling that stands for a whole sub-pattern.
+They expand on parse, so converting one out yields the expanded fields:
+
+| Composite | Expands to |
+| --------- | ---------- |
+| `%T` | `%H:%M:%S` |
+| `%R` | `%H:%M` |
+| `%F` | `%Y-%m-%d` |
+| `%D` | `%m/%d/%y` |
+| `%r` | `%I:%M:%S %p` |
+
+A composite is a parse-time macro, so **rendering produces its expansion, never the composite**:
+`%T` round-trips to `%H:%M:%S` (identical output, normalized spelling), the same way an alias
+normalizes — just across several tokens.
+
 ## Aliases
 
 `%h` is parsed as an abbreviated month, the same as `%b`; it normalizes to `%b` when rendered.
@@ -71,9 +88,6 @@ compare across dialects, see [Token Mapping](/reference/token-mapping).
 ## Caveats
 
 <Callout type="warning">
-  - **Composite directives are not yet modeled** — `%T` (`%H:%M:%S`), `%F` (`%Y-%m-%d`), `%D`, `%R`,
-    and `%r` expand to several fields, which the current grammar does not represent. They surface as
-    unrecognized directives for now.
   - **`%e` / `%k` / `%l` are blank-padded.** No other built-in dialect has a blank-padded form, so
     converting one to a dialect that lacks it has no clean target — it falls to the unsupported-token
     policy. A dialect that does define the blank-padded form round-trips cleanly.

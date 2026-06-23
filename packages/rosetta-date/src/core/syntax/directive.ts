@@ -16,7 +16,7 @@ export function directiveStrategy(config: DirectiveSyntax): SyntaxStrategy {
   const escaped = marker + marker
 
   return {
-    scan(input, index, tokens): Scan {
+    scan(input, index, tokens, composites): Scan {
       if (!input.startsWith(marker, index))
         return { kind: 'literal', value: input.charAt(index), next: index + 1 }
 
@@ -26,6 +26,10 @@ export function directiveStrategy(config: DirectiveSyntax): SyntaxStrategy {
       const match = matchToken(tokens, input, index)
       if (match !== undefined)
         return { kind: 'token', token: match.token, canonical: match.canonical, next: index + match.token.length }
+
+      const composite = matchToken(composites, input, index)
+      if (composite !== undefined)
+        return { kind: 'composite', token: composite.token, expandsTo: composite.expandsTo, next: index + composite.token.length }
 
       // Marker + an unrecognized directive: consume the marker and the next
       // character as one unrecognized token.

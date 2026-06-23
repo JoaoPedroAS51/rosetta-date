@@ -52,6 +52,21 @@ const percent = defineDialect({
 convert('%Y-%m-%d', { from: percent, to: ldml }) // 'yyyy-MM-dd'
 ```
 
+A dialect can also declare **composites** — parse-time macros where one spelling expands to a
+sub-pattern. They render as their expansion (never the composite), so a composite normalizes on a
+round trip:
+
+```ts
+const withComposites = defineDialect({
+  name: 'percent-composites',
+  syntax: { kind: 'directive', marker: '%' },
+  tokens: [/* … %H %M %S … */],
+  composites: [{ token: '%T', expandsTo: '%H:%M:%S' }],
+})
+
+convert('%T', { from: withComposites, to: ldml }) // 'HH:mm:ss'
+```
+
 ## `defineLibrary`
 
 A library extends a dialect — adding a tool's own tokens via `extends` (and, in the built-ins,

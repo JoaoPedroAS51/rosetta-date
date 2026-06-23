@@ -126,6 +126,80 @@ describe('defineDialect', () => {
   })
 })
 
+describe('defineDialect — composites', () => {
+  const time = [
+    { token: '%H', canonical: Canonical.HourTwoDigitH23 },
+    { token: '%M', canonical: Canonical.MinuteTwoDigit },
+    { token: '%S', canonical: Canonical.SecondTwoDigit },
+  ]
+
+  it('accepts a composite that expands to defined tokens', () => {
+    expect(() => defineDialect({
+      name: 'with-composite',
+      syntax: { kind: 'directive', marker: '%' },
+      tokens: time,
+      composites: [{ token: '%T', expandsTo: '%H:%M:%S' }],
+    })).not.toThrow()
+  })
+
+  it('rejects a composite that collides with a token spelling', () => {
+    expect(() => defineDialect({
+      name: 'collide',
+      syntax: { kind: 'directive', marker: '%' },
+      tokens: time,
+      composites: [{ token: '%H', expandsTo: '%H:%M' }],
+    })).toThrowError(/collides with a token/)
+  })
+
+  it('rejects a duplicate composite spelling', () => {
+    expect(() => defineDialect({
+      name: 'dup-composite',
+      syntax: { kind: 'directive', marker: '%' },
+      tokens: time,
+      composites: [
+        { token: '%T', expandsTo: '%H:%M' },
+        { token: '%T', expandsTo: '%H:%M:%S' },
+      ],
+    })).toThrowError(/more than once/)
+  })
+
+  it('rejects a composite whose expansion has unrecognized tokens', () => {
+    expect(() => defineDialect({
+      name: 'bad-expansion',
+      syntax: { kind: 'directive', marker: '%' },
+      tokens: time,
+      composites: [{ token: '%T', expandsTo: '%H:%Q:%S' }],
+    })).toThrowError(/unrecognized tokens/)
+  })
+
+  it('rejects a composite with an empty expansion', () => {
+    expect(() => defineDialect({
+      name: 'empty-expansion',
+      syntax: { kind: 'directive', marker: '%' },
+      tokens: time,
+      composites: [{ token: '%T', expandsTo: '' }],
+    })).toThrowError(/empty expansion/)
+  })
+
+  it('rejects a directive composite that does not begin with the marker', () => {
+    expect(() => defineDialect({
+      name: 'bare-composite',
+      syntax: { kind: 'directive', marker: '%' },
+      tokens: time,
+      composites: [{ token: 'T', expandsTo: '%H:%M:%S' }],
+    })).toThrowError(/must begin with the marker/)
+  })
+
+  it('rejects an empty composite token', () => {
+    expect(() => defineDialect({
+      name: 'empty-composite',
+      syntax: { kind: 'delimited', open: '[', close: ']' },
+      tokens: [{ token: 'H', canonical: Canonical.HourTwoDigitH23 }],
+      composites: [{ token: '', expandsTo: 'H' }],
+    })).toThrowError(/empty composite token/)
+  })
+})
+
 describe('built-in dialects', () => {
   it.each(Object.entries(dialects))('accepts the %s dialect', (_name, dialect) => {
     expect(() => defineDialect(dialect)).not.toThrow()

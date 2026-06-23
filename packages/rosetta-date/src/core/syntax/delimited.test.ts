@@ -16,42 +16,52 @@ const tokens = compile({
   ],
 })
 
+const composites = [{ token: 'T', expandsTo: 'YYYY' }]
+
 describe('delimited scan', () => {
   it('reads a bracketed literal run', () => {
-    expect(bracket.scan('[de]X', 0, tokens)).toEqual({ kind: 'literal', value: 'de', next: 4 })
+    expect(bracket.scan('[de]X', 0, tokens, [])).toEqual({ kind: 'literal', value: 'de', next: 4 })
   })
 
   it('reads an empty bracket pair', () => {
-    expect(bracket.scan('[]', 0, tokens)).toEqual({ kind: 'literal', value: '', next: 2 })
+    expect(bracket.scan('[]', 0, tokens, [])).toEqual({ kind: 'literal', value: '', next: 2 })
   })
 
   it('treats an unterminated bracket as a single literal character', () => {
-    expect(bracket.scan('[de', 0, tokens)).toEqual({ kind: 'literal', value: '[', next: 1 })
+    expect(bracket.scan('[de', 0, tokens, [])).toEqual({ kind: 'literal', value: '[', next: 1 })
   })
 
   it('reads a non-letter as a literal character', () => {
-    expect(bracket.scan('/', 0, tokens)).toEqual({ kind: 'literal', value: '/', next: 1 })
+    expect(bracket.scan('/', 0, tokens, [])).toEqual({ kind: 'literal', value: '/', next: 1 })
   })
 
   it('matches the longest token at a letter position', () => {
-    expect(bracket.scan('YYYY', 0, tokens)).toEqual({ kind: 'token', token: 'YYYY', canonical: Canonical.YearNumeric, next: 4 })
+    expect(bracket.scan('YYYY', 0, tokens, [])).toEqual({ kind: 'token', token: 'YYYY', canonical: Canonical.YearNumeric, next: 4 })
+  })
+
+  it('matches a composite spelling (generic over families)', () => {
+    expect(bracket.scan('T', 0, tokens, composites)).toEqual({ kind: 'composite', token: 'T', expandsTo: 'YYYY', next: 1 })
+  })
+
+  it('treats an over-long run of a single-letter composite as one unknown', () => {
+    expect(bracket.scan('TT', 0, tokens, composites)).toEqual({ kind: 'unknown', value: 'TT', next: 2 })
   })
 
   it('consumes an over-long same-letter run as one unknown', () => {
-    expect(bracket.scan('YYYYY', 0, tokens)).toEqual({ kind: 'unknown', value: 'YYYYY', next: 5 })
+    expect(bracket.scan('YYYYY', 0, tokens, [])).toEqual({ kind: 'unknown', value: 'YYYYY', next: 5 })
   })
 
   it('reads a quoted run, decoding doubled quotes', () => {
-    expect(quoted.scan('\'de\'', 0, tokens)).toEqual({ kind: 'literal', value: 'de', next: 4 })
-    expect(quoted.scan('\'o\'\'clock\'', 0, tokens)).toEqual({ kind: 'literal', value: 'o\'clock', next: 10 })
+    expect(quoted.scan('\'de\'', 0, tokens, [])).toEqual({ kind: 'literal', value: 'de', next: 4 })
+    expect(quoted.scan('\'o\'\'clock\'', 0, tokens, [])).toEqual({ kind: 'literal', value: 'o\'clock', next: 10 })
   })
 
   it('decodes a doubled quote standing on its own', () => {
-    expect(quoted.scan('\'\'', 0, tokens)).toEqual({ kind: 'literal', value: '\'', next: 2 })
+    expect(quoted.scan('\'\'', 0, tokens, [])).toEqual({ kind: 'literal', value: '\'', next: 2 })
   })
 
   it('reads an unterminated quoted run to the end of input', () => {
-    expect(quoted.scan('\'abc', 0, tokens)).toEqual({ kind: 'literal', value: 'abc', next: 4 })
+    expect(quoted.scan('\'abc', 0, tokens, [])).toEqual({ kind: 'literal', value: 'abc', next: 4 })
   })
 })
 

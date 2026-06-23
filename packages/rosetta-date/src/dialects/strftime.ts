@@ -5,8 +5,9 @@ import { Canonical } from '../core/canonical'
  * Defines the C / POSIX `strftime` date-token grammar.
  *
  * @remarks
- * Scope: atomic, single-field `%` directives. Composite directives (`%T`, `%F`,
- * `%D`, `%R`, `%r`) expand to several fields and are outside this dialect.
+ * Scope: the single-field `%` directives plus the composite directives (`%T`,
+ * `%R`, `%F`, `%D`, `%r`), which expand to a sub-pattern of atomic directives on
+ * parse and normalize to that expansion on render.
  *
  * Syntax: a `directive` family. Every token is introduced by `%`, and all other
  * text, including letters, is literal. A literal `%` is written `%%`.
@@ -48,7 +49,7 @@ export const strftime: Dialect = {
     // Day period (AM/PM)
     { token: '%p', canonical: Canonical.DayPeriodAbbreviated },
 
-    // Hour — `%H`/`%I` zero-pad, `%k`/`%l` blank-pad
+    // Hour: `%H`/`%I` zero-pad, `%k`/`%l` blank-pad
     { token: '%H', canonical: Canonical.HourTwoDigitH23 },
     { token: '%k', canonical: Canonical.HourSpacePaddedH23 },
     { token: '%I', canonical: Canonical.HourTwoDigitH12 },
@@ -65,9 +66,19 @@ export const strftime: Dialect = {
     // Unix epoch
     { token: '%s', canonical: Canonical.EpochSeconds },
 
-    // Localized presets — deferred to the locale, mapped preset ↔ preset
+    // Localized presets: deferred to the locale, mapped preset to preset
     { token: '%c', canonical: Canonical.LocalizedDateTimeFull },
     { token: '%x', canonical: Canonical.LocalizedDateShort },
     { token: '%X', canonical: Canonical.LocalizedTimeMedium },
+  ],
+  // Composite directives: parse-time macros that expand to atomic directives.
+  // Rendering produces the expansion, never the composite, so `%T` normalizes to
+  // `%H:%M:%S` on a round trip.
+  composites: [
+    { token: '%T', expandsTo: '%H:%M:%S' },
+    { token: '%R', expandsTo: '%H:%M' },
+    { token: '%F', expandsTo: '%Y-%m-%d' },
+    { token: '%D', expandsTo: '%m/%d/%y' },
+    { token: '%r', expandsTo: '%I:%M:%S %p' },
   ],
 }

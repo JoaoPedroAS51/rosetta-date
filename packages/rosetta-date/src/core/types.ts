@@ -64,10 +64,29 @@ export interface TokenRule {
 }
 
 /**
+ * A composite token: a single spelling that expands to a whole sub-pattern.
+ *
+ * @remarks
+ * A composite is a parse-time macro, not a field. On parse, it expands to the
+ * segments of {@link CompositeRule.expandsTo}, written in the same dialect's
+ * grammar. Rendering emits the expanded atomic tokens, never the composite
+ * spelling, so a round trip normalizes the format string to the expansion.
+ *
+ * The expansion may use only atomic tokens, not other composites.
+ */
+export interface CompositeRule {
+  /** The composite spelling. */
+  readonly token: string
+  /** The sub-pattern it expands to, written in this dialect's grammar. */
+  readonly expandsTo: string
+}
+
+/**
  * Defines a token grammar as immutable data.
  *
  * @remarks
- * Scope: a tokenization syntax plus token-to-canonical mappings.
+ * Scope: a tokenization syntax, token-to-canonical mappings, and any composite
+ * macros.
  *
  * Usage: define a dialect once and reuse that object. Compiled token tables are
  * cached by object identity, so rebuilding a dialect for every conversion misses
@@ -80,6 +99,8 @@ export interface Dialect {
   readonly syntax: TokenSyntax
   /** The token-to-canonical mappings that define this dialect. */
   readonly tokens: readonly TokenRule[]
+  /** Composite spellings that expand to sub-patterns during parsing. Omit when none. */
+  readonly composites?: readonly CompositeRule[]
 }
 
 /**
@@ -118,9 +139,9 @@ export interface LibraryDefinition {
    * Keyed by canonical field, not token spelling: it gates which fields render,
    * never how they are spelled.
    *
-   * Rendered fields use the dialect's primary spelling, which is the first
-   * {@link TokenRule} for that canonical in token-table order. To render a
-   * different alias, use a dialect whose token table makes that alias primary.
+   * Rendered fields use the dialect's primary spelling: the first
+   * {@link TokenRule} for that canonical in token-table order. Output spelling is
+   * a dialect concern.
    */
   readonly supports?: ReadonlySet<CanonicalToken>
 }

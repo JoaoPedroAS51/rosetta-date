@@ -223,11 +223,23 @@ function defineDialect(definition: {
   name: string
   syntax: TokenSyntax
   tokens: TokenRule[]
+  composites?: CompositeRule[]
 }): Dialect
 ```
 
 Validates the definition once and returns a stable, cacheable `Dialect`. See
 [Custom Dialects & Libraries](/guides/custom-dialects).
+
+A `CompositeRule` is a parse-time macro — one spelling that expands to a sub-pattern (e.g. strftime
+`%T` → `%H:%M:%S`). Rendering produces the expansion, never the composite, so a composite normalizes
+on a round trip.
+
+```ts
+interface CompositeRule {
+  readonly token: string // the composite spelling, e.g. '%T'
+  readonly expandsTo: string // its sub-pattern, in this dialect's grammar, e.g. '%H:%M:%S'
+}
+```
 
 `TokenSyntax` is a discriminated union over tokenization families:
 

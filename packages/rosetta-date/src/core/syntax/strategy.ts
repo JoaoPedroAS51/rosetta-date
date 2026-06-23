@@ -1,15 +1,17 @@
 import type { CanonicalToken } from '../canonical'
-import type { TokenRule, TokenSyntax } from '../types'
+import type { CompositeRule, TokenRule, TokenSyntax } from '../types'
 
 /**
  * One unit of progress from {@link SyntaxStrategy.scan}: the piece found at the
- * scan position and `next`, the index just past it.
+ * scan position and `next`, the index just past it. A `composite` scan result
+ * carries the sub-pattern to parse next; it is not a field segment.
  *
  * @internal
  */
 export type Scan
   = | { readonly kind: 'literal', readonly value: string, readonly next: number }
     | { readonly kind: 'token', readonly token: string, readonly canonical: CanonicalToken, readonly next: number }
+    | { readonly kind: 'composite', readonly token: string, readonly expandsTo: string, readonly next: number }
     | { readonly kind: 'unknown', readonly value: string, readonly next: number }
 
 /**
@@ -21,7 +23,7 @@ export type Scan
  */
 export interface SyntaxStrategy {
   /** Scan the next piece at `index`. Always advances (`next > index`). */
-  readonly scan: (input: string, index: number, tokens: readonly TokenRule[]) => Scan
+  readonly scan: (input: string, index: number, tokens: readonly TokenRule[], composites: readonly CompositeRule[]) => Scan
   /** Encode literal text so it round-trips without re-tokenizing in this family. */
   readonly escapeLiteral: (value: string) => string
   /**

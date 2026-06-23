@@ -1,12 +1,13 @@
-import type { Dialect, DirectiveSyntax, TokenRule, TokenSyntax } from './types'
+import type { CompositeRule, Dialect, DirectiveSyntax, TokenRule, TokenSyntax } from './types'
 import { assertNever } from './assert'
+import { parse } from './parse'
 
-/** Validate a directive family's marker and that every token spelling carries it. */
-function validateDirective(name: string, syntax: DirectiveSyntax, tokens: readonly TokenRule[]): void {
+/** Validate a directive family's marker and that every spelling carries it. */
+function validateDirective(name: string, syntax: DirectiveSyntax, tokens: readonly TokenRule[], composites: readonly CompositeRule[]): void {
   if (syntax.marker.length === 0)
     throw new Error(`Dialect "${name}" must have a non-empty directive "marker"`)
 
-  for (const { token } of tokens) {
+  for (const { token } of [...tokens, ...composites]) {
     if (!token.startsWith(syntax.marker)) {
       throw new Error(
         `Dialect "${name}" directive token "${token}" must begin with the marker "${syntax.marker}"`,
@@ -37,10 +38,10 @@ function validateDelimited(name: string, open: string, close: string, escapedDel
 }
 
 /** Validate a dialect's tokenization syntax, branching exhaustively on its family. */
-function validateSyntax(name: string, syntax: TokenSyntax, tokens: readonly TokenRule[]): void {
+function validateSyntax(name: string, syntax: TokenSyntax, tokens: readonly TokenRule[], composites: readonly CompositeRule[]): void {
   switch (syntax.kind) {
     case 'directive':
-      validateDirective(name, syntax, tokens)
+      validateDirective(name, syntax, tokens, composites)
       break
     case 'delimited':
       validateDelimited(name, syntax.open, syntax.close, syntax.escapedDelimiter)
@@ -50,12 +51,31 @@ function validateSyntax(name: string, syntax: TokenSyntax, tokens: readonly Toke
   }
 }
 
+/** Validate composite spellings, token collisions, and parseable expansions. */
+function validateComposites(definition: Dialect, tokens: readonly TokenRule[], composites: readonly CompositeRule[]): void {
+  const spellings = new Set(tokens.map(rule => rule.token))
+  const seen = new Set<string>()
+  for (const { token, expandsTo } of composites) {
+    if (token === '')
+      throw new Error(`Dialect "${definition.name}" has an empty composite token`)
+    if (spellings.has(token))
+      throw new Error(`Dialect "${definition.name}" composite "${token}" collides with a token of the same spelling`)
+    if (seen.has(token))
+      throw new Error(`Dialect "${definition.name}" defines composite "${token}" more than once`)
+    seen.add(token)
+    if (expandsTo === '')
+      throw new Error(`Dialect "${definition.name}" composite "${token}" has an empty expansion`)
+    if (parse(expandsTo, definition, false).some(segment => segment.kind === 'unknown'))
+      throw new Error(`Dialect "${definition.name}" composite "${token}" expands to "${expandsTo}", which has unrecognized tokens`)
+  }
+}
+
 /**
  * Defines and validates a {@link Dialect}.
  *
  * @remarks
- * Validation catches an incoherent {@link Dialect.syntax}, empty token
- * spellings, and duplicate token spellings at definition time. Aliases are
+ * Validation catches an incoherent {@link Dialect.syntax}, empty or duplicate
+ * token spellings, and invalid composite rules at definition time. Aliases are
  * valid: multiple token spellings may map to the same canonical symbol.
  *
  * The returned object is the same object passed in. Define it once and reuse it
@@ -63,13 +83,12 @@ function validateSyntax(name: string, syntax: TokenSyntax, tokens: readonly Toke
  *
  * @param definition - The dialect data to validate.
  * @returns The same {@link Dialect} object passed as `definition`.
- * @throws {Error} When the syntax is invalid, a token spelling is empty, or a
- * token spelling is listed more than once.
+ * @throws {Error} When syntax, token spellings, or composite rules are invalid.
  */
 export function defineDialect(definition: Dialect): Dialect {
-  const { name, syntax, tokens } = definition
+  const { name, syntax, tokens, composites = [] } = definition
 
-  validateSyntax(name, syntax, tokens)
+  validateSyntax(name, syntax, tokens, composites)
 
   const seen = new Set<string>()
   for (const { token } of tokens) {
@@ -79,6 +98,8 @@ export function defineDialect(definition: Dialect): Dialect {
       throw new Error(`Dialect "${name}" defines token "${token}" more than once`)
     seen.add(token)
   }
+
+  validateComposites(definition, tokens, composites)
 
   return definition
 }
