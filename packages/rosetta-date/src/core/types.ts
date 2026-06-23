@@ -69,10 +69,12 @@ export interface TokenRule {
  * @remarks
  * A composite is a parse-time macro, not a field. On parse, it expands to the
  * segments of {@link CompositeRule.expandsTo}, written in the same dialect's
- * grammar. Rendering emits the expanded atomic tokens, never the composite
- * spelling, so a round trip normalizes the format string to the expansion.
+ * grammar. Rendering emits that expansion, never the composite spelling, so a
+ * round trip normalizes the format string to the expansion.
  *
- * The expansion may use only atomic tokens, not other composites.
+ * The expansion is a sub-pattern in this dialect's grammar. It may contain
+ * literal text and atomic tokens, but never another composite. If it contains
+ * only literal text, rendering normalizes the composite to that text.
  */
 export interface CompositeRule {
   /** The composite spelling. */

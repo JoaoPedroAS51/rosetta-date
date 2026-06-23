@@ -36,6 +36,17 @@ describe('strftime dialect', () => {
     expect(() => convert('%e', { from: strftime, to: moment, onUnsupportedToken: 'throw' })).toThrow()
   })
 
+  it('maps the ISO 2-digit week-year, shared with other dialects', () => {
+    expect(convert('%g', { from: strftime, to: moment })).toBe('GG')
+    expect(convert('GG', { from: moment, to: strftime })).toBe('%g')
+  })
+
+  it('carries the century, which has no clean target elsewhere', () => {
+    expect(convert('%C', { from: strftime, to: strftime })).toBe('%C')
+    // No other modeled dialect renders a century, so it has no clean target.
+    expect(() => convert('%C', { from: strftime, to: moment, onUnsupportedToken: 'throw' })).toThrow()
+  })
+
   it('surfaces an unrecognized directive to the policy', () => {
     expect(() => convert('%Q', { from: strftime, to: moment, onUnsupportedToken: 'throw' })).toThrow(/%Q/)
   })
@@ -69,6 +80,16 @@ describe('strftime dialect', () => {
 
     it('expands composites mixed with literals and atomic directives', () => {
       expect(convert('%F %T', { from: strftime, to: moment })).toBe('YYYY-MM-DD HH:mm:ss')
+    })
+
+    it('expands `%n`/`%t` to literal whitespace', () => {
+      expect(convert('%Y%n%H', { from: strftime, to: moment })).toBe('YYYY\nHH')
+      expect(convert('%H%t%M', { from: strftime, to: moment })).toBe('HH\tmm')
+    })
+
+    it('normalizes `%n`/`%t` to the raw character on a round trip (parse-only)', () => {
+      expect(convert('%n', { from: strftime, to: strftime })).toBe('\n')
+      expect(convert('%t', { from: strftime, to: strftime })).toBe('\t')
     })
 
     it('surfaces an unrecognized token inside a composite expansion', () => {

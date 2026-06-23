@@ -5,9 +5,10 @@ import { Canonical } from '../core/canonical'
  * Defines the C / POSIX `strftime` date-token grammar.
  *
  * @remarks
- * Scope: the single-field `%` directives plus the composite directives (`%T`,
- * `%R`, `%F`, `%D`, `%r`), which expand to a sub-pattern of atomic directives on
- * parse and normalize to that expansion on render.
+ * Scope: the single-field `%` directives plus composite directives. `%T`, `%R`,
+ * `%F`, `%D`, and `%r` expand to sub-patterns of atomic directives. `%n` and
+ * `%t` expand to literal newline and tab characters. All composites expand on
+ * parse and normalize to their expansion on render.
  *
  * Syntax: a `directive` family. Every token is introduced by `%`, and all other
  * text, including letters, is literal. A literal `%` is written `%%`.
@@ -24,7 +25,9 @@ export const strftime: Dialect = {
     // Year
     { token: '%Y', canonical: Canonical.YearNumeric },
     { token: '%y', canonical: Canonical.YearTwoDigit },
+    { token: '%C', canonical: Canonical.CenturyTwoDigit },
     { token: '%G', canonical: Canonical.WeekYearNumericIso },
+    { token: '%g', canonical: Canonical.WeekYearTwoDigitIso },
 
     // Month
     { token: '%m', canonical: Canonical.MonthTwoDigit },
@@ -71,14 +74,17 @@ export const strftime: Dialect = {
     { token: '%x', canonical: Canonical.LocalizedDateShort },
     { token: '%X', canonical: Canonical.LocalizedTimeMedium },
   ],
-  // Composite directives: parse-time macros that expand to atomic directives.
+  // Composite directives: parse-time macros that expand to a sub-pattern on parse.
   // Rendering produces the expansion, never the composite, so `%T` normalizes to
-  // `%H:%M:%S` on a round trip.
+  // `%H:%M:%S` on a round trip. `%n`/`%t` normalize to literal newline/tab
+  // characters.
   composites: [
     { token: '%T', expandsTo: '%H:%M:%S' },
     { token: '%R', expandsTo: '%H:%M' },
     { token: '%F', expandsTo: '%Y-%m-%d' },
     { token: '%D', expandsTo: '%m/%d/%y' },
     { token: '%r', expandsTo: '%I:%M:%S %p' },
+    { token: '%n', expandsTo: '\n' },
+    { token: '%t', expandsTo: '\t' },
   ],
 }

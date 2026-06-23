@@ -32,6 +32,9 @@ export const Canonical = {
   YearNumeric: 'year/numeric',
   YearTwoDigit: 'year/2-digit',
 
+  // Century: high-order two digits of the year (2026 -> 20)
+  CenturyTwoDigit: 'century/2-digit',
+
   // Week-numbering year (the year that owns a given ISO/locale week)
   WeekYearNumeric: 'week-year/numeric',
   WeekYearTwoDigit: 'week-year/2-digit',

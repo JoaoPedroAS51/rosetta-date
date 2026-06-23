@@ -144,7 +144,9 @@ export const expectations: Record<DialectName, Partial<Record<CanonicalToken, st
   strftime: {
     [Canonical.YearNumeric]: '%Y',
     [Canonical.YearTwoDigit]: '%y',
+    [Canonical.CenturyTwoDigit]: '%C',
     [Canonical.WeekYearNumericIso]: '%G',
+    [Canonical.WeekYearTwoDigitIso]: '%g',
     [Canonical.MonthTwoDigit]: '%m',
     [Canonical.MonthAbbreviated]: '%b',
     [Canonical.MonthWide]: '%B',

@@ -38,7 +38,9 @@ compare across dialects, see [Token Mapping](/reference/token-mapping).
 | ------- | ----- |
 | Calendar year | `%Y` |
 | Calendar year, 2-digit | `%y` |
+| Century, 2-digit | `%C` |
 | ISO week-numbering year | `%G` |
+| ISO week-numbering year, 2-digit | `%g` |
 | Month, 2-digit | `%m` |
 | Month, abbreviated | `%b` |
 | Month, wide | `%B` |
@@ -76,10 +78,14 @@ They expand on parse, so converting one out yields the expanded fields:
 | `%F` | `%Y-%m-%d` |
 | `%D` | `%m/%d/%y` |
 | `%r` | `%I:%M:%S %p` |
+| `%n` | newline (`\n`) |
+| `%t` | tab (`\t`) |
 
 A composite is a parse-time macro, so **rendering produces its expansion, never the composite**:
 `%T` round-trips to `%H:%M:%S` (identical output, normalized spelling), the same way an alias
-normalizes — just across several tokens.
+normalizes — just across several tokens. `%n` and `%t` are the same mechanism applied to literal
+whitespace: they expand to a literal newline/tab, so they normalize to that raw character (the output
+is identical, only the `%n`/`%t` spelling is not preserved).
 
 ## Aliases
 
@@ -91,6 +97,9 @@ normalizes — just across several tokens.
   - **`%e` / `%k` / `%l` are blank-padded.** No other built-in dialect has a blank-padded form, so
     converting one to a dialect that lacks it has no clean target — it falls to the unsupported-token
     policy. A dialect that does define the blank-padded form round-trips cleanly.
+  - **`%C` (century) has no built-in counterpart.** No other built-in dialect renders a century, so
+    converting `%C` out has no clean target — it falls to the unsupported-token policy. A dialect
+    that defines the century round-trips cleanly.
   - **The locale presets (`%c` / `%x` / `%X`) map at a fixed width.** POSIX leaves their exact form to
     the locale, so the date/time-style mapping is a reasonable approximation, not an exact one.
 </Callout>
