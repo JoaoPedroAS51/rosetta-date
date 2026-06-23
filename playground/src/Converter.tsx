@@ -1,8 +1,10 @@
 import type { PolicyChoice } from './converter-core'
-import type { ConverterState } from './url-state'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { reasonText, roundTrip, runConvert, toSnippet } from './converter-core'
+import type { ConverterState, Mode } from './url-state'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { ConvertView } from './ConvertView'
 import { endpoints, getEndpoint } from './endpoints'
+import { InspectView } from './InspectView'
+import { IntlView } from './IntlView'
 import { readState, writeState } from './url-state'
 
 export interface Example {
@@ -10,9 +12,11 @@ export interface Example {
   readonly from: string
   readonly to: string
   readonly format: string
+  readonly mode?: Mode
 }
 
 export interface ConverterProps {
+  readonly initialMode?: Mode
   readonly initialFrom?: string
   readonly initialTo?: string
   readonly initialFormat?: string
@@ -23,23 +27,52 @@ export interface ConverterProps {
   readonly examples?: readonly Example[]
 }
 
-const DEFAULT_EXAMPLES: readonly Example[] = [
-  { label: 'DD/MM/YYYY', from: 'momentjs', to: 'date-fns', format: 'DD/MM/YYYY' },
-  { label: 'ISO', from: 'momentjs', to: 'date-fns', format: 'YYYY-MM-DD[T]HH:mm:ss' },
-  { label: 'LLL (preset)', from: 'momentjs', to: 'date-fns', format: 'LLL' },
-  { label: 'ISO week (ext)', from: 'momentjs', to: 'date-fns', format: '[week] WW, GGGG' },
-  { label: 'X (epoch)', from: 'momentjs', to: 'date-fns', format: 'X' },
-  { label: 'Mo (dayjs can\'t)', from: 'momentjs', to: 'dayjs', format: 'Mo' },
-  { label: 'z (zone)', from: 'dayjs', to: 'momentjs', format: 'HH:mm z' },
+const MODES: readonly { id: Mode, label: string }[] = [
+  { id: 'convert', label: 'Convert' },
+  { id: 'inspect', label: 'Inspect' },
+  { id: 'intl', label: 'Intl' },
 ]
 
 const POLICY_LABELS: Record<PolicyChoice, string> = {
-  literalize: 'literalize (default) — escape as a literal',
+  literalize: 'literalize — escape as a literal',
   throw: 'throw — UnsupportedTokenError',
   drop: 'drop — omit the token',
 }
 
+const DEFAULT_EXAMPLES: readonly Example[] = [
+  { label: 'DD/MM/YYYY', from: 'momentjs', to: 'date-fns', format: 'DD/MM/YYYY' },
+  { label: 'ISO', from: 'momentjs', to: 'date-fns', format: 'YYYY-MM-DD[T]HH:mm:ss' },
+  { label: 'strftime', from: 'strftime', to: 'ldml', format: '%A, %d %b %Y %I:%M %p' },
+  { label: 'day-of-year', from: 'momentjs', to: 'dayjs', format: 'dddd Do [of] MMMM, DDD', mode: 'inspect' },
+  { label: 'Intl options', from: 'momentjs', to: 'date-fns', format: 'YYYY-MM-DD HH:mm', mode: 'intl' },
+]
+
+const ENDPOINT_GROUPS: readonly { kind: 'dialect' | 'library', label: string }[] = [
+  { kind: 'dialect', label: 'Dialects' },
+  { kind: 'library', label: 'Libraries' },
+]
+
+function EndpointSelect({ label, value, onChange }: { label: string, value: string, onChange: (id: string) => void }): React.JSX.Element {
+  return (
+    <label>
+      <span className="rd-flabel">{label}</span>
+      <div className="rd-select">
+        <select value={value} onChange={event => onChange(event.target.value)}>
+          {ENDPOINT_GROUPS.map(group => (
+            <optgroup key={group.kind} label={group.label}>
+              {endpoints.filter(endpoint => endpoint.kind === group.kind).map(endpoint => (
+                <option key={endpoint.id} value={endpoint.id}>{endpoint.label}</option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
+      </div>
+    </label>
+  )
+}
+
 export function Converter({
+  initialMode = 'convert',
   initialFrom = 'momentjs',
   initialTo = 'date-fns',
   initialFormat = 'ddd, Do MMM YYYY h:mm A',
@@ -48,13 +81,11 @@ export function Converter({
   examples = DEFAULT_EXAMPLES,
 }: ConverterProps): React.JSX.Element {
   const defaults = useMemo<ConverterState>(
-    () => ({ from: initialFrom, to: initialTo, format: initialFormat, policy: initialPolicy }),
-    [initialFrom, initialTo, initialFormat, initialPolicy],
+    () => ({ mode: initialMode, from: initialFrom, to: initialTo, format: initialFormat, policy: initialPolicy }),
+    [initialMode, initialFrom, initialTo, initialFormat, initialPolicy],
   )
 
   const [state, setState] = useState<ConverterState>(defaults)
-  // Hold off writing the URL until the initial read has happened, otherwise the
-  // first write (with default state) would clobber an incoming shared link.
   const [ready, setReady] = useState(!syncUrl)
 
   useEffect(() => {
@@ -73,131 +104,87 @@ export function Converter({
 
   const from = getEndpoint(state.from) ?? getEndpoint(initialFrom)!
   const to = getEndpoint(state.to) ?? getEndpoint(initialTo)!
-
-  const outcome = useMemo(() => runConvert(from, to, state.format, state.policy), [from, to, state.format, state.policy])
-  const rt = useMemo(() => roundTrip(from, to, state.format), [from, to, state.format])
-  const snippet = useMemo(() => toSnippet(from, to, state.format, state.policy), [from, to, state.format, state.policy])
-
   const swap = useCallback(() => patch({ from: state.to, to: state.from }), [patch, state.from, state.to])
 
   return (
-    <div className="rd-converter">
-      <div className="rd-endpoints">
-        <label className="rd-field">
-          <span>From</span>
-          <select value={state.from} onChange={event => patch({ from: event.target.value })}>
-            {endpoints.map(endpoint => (
-              <option key={endpoint.id} value={endpoint.id}>{`${endpoint.label} (${endpoint.kind})`}</option>
-            ))}
-          </select>
-        </label>
-        <button type="button" className="rd-swap" title="Swap from / to" onClick={swap}>⇄</button>
-        <label className="rd-field">
-          <span>To</span>
-          <select value={state.to} onChange={event => patch({ to: event.target.value })}>
-            {endpoints.map(endpoint => (
-              <option key={endpoint.id} value={endpoint.id}>{`${endpoint.label} (${endpoint.kind})`}</option>
-            ))}
-          </select>
-        </label>
+    <div className="rd">
+      <div className="rd-tabbar" role="tablist">
+        {MODES.map(mode => (
+          <button
+            key={mode.id}
+            type="button"
+            role="tab"
+            aria-selected={state.mode === mode.id}
+            className="rd-tab"
+            onClick={() => patch({ mode: mode.id })}
+          >
+            {mode.label}
+          </button>
+        ))}
       </div>
 
-      <label className="rd-field rd-block">
-        <span>Format string</span>
-        <input
-          type="text"
-          spellCheck={false}
-          autoComplete="off"
-          value={state.format}
-          onChange={event => patch({ format: event.target.value })}
-        />
-      </label>
-
-      <div className="rd-field rd-block">
-        <span className="rd-result-head">
-          Result
-          {rt && <span className={`rd-badge ${rt.ok ? 'is-ok' : 'is-warn'}`}>{rt.ok ? 'round-trips ✓' : 'lossy ⚠'}</span>}
-        </span>
-        <output className="rd-result" data-state={outcome.ok ? 'ok' : 'error'}>
-          {outcome.ok ? (outcome.output || '(empty)') : `✖  ${outcome.errorMessage}`}
-        </output>
-      </div>
-
-      {outcome.unsupported.length > 0 && (
-        <div className="rd-unsupported">
-          <span className="rd-unsupported-head">
-            {outcome.unsupported.length}
-            {' '}
-            unsupported token
-            {outcome.unsupported.length > 1 ? 's' : ''}
-          </span>
-          <ul>
-            {outcome.unsupported.map((hit, index) => (
-              <li key={`${hit.token}-${index}`}>
-                <code>{hit.token}</code>
-                <span className="rd-reason">
-                  <strong>{hit.reason}</strong>
-                  {' '}
-                  —
-                  {' '}
-                  {reasonText[hit.reason]}
-                </span>
-              </li>
-            ))}
-          </ul>
+      <div className="rd-main">
+        <div className="rd-left">
+          <EndpointSelect label={state.mode === 'intl' ? 'Read from' : 'From'} value={state.from} onChange={id => patch({ from: id })} />
+          {state.mode !== 'intl' && (
+            <>
+              <div className="rd-swap-wrap">
+                <button type="button" className="rd-swap" aria-label="Swap from and to" onClick={swap}>⇄</button>
+              </div>
+              <EndpointSelect label="To" value={state.to} onChange={id => patch({ to: id })} />
+            </>
+          )}
+          <div className="rd-gap" />
+          <label>
+            <span className="rd-flabel">Format</span>
+            <input
+              className="rd-input"
+              type="text"
+              spellCheck={false}
+              autoComplete="off"
+              value={state.format}
+              onChange={event => patch({ format: event.target.value })}
+            />
+          </label>
+          {state.mode === 'convert' && (
+            <>
+              <div className="rd-gap" />
+              <label>
+                <span className="rd-flabel">On unsupported</span>
+                <div className="rd-select">
+                  <select value={state.policy} onChange={event => patch({ policy: event.target.value as PolicyChoice })}>
+                    {(Object.keys(POLICY_LABELS) as PolicyChoice[]).map(value => (
+                      <option key={value} value={value}>{POLICY_LABELS[value]}</option>
+                    ))}
+                  </select>
+                </div>
+              </label>
+            </>
+          )}
         </div>
-      )}
 
-      <label className="rd-field rd-block">
-        <span>On unsupported token</span>
-        <select value={state.policy} onChange={event => patch({ policy: event.target.value as PolicyChoice })}>
-          {(Object.keys(POLICY_LABELS) as PolicyChoice[]).map(policy => (
-            <option key={policy} value={policy}>{POLICY_LABELS[policy]}</option>
-          ))}
-        </select>
-      </label>
+        <div className="rd-right">
+          {state.mode === 'convert' && <ConvertView from={from} to={to} format={state.format} policy={state.policy} />}
+          {state.mode === 'inspect' && <InspectView from={from} to={to} format={state.format} />}
+          {state.mode === 'intl' && <IntlView from={from} format={state.format} />}
+        </div>
+      </div>
 
       {examples.length > 0 && (
-        <div className="rd-chips">
-          <span>try:</span>
+        <div className="rd-examples">
+          <span>try</span>
           {examples.map(example => (
             <button
               key={example.label}
               type="button"
-              onClick={() => patch({ from: example.from, to: example.to, format: example.format })}
+              className="rd-example"
+              onClick={() => patch({ from: example.from, to: example.to, format: example.format, ...(example.mode ? { mode: example.mode } : {}) })}
             >
               {example.label}
             </button>
           ))}
         </div>
       )}
-
-      <Snippet code={snippet} />
     </div>
-  )
-}
-
-function Snippet({ code }: { code: string }): React.JSX.Element {
-  const [copied, setCopied] = useState(false)
-  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
-
-  const copy = useCallback(() => {
-    void navigator.clipboard?.writeText(code).then(() => {
-      setCopied(true)
-      clearTimeout(timerRef.current)
-      timerRef.current = setTimeout(setCopied, 1500, false)
-    })
-  }, [code])
-
-  useEffect(() => () => clearTimeout(timerRef.current), [])
-
-  return (
-    <details className="rd-snippet">
-      <summary>
-        Copy as code
-        <button type="button" onClick={copy}>{copied ? 'copied ✓' : 'copy'}</button>
-      </summary>
-      <pre><code>{code}</code></pre>
-    </details>
   )
 }

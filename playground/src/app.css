@@ -1,9 +1,16 @@
 :root {
-  --page-bg: #0f1115;
-  --page-text: #e6e9ef;
-  --page-muted: #8b93a7;
-  --page-accent: #7aa2f7;
-  --page-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --page-bg: #fafafa;
+  --page-fg: #314158;
+  --page-muted: #62748e;
+  --page-border: #e5e7eb;
+  color-scheme: light;
+}
+
+html.dark {
+  --page-bg: #111111;
+  --page-fg: #e2e8f0;
+  --page-muted: #90a1b9;
+  --page-border: #262626;
   color-scheme: dark;
 }
 
@@ -14,43 +21,88 @@
 body {
   margin: 0;
   background: var(--page-bg);
-  color: var(--page-text);
-  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  display: grid;
-  place-items: start center;
+  color: var(--page-fg);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
   min-height: 100vh;
-  padding: 2.5rem 1rem;
 }
 
-.page {
-  width: 100%;
-  max-width: 720px;
+.app-bar {
+  border-bottom: 1px solid var(--page-border);
 }
 
-.page-head h1 {
-  font-size: 1.5rem;
-  margin: 0 0 0.25rem;
-  font-weight: 650;
+.app-bar-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.page-head h1 small {
-  color: var(--page-accent);
+.app-brand {
+  font-size: 15px;
   font-weight: 500;
 }
 
-.page-head p {
+.app-brand span {
+  margin-left: 6px;
+  font-size: 13px;
+  font-weight: 400;
   color: var(--page-muted);
-  margin: 0 0 1.5rem;
 }
 
-.page-foot {
-  color: var(--page-muted);
-  font-size: 0.78rem;
-  margin-top: 1.2rem;
-  text-align: center;
+.app-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
 
-.page-foot code {
-  font-family: var(--page-mono);
-  color: var(--page-text);
+.app-theme {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--page-border);
+  border-radius: 8px;
+}
+
+.app-theme-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 26px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--page-muted);
+  cursor: pointer;
+}
+
+.app-theme-btn:hover {
+  color: var(--page-fg);
+}
+
+.app-theme-btn[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--page-fg) 8%, transparent);
+  color: var(--page-fg);
+}
+
+.app-link {
+  font-size: 13px;
+  color: var(--page-muted);
+  text-decoration: none;
+}
+
+.app-link:hover {
+  color: var(--page-fg);
+}
+
+.app-main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 36px 24px 64px;
 }

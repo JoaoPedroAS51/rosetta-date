@@ -1,6 +1,7 @@
-import type { UnsupportedTokenPolicy, UnsupportedTokenReason } from 'rosetta-date'
+import type { ExplainedSegment, UnsupportedTokenPolicy, UnsupportedTokenReason } from 'rosetta-date'
 import type { Endpoint } from './endpoints'
-import { convert, Unsupported, UnsupportedTokenError } from 'rosetta-date'
+import { convert, explain, Unsupported, UnsupportedTokenError } from 'rosetta-date'
+import { toIntlOptions } from 'rosetta-date/intl'
 
 export type PolicyChoice = 'literalize' | 'throw' | 'drop'
 
@@ -20,9 +21,9 @@ export interface ConvertOutcome {
 /** Human-readable, one-line explanation for each unsupported reason. */
 export const reasonText: Record<UnsupportedTokenReason, string> = {
   'unrecognized': 'the source grammar does not define this token',
-  'unmappable': 'a valid source field with no counterpart in the target grammar',
-  'unsupported-by-target': 'the target grammar has the field, but the target library cannot render it',
-  'unrepresentable-adjacency': 'converts fine, but would re-merge with its neighbour and the target has no empty literal to separate them',
+  'unmappable': 'no counterpart in the target grammar',
+  'unsupported-by-target': 'the target library cannot render this field',
+  'unrepresentable-adjacency': 'would re-merge with its neighbour, and the target has no empty literal to separate them',
 }
 
 function policyValue(policy: PolicyChoice): UnsupportedTokenPolicy {
@@ -75,6 +76,44 @@ export function roundTrip(from: Endpoint, to: Endpoint, format: string): { ok: b
   }
   catch {
     return null
+  }
+}
+
+/** A token-by-token dry run of the conversion, for the inspect view. */
+export function explainConversion(from: Endpoint, to: Endpoint, format: string): ExplainedSegment[] {
+  try {
+    return explain(format, { from: from.value, to: to.value })
+  }
+  catch {
+    return []
+  }
+}
+
+export interface IntlOutcome {
+  readonly ok: boolean
+  readonly options: Intl.DateTimeFormatOptions
+  /** The sample date rendered through the derived options, when they format. */
+  readonly sample: string
+  readonly errorMessage?: string
+}
+
+const SAMPLE_DATE = new Date(Date.UTC(2026, 5, 19, 14, 30, 0))
+
+/** Read a format string into `Intl.DateTimeFormatOptions`, plus a live sample. */
+export function toIntl(from: Endpoint, format: string): IntlOutcome {
+  try {
+    const options = toIntlOptions(format, { from: from.value })
+    let sample = ''
+    try {
+      sample = new Intl.DateTimeFormat(undefined, options).format(SAMPLE_DATE)
+    }
+    catch {
+      // Leave the sample empty if the derived options can't format.
+    }
+    return { ok: true, options, sample }
+  }
+  catch (error) {
+    return { ok: false, options: {}, sample: '', errorMessage: String(error) }
   }
 }
 

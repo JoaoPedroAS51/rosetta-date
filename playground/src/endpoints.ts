@@ -1,5 +1,5 @@
 import type { Dialect, Library } from 'rosetta-date'
-import { ldml, moment } from 'rosetta-date/dialects'
+import { ldml, moment, strftime } from 'rosetta-date/dialects'
 import { dateFns, dayjs, momentjs } from 'rosetta-date/libraries'
 
 export type EndpointKind = 'dialect' | 'library'
@@ -22,6 +22,7 @@ export interface Endpoint {
 export const endpoints: readonly Endpoint[] = [
   { id: 'moment', label: 'moment', kind: 'dialect', value: moment, importName: 'moment', importFrom: 'rosetta-date/dialects' },
   { id: 'ldml', label: 'ldml', kind: 'dialect', value: ldml, importName: 'ldml', importFrom: 'rosetta-date/dialects' },
+  { id: 'strftime', label: 'strftime', kind: 'dialect', value: strftime, importName: 'strftime', importFrom: 'rosetta-date/dialects' },
   { id: 'momentjs', label: 'momentjs', kind: 'library', value: momentjs, importName: 'momentjs', importFrom: 'rosetta-date/libraries' },
   { id: 'dayjs', label: 'dayjs', kind: 'library', value: dayjs, importName: 'dayjs', importFrom: 'rosetta-date/libraries' },
   { id: 'date-fns', label: 'date-fns', kind: 'library', value: dateFns, importName: 'dateFns', importFrom: 'rosetta-date/libraries' },
