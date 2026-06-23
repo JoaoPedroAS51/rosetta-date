@@ -21,8 +21,8 @@
     "lint:fix": "eslint . --fix",
     "playground": "pnpm --filter rosetta-date build && pnpm --filter @rosetta-date/playground dev",
     "playground:build": "pnpm --filter rosetta-date build && pnpm --filter @rosetta-date/playground build",
-    "docs:dev": "pnpm --filter rosetta-date build && pnpm --filter rosetta-date-docs dev",
-    "docs:build": "pnpm --filter rosetta-date build && pnpm --filter rosetta-date-docs build",
+    "docs:dev": "pnpm --filter rosetta-date build && pnpm --filter @rosetta-date/docs dev",
+    "docs:build": "pnpm --filter rosetta-date build && pnpm --filter @rosetta-date/docs build",
     "release": "pnpm --filter rosetta-date build && changeset publish"
   },
   "devDependencies": {
