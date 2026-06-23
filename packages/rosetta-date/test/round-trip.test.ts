@@ -41,7 +41,7 @@ describe('composite formats round-trip', () => {
   )
 
   // A composite only round-trips through a partner that renders all of its fields:
-  // dialects do not fully overlap (e.g. `strftime` has no numeric 12-hour like `h`).
+  // dialects do not fully overlap (e.g. `strftime` has no ordinal like `Do`).
   function renderable(format: string, from: DialectName, to: DialectName): boolean {
     const oracle = renderOracle(to)
     return parse(format, grammarOf(from)).every(

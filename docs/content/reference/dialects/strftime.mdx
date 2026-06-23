@@ -88,6 +88,24 @@ normalizes — just across several tokens. `%n` and `%t` are the same mechanism 
 whitespace: they expand to a literal newline/tab, so they normalize to that raw character (the output
 is identical, only the `%n`/`%t` spelling is not preserved).
 
+## Padding flags
+
+A directive may carry a glibc padding flag between the `%` and the field letter, overriding that
+field's default padding:
+
+| Flag | Meaning | Maps to |
+| ---- | ------- | ------- |
+| `%-X` | unpadded | the field's `numeric` style — e.g. `%-d` is a day with no leading zero |
+| `%0X` | explicit zero-padding | the default `2-digit` / `3-digit` style |
+
+`%-X` fills the numeric forms the bare directives lack: `%d` is always zero-padded, so `%-d` is how
+`strftime` reaches a plain numeric day (matching `moment`'s `D` and `ldml`'s `d`). It is recognized for
+`%-d` `%-m` `%-H` `%-I` `%-M` `%-S` `%-j` `%-V`. `%0X` is redundant with the bare directive, so it
+parses but normalizes to `%X` on render.
+
+The blank-padding flag `%_X` is not yet modeled, except where a dedicated directive already exists
+(`%e`, `%k`, `%l`).
+
 ## Aliases
 
 `%h` is parsed as an abbreviated month, the same as `%b`; it normalizes to `%b` when rendered.

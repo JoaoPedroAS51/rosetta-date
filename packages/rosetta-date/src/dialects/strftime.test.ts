@@ -47,6 +47,19 @@ describe('strftime dialect', () => {
     expect(() => convert('%C', { from: strftime, to: moment, onUnsupportedToken: 'throw' })).toThrow()
   })
 
+  it('reads the glibc unpadded flag `%-X` as the numeric style', () => {
+    // `%-d` fills strftime's missing numeric day, so moment `D` now has a target.
+    expect(convert('%-d', { from: strftime, to: moment })).toBe('D')
+    expect(convert('D', { from: moment, to: strftime })).toBe('%-d')
+    expect(convert('%-H:%-M:%-S', { from: strftime, to: moment })).toBe('H:m:s')
+  })
+
+  it('reads the glibc explicit-zero flag `%0X` as an alias of the default', () => {
+    // `%0d` is redundant with `%d`, so it parses but normalizes to `%d` on render.
+    expect(convert('%0d', { from: strftime, to: strftime })).toBe('%d')
+    expect(convert('%0H%0M', { from: strftime, to: moment })).toBe('HHmm')
+  })
+
   it('surfaces an unrecognized directive to the policy', () => {
     expect(() => convert('%Q', { from: strftime, to: moment, onUnsupportedToken: 'throw' })).toThrow(/%Q/)
   })

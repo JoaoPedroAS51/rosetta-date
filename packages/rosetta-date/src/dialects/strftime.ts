@@ -14,9 +14,13 @@ import { Canonical } from '../core/canonical'
  * text, including letters, is literal. A literal `%` is written `%%`.
  *
  * Padding: `strftime` distinguishes zero-padding (`%d`, `%H`) from blank-padding
- * (`%e`, `%k`, `%l`), carried by the `2-digit` vs `space-padded` canonical styles.
+ * (`%e`, `%k`, `%l`), carried by the `2-digit` vs `space-padded` canonical
+ * styles. The glibc padding flags `%-X` and `%0X` are recognized as unpadded and
+ * explicit-zero aliases. The blank-padding flag `%_X` is outside this dialect
+ * subset except for the explicit `%e`, `%k`, and `%l` directives.
  *
  * @see {@link https://pubs.opengroup.org/onlinepubs/9699919799/functions/strftime.html | POSIX `strftime`}
+ * @see {@link https://sourceware.org/glibc/manual/latest/html_node/Formatting-Calendar-Time.html | glibc `strftime` extensions}
  */
 export const strftime: Dialect = {
   name: 'strftime',
@@ -74,6 +78,29 @@ export const strftime: Dialect = {
     { token: '%c', canonical: Canonical.LocalizedDateTimeFull },
     { token: '%x', canonical: Canonical.LocalizedDateShort },
     { token: '%X', canonical: Canonical.LocalizedTimeMedium },
+
+    // Padding-flag variants (glibc): `%-X` maps to unpadded output, and `%0X`
+    // maps to explicit zero-padding. Both are aliases of canonical fields the
+    // core directives already cover. `%0X` normalizes to the primary spelling.
+    { token: '%-d', canonical: Canonical.DayOfMonthNumeric },
+    { token: '%0d', canonical: Canonical.DayOfMonthTwoDigit },
+    { token: '%-m', canonical: Canonical.MonthNumeric },
+    { token: '%0m', canonical: Canonical.MonthTwoDigit },
+    { token: '%-H', canonical: Canonical.HourNumericH23 },
+    { token: '%0H', canonical: Canonical.HourTwoDigitH23 },
+    { token: '%-I', canonical: Canonical.HourNumericH12 },
+    { token: '%0I', canonical: Canonical.HourTwoDigitH12 },
+    { token: '%-M', canonical: Canonical.MinuteNumeric },
+    { token: '%0M', canonical: Canonical.MinuteTwoDigit },
+    { token: '%-S', canonical: Canonical.SecondNumeric },
+    { token: '%0S', canonical: Canonical.SecondTwoDigit },
+    { token: '%-j', canonical: Canonical.DayOfYearNumeric },
+    { token: '%0j', canonical: Canonical.DayOfYearThreeDigit },
+    { token: '%-V', canonical: Canonical.WeekOfYearNumericIso },
+    { token: '%0V', canonical: Canonical.WeekOfYearTwoDigitIso },
+    { token: '%0y', canonical: Canonical.YearTwoDigit },
+    { token: '%0g', canonical: Canonical.WeekYearTwoDigitIso },
+    { token: '%0C', canonical: Canonical.CenturyTwoDigit },
   ],
   // Composite directives: parse-time macros that expand to a sub-pattern on parse.
   // Rendering produces the expansion, never the composite, so `%T` normalizes to
