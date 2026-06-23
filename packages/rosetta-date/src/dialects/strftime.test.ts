@@ -65,6 +65,17 @@ describe('strftime dialect', () => {
     expect(convert('%c', { from: strftime, to: moment })).toBe('LLLL')
   })
 
+  it('keeps the lowercase day period (%P) distinct from the default (%p)', () => {
+    // `%p` is the default (de-facto uppercase); `%P` forces lowercase. The case
+    // survives between grammars that encode it (moment `A`/`a`).
+    expect(convert('%p', { from: strftime, to: moment })).toBe('A')
+    expect(convert('%P', { from: strftime, to: moment })).toBe('a')
+    expect(convert('a', { from: moment, to: strftime })).toBe('%P')
+    expect(convert('%P', { from: strftime, to: strftime })).toBe('%P')
+    // ldml cannot force lowercase, so `%P` has no clean target there.
+    expect(() => convert('%P', { from: strftime, to: ldml, onUnsupportedToken: 'throw' })).toThrow()
+  })
+
   describe('composite directives', () => {
     it('expands a composite to its sub-pattern when converting out', () => {
       expect(convert('%T', { from: strftime, to: moment })).toBe('HH:mm:ss')

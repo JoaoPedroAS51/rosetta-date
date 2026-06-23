@@ -12,10 +12,11 @@ import { dateFns, dayjs, getLibrary, momentjs } from './index'
 
 describe('output spelling is a dialect concern, not a library choice', () => {
   it('renders an aliased field via the dialect primary spelling', () => {
-    // `supports` gates which fields render, never how they are spelled: am/pm has
-    // moment aliases `A` (primary) and `a`, and a library cannot select the alias.
-    expect(renderedTokens(dayjs).get(Canonical.DayPeriodAbbreviated)).toBe('A')
-    expect(convert('a', { from: momentjs, to: dayjs })).toBe('A')
+    // `supports` gates which fields render, never how they are spelled: the
+    // calendar year has moment aliases `YYYY` (primary) and `Y`, and a library
+    // cannot select the alias.
+    expect(renderedTokens(dayjs).get(Canonical.YearNumeric)).toBe('YYYY')
+    expect(convert('Y', { from: momentjs, to: dayjs })).toBe('YYYY')
   })
 })
 

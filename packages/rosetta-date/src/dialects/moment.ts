@@ -76,7 +76,7 @@ export const moment: Dialect = {
 
     // Day period (AM/PM) — moment encodes case, not width
     { token: 'A', canonical: Canonical.DayPeriodAbbreviated },
-    { token: 'a', canonical: Canonical.DayPeriodAbbreviated },
+    { token: 'a', canonical: Canonical.DayPeriodAbbreviatedLower },
 
     // Hour
     { token: 'H', canonical: Canonical.HourNumericH23 },

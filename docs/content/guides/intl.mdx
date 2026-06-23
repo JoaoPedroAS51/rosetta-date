@@ -51,9 +51,9 @@ hand them to a `pt-BR` formatter and you get the Brazilian layout back, to an `e
 layout.
 
 <Callout type="info">
-  The AM/PM marker (`A` / `a`) has no Intl option, so on its own it is dropped (or throws under
-  `'throw'`). In practice it is redundant: an `h11` / `h12` hour already carries the 12-hour cycle via
-  `hourCycle`, so dropping the marker loses nothing.
+  The AM/PM markers — uppercase `A` and lowercase `a` — have no Intl option, so on their own they are
+  dropped (or throw under `'throw'`). In practice the marker is redundant: an `h11` / `h12` hour
+  already carries the 12-hour cycle via `hourCycle`, so dropping it loses nothing.
 </Callout>
 
 ## `fromIntlOptions` — options → pattern

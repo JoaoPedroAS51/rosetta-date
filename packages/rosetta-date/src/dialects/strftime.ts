@@ -51,6 +51,7 @@ export const strftime: Dialect = {
 
     // Day period (AM/PM)
     { token: '%p', canonical: Canonical.DayPeriodAbbreviated },
+    { token: '%P', canonical: Canonical.DayPeriodAbbreviatedLower },
 
     // Hour: `%H`/`%I` zero-pad, `%k`/`%l` blank-pad
     { token: '%H', canonical: Canonical.HourTwoDigitH23 },

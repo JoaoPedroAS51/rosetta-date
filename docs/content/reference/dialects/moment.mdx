@@ -57,6 +57,7 @@ compare across dialects, see [Token Mapping](/reference/token-mapping).
 | Weekday, number (locale) | `d` |
 | Weekday, number (ISO) | `E` |
 | AM/PM | `A` |
+| AM/PM, lowercase | `a` |
 | Hour 1–12 | `h` `hh` |
 | Hour 0–23 | `H` `HH` |
 | Hour 1–24 | `k` `kk` |
@@ -78,7 +79,6 @@ Extra spellings that are **parsed** but normalize to the primary token above whe
 
 - `Y` → calendar year (like `YYYY`).
 - `NN` / `NNN` → abbreviated era (like `N`).
-- `a` → AM/PM (like `A`).
 - `zz` → time-zone name (like `z`).
 
 ## Caveats
@@ -88,8 +88,9 @@ Extra spellings that are **parsed** but normalize to the primary token above whe
   - Weekday number `d` is `0`–`6` (locale-dependent). Dialects that also expose a locale weekday
     number may number the days differently, so the numeric value is not guaranteed to match across
     dialects.
-  - `A` and `a` both mean AM/PM — moment encodes **case**, not width — so the case distinction is not
-    preserved when converting to a dialect that distinguishes by width instead.
+  - `A` and `a` differ only in **case** — moment encodes case, not width. Lowercase `a` maps to a
+    distinct canonical, so it round-trips through grammars that also encode case (e.g. `strftime`'s
+    `%P`), but falls to the unsupported-token policy for a target that cannot force lowercase.
   - A literal `]` has no in-band escape inside a `[...]` run, so it is emitted between bracketed spans
     (`a]b` → `[a]][b]`); the text still round-trips intact.
 </Callout>

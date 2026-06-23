@@ -60,6 +60,7 @@ export const dayjs: Library = defineLibrary({
 
     // Day period
     Canonical.DayPeriodAbbreviated,
+    Canonical.DayPeriodAbbreviatedLower,
 
     // Hour / minute / second
     Canonical.HourNumericH23,

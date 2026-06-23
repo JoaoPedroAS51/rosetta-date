@@ -52,6 +52,7 @@ export const expectations: Record<DialectName, Partial<Record<CanonicalToken, st
     [Canonical.WeekdayNumeric]: 'd',
     [Canonical.WeekdayNumericIso]: 'E',
     [Canonical.DayPeriodAbbreviated]: 'A',
+    [Canonical.DayPeriodAbbreviatedLower]: 'a',
     [Canonical.HourNumericH12]: 'h',
     [Canonical.HourTwoDigitH12]: 'hh',
     [Canonical.HourNumericH23]: 'H',
@@ -159,6 +160,7 @@ export const expectations: Record<DialectName, Partial<Record<CanonicalToken, st
     [Canonical.WeekdayAbbreviated]: '%a',
     [Canonical.WeekdayWide]: '%A',
     [Canonical.DayPeriodAbbreviated]: '%p',
+    [Canonical.DayPeriodAbbreviatedLower]: '%P',
     [Canonical.HourTwoDigitH12]: '%I',
     [Canonical.HourSpacePaddedH12]: '%l',
     [Canonical.HourTwoDigitH23]: '%H',
@@ -182,7 +184,6 @@ export const expectations: Record<DialectName, Partial<Record<CanonicalToken, st
 export const aliases: Partial<Record<EndpointName, ReadonlyArray<readonly [token: string, canonical: CanonicalToken]>>> = {
   'moment': [
     ['Y', Canonical.YearNumeric],
-    ['a', Canonical.DayPeriodAbbreviated],
     ['zz', Canonical.TimezoneAbbreviated],
   ],
   'ldml': [

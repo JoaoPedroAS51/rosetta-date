@@ -111,9 +111,9 @@ describe('malformed delimiters degrade to literal text, never throw', () => {
   })
 
   it('treats an unterminated bracket open as a literal and keeps parsing', () => {
-    // `[` cannot open a complete literal, so it is emitted as text; `abc` parses on
-    // (moment `a` is am/pm, `bc` is an unknown run) — the engine never throws.
-    expect(m2u('[abc')).toBe('[a\'bc\'')
+    // `[` cannot open a complete literal, so it is emitted as text; `Abc` parses on
+    // (moment `A` is am/pm, `bc` is an unknown run) — the engine never throws.
+    expect(m2u('[Abc')).toBe('[a\'bc\'')
   })
 })
 

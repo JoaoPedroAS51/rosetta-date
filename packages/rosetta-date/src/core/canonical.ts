@@ -99,6 +99,7 @@ export const Canonical = {
 
   // Day period — AM/PM
   DayPeriodAbbreviated: 'day-period/abbreviated',
+  DayPeriodAbbreviatedLower: 'day-period/abbreviated/lower',
   DayPeriodWide: 'day-period/wide',
   DayPeriodNarrow: 'day-period/narrow',
 
