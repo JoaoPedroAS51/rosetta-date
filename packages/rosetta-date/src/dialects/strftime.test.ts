@@ -30,10 +30,20 @@ describe('strftime dialect', () => {
     expect(convert('[%] HH', { from: moment, to: strftime })).toBe('%% %H')
   })
 
-  it('carries the blank-padded styles, distinct from zero-padded', () => {
+  it('carries the blank-padded forms, distinct from zero-padded', () => {
     expect(convert('%e %k %l', { from: strftime, to: strftime })).toBe('%e %k %l')
     // No other modeled dialect has a blank-padded day, so it has no clean target.
     expect(() => convert('%e', { from: strftime, to: moment, onUnsupportedToken: 'throw' })).toThrow()
+  })
+
+  it('reads the glibc blank-padding flag `%_X` as the space-padded qualifier', () => {
+    // `%_d`/`%_H`/`%_I` are the flag form of the `%e`/`%k`/`%l` presets, so they
+    // normalize to those; `%_m`/`%_M`/`%_S`/`%_j`/`%_V` extend space-padding to
+    // fields with no preset letter.
+    expect(convert('%_d %_H %_I', { from: strftime, to: strftime })).toBe('%e %k %l')
+    expect(convert('%_m %_M %_S %_j %_V', { from: strftime, to: strftime })).toBe('%_m %_M %_S %_j %_V')
+    // Space-padding has no clean target in dialects that lack it.
+    expect(() => convert('%_m', { from: strftime, to: moment, onUnsupportedToken: 'throw' })).toThrow()
   })
 
   it('maps the ISO 2-digit week-year, shared with other dialects', () => {

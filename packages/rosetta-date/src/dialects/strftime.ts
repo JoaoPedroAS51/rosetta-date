@@ -5,19 +5,18 @@ import { Canonical } from '../core/canonical'
  * Defines the C / POSIX `strftime` date-token grammar.
  *
  * @remarks
- * Scope: the single-field `%` directives plus composite directives. `%T`, `%R`,
- * `%F`, `%D`, and `%r` expand to sub-patterns of atomic directives. `%n` and
- * `%t` expand to literal newline and tab characters. All composites expand on
- * parse and normalize to their expansion on render.
+ * Scope: the single-field `%` directives plus composites. `%T`, `%R`, `%F`,
+ * `%D`, and `%r` expand to sub-patterns of atomic directives; `%n` and `%t` to a
+ * literal newline and tab. Every composite expands on parse and normalizes to
+ * that expansion on render.
  *
  * Syntax: a `directive` family. Every token is introduced by `%`, and all other
  * text, including letters, is literal. A literal `%` is written `%%`.
  *
- * Padding: `strftime` distinguishes zero-padding (`%d`, `%H`) from blank-padding
- * (`%e`, `%k`, `%l`), carried by the `2-digit` vs `space-padded` canonical
- * styles. The glibc padding flags `%-X` and `%0X` are recognized as unpadded and
- * explicit-zero aliases. The blank-padding flag `%_X` is outside this dialect
- * subset except for the explicit `%e`, `%k`, and `%l` directives.
+ * Padding: numeric fields zero-pad by default (`%d`, `%H`). The `space-padded`
+ * qualifier marks blank fill instead (`%e`, `%k`, `%l`). The glibc flags set the
+ * fill per directive: `%-X` drops padding, `%0X` forces zero, `%_X` forces
+ * blanks.
  *
  * @see {@link https://pubs.opengroup.org/onlinepubs/9699919799/functions/strftime.html | POSIX `strftime`}
  * @see {@link https://sourceware.org/glibc/manual/latest/html_node/Formatting-Calendar-Time.html | glibc `strftime` extensions}
@@ -41,7 +40,7 @@ export const strftime: Dialect = {
 
     // Day
     { token: '%d', canonical: Canonical.DayOfMonthTwoDigit },
-    { token: '%e', canonical: Canonical.DayOfMonthSpacePadded },
+    { token: '%e', canonical: Canonical.DayOfMonthTwoDigitSpacePadded },
     { token: '%j', canonical: Canonical.DayOfYearThreeDigit },
 
     // Week / weekday number
@@ -59,9 +58,9 @@ export const strftime: Dialect = {
 
     // Hour: `%H`/`%I` zero-pad, `%k`/`%l` blank-pad
     { token: '%H', canonical: Canonical.HourTwoDigitH23 },
-    { token: '%k', canonical: Canonical.HourSpacePaddedH23 },
+    { token: '%k', canonical: Canonical.HourTwoDigitH23SpacePadded },
     { token: '%I', canonical: Canonical.HourTwoDigitH12 },
-    { token: '%l', canonical: Canonical.HourSpacePaddedH12 },
+    { token: '%l', canonical: Canonical.HourTwoDigitH12SpacePadded },
 
     // Minute / second
     { token: '%M', canonical: Canonical.MinuteTwoDigit },
@@ -79,25 +78,31 @@ export const strftime: Dialect = {
     { token: '%x', canonical: Canonical.LocalizedDateShort },
     { token: '%X', canonical: Canonical.LocalizedTimeMedium },
 
-    // Padding-flag variants (glibc): `%-X` maps to unpadded output, and `%0X`
-    // maps to explicit zero-padding. Both are aliases of canonical fields the
-    // core directives already cover. `%0X` normalizes to the primary spelling.
+    // Padding-flag variants (glibc): `%-X` unpadded, `%0X` zero, `%_X` blank-padded
     { token: '%-d', canonical: Canonical.DayOfMonthNumeric },
     { token: '%0d', canonical: Canonical.DayOfMonthTwoDigit },
+    { token: '%_d', canonical: Canonical.DayOfMonthTwoDigitSpacePadded },
     { token: '%-m', canonical: Canonical.MonthNumeric },
     { token: '%0m', canonical: Canonical.MonthTwoDigit },
+    { token: '%_m', canonical: Canonical.MonthTwoDigitSpacePadded },
     { token: '%-H', canonical: Canonical.HourNumericH23 },
     { token: '%0H', canonical: Canonical.HourTwoDigitH23 },
+    { token: '%_H', canonical: Canonical.HourTwoDigitH23SpacePadded },
     { token: '%-I', canonical: Canonical.HourNumericH12 },
     { token: '%0I', canonical: Canonical.HourTwoDigitH12 },
+    { token: '%_I', canonical: Canonical.HourTwoDigitH12SpacePadded },
     { token: '%-M', canonical: Canonical.MinuteNumeric },
     { token: '%0M', canonical: Canonical.MinuteTwoDigit },
+    { token: '%_M', canonical: Canonical.MinuteTwoDigitSpacePadded },
     { token: '%-S', canonical: Canonical.SecondNumeric },
     { token: '%0S', canonical: Canonical.SecondTwoDigit },
+    { token: '%_S', canonical: Canonical.SecondTwoDigitSpacePadded },
     { token: '%-j', canonical: Canonical.DayOfYearNumeric },
     { token: '%0j', canonical: Canonical.DayOfYearThreeDigit },
+    { token: '%_j', canonical: Canonical.DayOfYearThreeDigitSpacePadded },
     { token: '%-V', canonical: Canonical.WeekOfYearNumericIso },
     { token: '%0V', canonical: Canonical.WeekOfYearTwoDigitIso },
+    { token: '%_V', canonical: Canonical.WeekOfYearTwoDigitIsoSpacePadded },
     { token: '%0y', canonical: Canonical.YearTwoDigit },
     { token: '%0g', canonical: Canonical.WeekYearTwoDigitIso },
     { token: '%0C', canonical: Canonical.CenturyTwoDigit },

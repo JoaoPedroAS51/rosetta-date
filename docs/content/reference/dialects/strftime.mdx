@@ -95,16 +95,19 @@ field's default padding:
 
 | Flag | Meaning | Maps to |
 | ---- | ------- | ------- |
-| `%-X` | unpadded | the field's `numeric` style — e.g. `%-d` is a day with no leading zero |
+| `%-X` | unpadded | the field's `numeric` style (`%-d` is a day with no leading zero) |
 | `%0X` | explicit zero-padding | the default `2-digit` / `3-digit` style |
+| `%_X` | blank-padding (space) | the `space-padded` qualifier (`%_m` is a space-padded month) |
 
-`%-X` fills the numeric forms the bare directives lack: `%d` is always zero-padded, so `%-d` is how
-`strftime` reaches a plain numeric day (matching `moment`'s `D` and `ldml`'s `d`). It is recognized for
+`%-X` fills the numeric forms the bare directives lack. `%d` is always zero-padded, so `%-d` is how
+`strftime` writes a plain numeric day, matching `moment`'s `D` and `ldml`'s `d`. It is recognized for
 `%-d` `%-m` `%-H` `%-I` `%-M` `%-S` `%-j` `%-V`. `%0X` is redundant with the bare directive, so it
 parses but normalizes to `%X` on render.
 
-The blank-padding flag `%_X` is not yet modeled, except where a dedicated directive already exists
-(`%e`, `%k`, `%l`).
+`%_X` is recognized for the same fields (`%_d` `%_m` `%_H` `%_I` `%_M` `%_S` `%_j` `%_V`). `%_d`, `%_H`,
+and `%_I` are the flag form of the `%e`/`%k`/`%l` presets and normalize to them. The rest extend
+blank-padding to fields with no preset letter. No other built-in dialect renders a blank-padded field,
+so converting one out falls to the unsupported-token policy.
 
 ## Aliases
 

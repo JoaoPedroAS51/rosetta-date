@@ -14,9 +14,12 @@ dialects exist.
 
 Values are stable `field/style[/qualifier]` identifiers exported as the
 [`Canonical`](/reference/api#canonical) object — the optional `qualifier` (e.g. `iso`, the hour cycle
-`h12`, `standalone`) refines a base field/style, and its absence is the default. Prefer the named
-members (`Canonical.YearNumeric`) over the raw strings. To split a symbol into those parts
-programmatically, see [`decodeCanonical`](/reference/api#decodecanonical).
+`h12`, `standalone`, `space-padded`) refines a base field/style, and its absence is the default. When a
+value carries more than one qualifier, identity qualifiers (`iso`, the hour cycle) come before
+presentation ones (`space-padded`, `lower`). The order is fixed; see the
+[Contributing guide](/contributing#adding-a-canonical-field). Prefer the named members
+(`Canonical.YearNumeric`) over the raw strings. To split a symbol into those parts programmatically,
+see [`decodeCanonical`](/reference/api#decodecanonical).
 
 <Callout type="info">
   Adding a member is a minor, additive change; renaming or removing one is breaking. A dialect or
@@ -77,6 +80,7 @@ The year that owns a given week — local or ISO.
 | ------ | ----- | ------- |
 | `MonthNumeric` | `month/numeric` | Month |
 | `MonthTwoDigit` | `month/2-digit` | Month, 2-digit |
+| `MonthTwoDigitSpacePadded` | `month/2-digit/space-padded` | Month, 2-digit, blank-padded |
 | `MonthOrdinal` | `month/ordinal` | Month, ordinal |
 | `MonthAbbreviated` | `month/abbreviated` | Month name, abbreviated |
 | `MonthWide` | `month/wide` | Month name, wide |
@@ -94,6 +98,7 @@ The year that owns a given week — local or ISO.
 | `WeekOfYearOrdinal` | `week-of-year/ordinal` | Local week of year, ordinal |
 | `WeekOfYearNumericIso` | `week-of-year/numeric/iso` | ISO week of year |
 | `WeekOfYearTwoDigitIso` | `week-of-year/2-digit/iso` | ISO week of year, 2-digit |
+| `WeekOfYearTwoDigitIsoSpacePadded` | `week-of-year/2-digit/iso/space-padded` | ISO week of year, 2-digit, blank-padded |
 | `WeekOfYearOrdinalIso` | `week-of-year/ordinal/iso` | ISO week of year, ordinal |
 
 ## Day of month
@@ -102,7 +107,7 @@ The year that owns a given week — local or ISO.
 | ------ | ----- | ------- |
 | `DayOfMonthNumeric` | `day-of-month/numeric` | Day of month |
 | `DayOfMonthTwoDigit` | `day-of-month/2-digit` | Day of month, 2-digit (zero-padded) |
-| `DayOfMonthSpacePadded` | `day-of-month/space-padded` | Day of month, blank-padded to width |
+| `DayOfMonthTwoDigitSpacePadded` | `day-of-month/2-digit/space-padded` | Day of month, 2-digit, blank-padded |
 | `DayOfMonthOrdinal` | `day-of-month/ordinal` | Day of month, ordinal |
 
 ## Day of year
@@ -112,6 +117,7 @@ The year that owns a given week — local or ISO.
 | `DayOfYearNumeric` | `day-of-year/numeric` | Day of year |
 | `DayOfYearTwoDigit` | `day-of-year/2-digit` | Day of year, 2-digit |
 | `DayOfYearThreeDigit` | `day-of-year/3-digit` | Day of year, 3-digit |
+| `DayOfYearThreeDigitSpacePadded` | `day-of-year/3-digit/space-padded` | Day of year, 3-digit, blank-padded |
 | `DayOfYearOrdinal` | `day-of-year/ordinal` | Day of year, ordinal |
 
 ## Weekday name
@@ -149,10 +155,10 @@ The year that owns a given week — local or ISO.
 | ------ | ----- | ------- |
 | `HourNumericH12` | `hour/numeric/h12` | Hour 1–12 |
 | `HourTwoDigitH12` | `hour/2-digit/h12` | Hour 1–12, 2-digit |
-| `HourSpacePaddedH12` | `hour/space-padded/h12` | Hour 1–12, blank-padded to width |
+| `HourTwoDigitH12SpacePadded` | `hour/2-digit/h12/space-padded` | Hour 1–12, 2-digit, blank-padded |
 | `HourNumericH23` | `hour/numeric/h23` | Hour 0–23 |
 | `HourTwoDigitH23` | `hour/2-digit/h23` | Hour 0–23, 2-digit |
-| `HourSpacePaddedH23` | `hour/space-padded/h23` | Hour 0–23, blank-padded to width |
+| `HourTwoDigitH23SpacePadded` | `hour/2-digit/h23/space-padded` | Hour 0–23, 2-digit, blank-padded |
 | `HourNumericH24` | `hour/numeric/h24` | Hour 1–24 |
 | `HourTwoDigitH24` | `hour/2-digit/h24` | Hour 1–24, 2-digit |
 | `HourNumericH11` | `hour/numeric/h11` | Hour 0–11 |
@@ -164,8 +170,10 @@ The year that owns a given week — local or ISO.
 | ------ | ----- | ------- |
 | `MinuteNumeric` | `minute/numeric` | Minute |
 | `MinuteTwoDigit` | `minute/2-digit` | Minute, 2-digit |
+| `MinuteTwoDigitSpacePadded` | `minute/2-digit/space-padded` | Minute, 2-digit, blank-padded |
 | `SecondNumeric` | `second/numeric` | Second |
 | `SecondTwoDigit` | `second/2-digit` | Second, 2-digit |
+| `SecondTwoDigitSpacePadded` | `second/2-digit/space-padded` | Second, 2-digit, blank-padded |
 | `FractionalSecond1` | `fractional-second/1` | Fractional second, 1 digit |
 | `FractionalSecond2` | `fractional-second/2` | Fractional second, 2 digits |
 | `FractionalSecond3` | `fractional-second/3` | Fractional second, 3 digits |

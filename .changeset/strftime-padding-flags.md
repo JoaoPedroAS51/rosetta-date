@@ -8,5 +8,4 @@ zero). Both map to canonicals the core directives already cover: `%-X` reaches t
 plain numeric forms the bare directives lacked — `%-d`/`%-m`/`%-H`/`%-I`/`%-M`/
 `%-S`/`%-j`/`%-V` — so a numeric `moment` `D` or `ldml` `d` now round-trips through
 `strftime` instead of falling to the unsupported-token policy. `%0X` is redundant
-with the bare directive, so it parses but normalizes to `%X` on render. The
-blank-padding flag `%_X` is not yet modeled.
+with the bare directive, so it parses but normalizes to `%X` on render.

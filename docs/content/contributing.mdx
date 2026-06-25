@@ -64,11 +64,18 @@ field/style[/qualifier...]
 - **`field`** — the date component (`month`, `hour`, `week-of-year`, …).
 - **`style`** — how it is represented (`numeric`, `2-digit`, `ordinal`, `wide`, …).
 - **`qualifier`** (optional, repeatable) — refines the base `field/style`; its absence is the default
-  form. Examples: `iso` (ISO week rules), the hour cycle `h11` / `h12` / `h23` / `h24`, and
-  `standalone` (grammatical context).
+  form. Examples: `iso` (ISO week rules), the hour cycle `h11` / `h12` / `h23` / `h24`,
+  `standalone` (grammatical context), and presentation refinements such as `space-padded` (fill) and
+  `lower` (case).
 
 The member name is the PascalCase of the value's segments, so name and value stay in lockstep:
 `week-of-year/ordinal/iso` ↔ `WeekOfYearOrdinalIso`, `month/wide/standalone` ↔ `MonthWideStandalone`.
+
+**Qualifier order is part of a value's identity**, so each meaning has exactly one string and dialects
+never disagree on a spelling. Order qualifiers by a fixed precedence: **identity** qualifiers that change
+the rendered value (`iso`, the hour cycle, `standalone`) come first, then **presentation** qualifiers
+that only change its surface (`space-padded`, `lower`). A blank-padded 24-hour is
+`hour/2-digit/h23/space-padded`, never `hour/2-digit/space-padded/h23`.
 
 Prefer refining an existing `field/style` with a qualifier over inventing a parallel field — it keeps
 related meanings grouped and lets conversions share the base. Adding a member is a minor (additive)

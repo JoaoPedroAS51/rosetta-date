@@ -13,7 +13,15 @@
  *
  * A `qualifier` refines a base `field/style` pair. Examples include `iso` for
  * week-numbering rules, hour-cycle qualifiers such as `h11`/`h12`/`h23`/`h24`,
- * and `standalone` for grammatical context. No qualifier means the default form.
+ * `standalone` for grammatical context, and presentation qualifiers such as
+ * `space-padded` (fill) and `lower` (case). No qualifier means the default form.
+ *
+ * Qualifier order is part of a value's identity, so it follows a fixed
+ * precedence: identity qualifiers that change the rendered value (`iso`, the hour
+ * cycle, `standalone`) come before presentation qualifiers that only change its
+ * surface (`space-padded`, `lower`) — e.g. `hour/2-digit/h23/space-padded`, never
+ * `hour/2-digit/space-padded/h23`. This keeps each meaning a single canonical
+ * string, so dialects never disagree on a value's spelling.
  *
  * Member names are PascalCase names derived from their value segments, so names
  * and values stay aligned: `week-of-year/ordinal/iso` maps to
@@ -55,6 +63,7 @@ export const Canonical = {
   // Month
   MonthNumeric: 'month/numeric',
   MonthTwoDigit: 'month/2-digit',
+  MonthTwoDigitSpacePadded: 'month/2-digit/space-padded',
   MonthOrdinal: 'month/ordinal',
   MonthAbbreviated: 'month/abbreviated',
   MonthWide: 'month/wide',
@@ -69,18 +78,20 @@ export const Canonical = {
   WeekOfYearOrdinal: 'week-of-year/ordinal',
   WeekOfYearNumericIso: 'week-of-year/numeric/iso',
   WeekOfYearTwoDigitIso: 'week-of-year/2-digit/iso',
+  WeekOfYearTwoDigitIsoSpacePadded: 'week-of-year/2-digit/iso/space-padded',
   WeekOfYearOrdinalIso: 'week-of-year/ordinal/iso',
 
   // Day of month
   DayOfMonthNumeric: 'day-of-month/numeric',
   DayOfMonthTwoDigit: 'day-of-month/2-digit',
-  DayOfMonthSpacePadded: 'day-of-month/space-padded',
+  DayOfMonthTwoDigitSpacePadded: 'day-of-month/2-digit/space-padded',
   DayOfMonthOrdinal: 'day-of-month/ordinal',
 
   // Day of year
   DayOfYearNumeric: 'day-of-year/numeric',
   DayOfYearTwoDigit: 'day-of-year/2-digit',
   DayOfYearThreeDigit: 'day-of-year/3-digit',
+  DayOfYearThreeDigitSpacePadded: 'day-of-year/3-digit/space-padded',
   DayOfYearOrdinal: 'day-of-year/ordinal',
 
   // Weekday name
@@ -107,10 +118,10 @@ export const Canonical = {
   // h12 = 1–12, h23 = 0–23, h24 = 1–24, h11 = 0–11
   HourNumericH12: 'hour/numeric/h12',
   HourTwoDigitH12: 'hour/2-digit/h12',
-  HourSpacePaddedH12: 'hour/space-padded/h12',
+  HourTwoDigitH12SpacePadded: 'hour/2-digit/h12/space-padded',
   HourNumericH23: 'hour/numeric/h23',
   HourTwoDigitH23: 'hour/2-digit/h23',
-  HourSpacePaddedH23: 'hour/space-padded/h23',
+  HourTwoDigitH23SpacePadded: 'hour/2-digit/h23/space-padded',
   HourNumericH24: 'hour/numeric/h24',
   HourTwoDigitH24: 'hour/2-digit/h24',
   HourNumericH11: 'hour/numeric/h11',
@@ -119,10 +130,12 @@ export const Canonical = {
   // Minute
   MinuteNumeric: 'minute/numeric',
   MinuteTwoDigit: 'minute/2-digit',
+  MinuteTwoDigitSpacePadded: 'minute/2-digit/space-padded',
 
   // Second
   SecondNumeric: 'second/numeric',
   SecondTwoDigit: 'second/2-digit',
+  SecondTwoDigitSpacePadded: 'second/2-digit/space-padded',
 
   // Fractional second — value carries the number of fraction digits (S, SS, SSS…)
   FractionalSecond1: 'fractional-second/1',

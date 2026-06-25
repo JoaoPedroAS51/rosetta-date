@@ -150,15 +150,18 @@ export const expectations: Record<DialectName, Partial<Record<CanonicalToken, st
     [Canonical.WeekYearTwoDigitIso]: '%g',
     [Canonical.MonthTwoDigit]: '%m',
     [Canonical.MonthNumeric]: '%-m',
+    [Canonical.MonthTwoDigitSpacePadded]: '%_m',
     [Canonical.MonthAbbreviated]: '%b',
     [Canonical.MonthWide]: '%B',
     [Canonical.DayOfMonthTwoDigit]: '%d',
     [Canonical.DayOfMonthNumeric]: '%-d',
-    [Canonical.DayOfMonthSpacePadded]: '%e',
+    [Canonical.DayOfMonthTwoDigitSpacePadded]: '%e',
     [Canonical.DayOfYearThreeDigit]: '%j',
     [Canonical.DayOfYearNumeric]: '%-j',
+    [Canonical.DayOfYearThreeDigitSpacePadded]: '%_j',
     [Canonical.WeekOfYearTwoDigitIso]: '%V',
     [Canonical.WeekOfYearNumericIso]: '%-V',
+    [Canonical.WeekOfYearTwoDigitIsoSpacePadded]: '%_V',
     [Canonical.WeekdayNumeric]: '%w',
     [Canonical.WeekdayNumericIso]: '%u',
     [Canonical.WeekdayAbbreviated]: '%a',
@@ -167,14 +170,16 @@ export const expectations: Record<DialectName, Partial<Record<CanonicalToken, st
     [Canonical.DayPeriodAbbreviatedLower]: '%P',
     [Canonical.HourTwoDigitH12]: '%I',
     [Canonical.HourNumericH12]: '%-I',
-    [Canonical.HourSpacePaddedH12]: '%l',
+    [Canonical.HourTwoDigitH12SpacePadded]: '%l',
     [Canonical.HourTwoDigitH23]: '%H',
     [Canonical.HourNumericH23]: '%-H',
-    [Canonical.HourSpacePaddedH23]: '%k',
+    [Canonical.HourTwoDigitH23SpacePadded]: '%k',
     [Canonical.MinuteTwoDigit]: '%M',
     [Canonical.MinuteNumeric]: '%-M',
+    [Canonical.MinuteTwoDigitSpacePadded]: '%_M',
     [Canonical.SecondTwoDigit]: '%S',
     [Canonical.SecondNumeric]: '%-S',
+    [Canonical.SecondTwoDigitSpacePadded]: '%_S',
     [Canonical.TimezoneAbbreviated]: '%Z',
     [Canonical.OffsetWithoutColon]: '%z',
     [Canonical.EpochSeconds]: '%s',
@@ -207,14 +212,10 @@ export const aliases: Partial<Record<EndpointName, ReadonlyArray<readonly [token
     ['zz', Canonical.TimezoneAbbreviated],
   ],
   'date-fns': [
-    // `R` is date-fns's non-primary spelling of the ISO week-year (primary `RRRR`).
     ['R', Canonical.WeekYearNumericIso],
   ],
   'strftime': [
-    // `%h` is a non-primary spelling of the abbreviated month (primary `%b`).
     ['%h', Canonical.MonthAbbreviated],
-    // `%0X` is the glibc explicit-zero flag: a redundant spelling of the default
-    // zero-padded directive, so it parses but normalizes to `%X` on render.
     ['%0d', Canonical.DayOfMonthTwoDigit],
     ['%0m', Canonical.MonthTwoDigit],
     ['%0y', Canonical.YearTwoDigit],
@@ -226,6 +227,9 @@ export const aliases: Partial<Record<EndpointName, ReadonlyArray<readonly [token
     ['%0V', Canonical.WeekOfYearTwoDigitIso],
     ['%0g', Canonical.WeekYearTwoDigitIso],
     ['%0C', Canonical.CenturyTwoDigit],
+    ['%_d', Canonical.DayOfMonthTwoDigitSpacePadded],
+    ['%_H', Canonical.HourTwoDigitH23SpacePadded],
+    ['%_I', Canonical.HourTwoDigitH12SpacePadded],
   ],
 }
 

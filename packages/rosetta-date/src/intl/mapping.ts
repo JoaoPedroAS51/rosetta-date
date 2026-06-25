@@ -94,13 +94,18 @@ const DATE_TIME_STYLE: Record<string, Options> = {
   full: { dateStyle: 'full', timeStyle: 'full' },
 }
 
+/** Re-join a canonical `style` with its `qualifiers` into a single table key. */
+function styleKey(style: string, qualifiers: readonly string[]): string {
+  return [style, ...qualifiers].join('/')
+}
+
 const FORWARD: Record<string, (style: string, qualifiers: readonly string[]) => Options | undefined> = {
   'era': style => ERA[style],
   'year': style => YEAR[style],
   'month': style => MONTH[style],
   'day-of-month': style => DAY[style],
   'weekday': style => WEEKDAY[style],
-  'hour': (style, qualifiers) => HOUR[`${style}/${qualifiers[0]}`],
+  'hour': (style, qualifiers) => HOUR[styleKey(style, qualifiers)],
   'minute': style => MINUTE[style],
   'second': style => SECOND[style],
   'fractional-second': style => FRACTION[style],
@@ -116,16 +121,17 @@ const FORWARD: Record<string, (style: string, qualifiers: readonly string[]) => 
  * `undefined` when `Intl` has no equivalent.
  *
  * @remarks
- * `Intl` cannot express the standalone-vs-formatting distinction, so a
- * `standalone` field is unsupported. Other unsupported examples include quarter,
- * week-year, week-of-year, day-of-year, ordinals, ISO week fields, epoch, day
- * period markers, and numeric or short weekday forms.
+ * `Intl` cannot express the standalone-vs-formatting distinction, nor can it
+ * force a fill character, so the `standalone` and `space-padded` qualifiers are
+ * unsupported. Other unsupported examples include quarter, week-year,
+ * week-of-year, day-of-year, ordinals, ISO week fields, epoch, day period
+ * markers, and numeric or short weekday forms.
  *
  * @internal
  */
 export function canonicalToIntl(token: CanonicalToken): Options | undefined {
   const { field, style, qualifiers } = decodeCanonical(token)
-  if (qualifiers.includes('standalone'))
+  if (qualifiers.includes('standalone') || qualifiers.includes('space-padded'))
     return undefined
   return FORWARD[field]?.(style, qualifiers)
 }
