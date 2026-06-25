@@ -4,7 +4,7 @@
 
 [![npm version](https://img.shields.io/npm/v/rosetta-date.svg)](https://www.npmjs.com/package/rosetta-date)
 [![CI](https://img.shields.io/github/actions/workflow/status/JoaoPedroAS51/rosetta-date/ci.yml?branch=main&label=CI)](https://github.com/JoaoPedroAS51/rosetta-date/actions/workflows/ci.yml)
-[![coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](https://github.com/JoaoPedroAS51/rosetta-date/actions/workflows/ci.yml)
+[![coverage](https://codecov.io/gh/JoaoPedroAS51/rosetta-date/branch/main/graph/badge.svg)](https://codecov.io/gh/JoaoPedroAS51/rosetta-date)
 [![bundle size](https://img.shields.io/bundlejs/size/rosetta-date?label=bundle%20%28gzip%29)](https://bundlejs.com/?q=rosetta-date)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 

@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -30,6 +34,12 @@ jobs:
       - run: pnpm typecheck
 
       - run: pnpm test:coverage
+
+      - uses: codecov/codecov-action@v7
+        with:
+          files: ./packages/rosetta-date/coverage/lcov.info
+          fail_ci_if_error: true
+          use_oidc: true
 
       - run: pnpm build
 
