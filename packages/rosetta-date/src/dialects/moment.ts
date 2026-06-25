@@ -31,7 +31,7 @@ export const moment: Dialect = {
     { token: 'GGGG', canonical: Canonical.WeekYearNumericIso },
     { token: 'GG', canonical: Canonical.WeekYearTwoDigitIso },
 
-    // Era — moment's narrow (`NNNNN`) renders the abbreviation, not a 1-char form
+    // Era
     { token: 'N', canonical: Canonical.EraAbbreviated },
     { token: 'NN', canonical: Canonical.EraAbbreviated },
     { token: 'NNN', canonical: Canonical.EraAbbreviated },
@@ -74,7 +74,7 @@ export const moment: Dialect = {
     { token: 'd', canonical: Canonical.WeekdayNumeric },
     { token: 'E', canonical: Canonical.WeekdayNumericIso },
 
-    // Day period (AM/PM) — moment encodes case, not width
+    // Day period (AM/PM)
     { token: 'A', canonical: Canonical.DayPeriodAbbreviated },
     { token: 'a', canonical: Canonical.DayPeriodAbbreviatedLower },
 
@@ -107,8 +107,7 @@ export const moment: Dialect = {
     { token: 'X', canonical: Canonical.EpochSeconds },
     { token: 'x', canonical: Canonical.EpochMilliseconds },
 
-    // Localized presets — the `L…` family. This grammar has no full-date-only,
-    // timezone-bearing time, or short date-time preset.
+    // Localized presets
     { token: 'L', canonical: Canonical.LocalizedDateShort },
     { token: 'll', canonical: Canonical.LocalizedDateMedium },
     { token: 'LL', canonical: Canonical.LocalizedDateLong },

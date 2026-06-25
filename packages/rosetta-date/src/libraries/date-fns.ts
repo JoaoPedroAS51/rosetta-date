@@ -24,7 +24,7 @@ export const dateFns: Library = defineLibrary({
   name: 'date-fns',
   dialect: ldml,
   extends: [
-    // Ordinal `…o` forms — moment/date-fns convention, not UTS#35
+    // Ordinal `…o` forms
     { token: 'Qo', canonical: Canonical.QuarterOrdinal },
     { token: 'Mo', canonical: Canonical.MonthOrdinal },
     { token: 'wo', canonical: Canonical.WeekOfYearOrdinal },
@@ -48,8 +48,7 @@ export const dateFns: Library = defineLibrary({
     { token: 't', canonical: Canonical.EpochSeconds },
     { token: 'T', canonical: Canonical.EpochMilliseconds },
 
-    // Localized presets — single locale-aware tokens (the `Pp…` combinations join
-    // date and time with the locale's connector), mapped preset ↔ preset.
+    // Localized presets
     { token: 'P', canonical: Canonical.LocalizedDateShort },
     { token: 'PP', canonical: Canonical.LocalizedDateMedium },
     { token: 'PPP', canonical: Canonical.LocalizedDateLong },

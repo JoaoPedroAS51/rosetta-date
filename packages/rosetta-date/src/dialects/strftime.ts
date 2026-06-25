@@ -73,7 +73,7 @@ export const strftime: Dialect = {
     // Unix epoch
     { token: '%s', canonical: Canonical.EpochSeconds },
 
-    // Localized presets: deferred to the locale, mapped preset to preset
+    // Localized presets
     { token: '%c', canonical: Canonical.LocalizedDateTimeFull },
     { token: '%x', canonical: Canonical.LocalizedDateShort },
     { token: '%X', canonical: Canonical.LocalizedTimeMedium },

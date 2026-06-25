@@ -32,7 +32,7 @@ export const ldml: Dialect = {
     { token: 'yyy', canonical: Canonical.YearNumeric },
     { token: 'yy', canonical: Canonical.YearTwoDigit },
 
-    // Week-numbering year (local)
+    // Week-numbering year
     { token: 'YYYY', canonical: Canonical.WeekYearNumeric },
     { token: 'YY', canonical: Canonical.WeekYearTwoDigit },
 
@@ -56,7 +56,7 @@ export const ldml: Dialect = {
     { token: 'LLLL', canonical: Canonical.MonthWideStandalone },
     { token: 'LLLLL', canonical: Canonical.MonthNarrowStandalone },
 
-    // Week of year (local)
+    // Week of year
     { token: 'w', canonical: Canonical.WeekOfYearNumeric },
     { token: 'ww', canonical: Canonical.WeekOfYearTwoDigit },
 
@@ -69,7 +69,7 @@ export const ldml: Dialect = {
     { token: 'DD', canonical: Canonical.DayOfYearTwoDigit },
     { token: 'DDD', canonical: Canonical.DayOfYearThreeDigit },
 
-    // Weekday name — formatting (`E`) and stand-alone (`c`)
+    // Weekday name
     { token: 'EEE', canonical: Canonical.WeekdayAbbreviated },
     { token: 'E', canonical: Canonical.WeekdayAbbreviated },
     { token: 'EE', canonical: Canonical.WeekdayAbbreviated },
@@ -81,7 +81,7 @@ export const ldml: Dialect = {
     { token: 'ccccc', canonical: Canonical.WeekdayNarrowStandalone },
     { token: 'cccccc', canonical: Canonical.WeekdayShortStandalone },
 
-    // Weekday number (local)
+    // Weekday number
     { token: 'e', canonical: Canonical.WeekdayNumeric },
 
     // Day period (AM/PM)
