@@ -4,7 +4,15 @@ import markdownPreferences from 'eslint-plugin-markdown-preferences'
 export default antfu({
   type: 'lib',
   typescript: true,
-  ignores: ['**/dist', '**/coverage', '**/CHANGELOG.md', 'docs/.next', 'docs/out', 'docs/next-env.d.ts'],
+  ignores: [
+    '**/dist',
+    '**/coverage',
+    '**/CHANGELOG.md',
+    'docs/.next',
+    'docs/out',
+    'docs/next-env.d.ts',
+    'docs/public/_pagefind',
+  ],
 })
   .append(markdownPreferences.configs.standard)
   .append({

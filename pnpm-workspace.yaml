@@ -26,6 +26,7 @@ catalog:
   next: ^16.2.9
   nextra: ^4.6.1
   nextra-theme-docs: ^4.6.1
+  pagefind: ^1.5.2
   react: ^19.2.0
   react-dom: ^19.2.0
   tsdown: ^0.22.2
