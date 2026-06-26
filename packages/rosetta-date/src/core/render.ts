@@ -78,7 +78,7 @@ export interface RenderOptions {
 /** How an unsupported token resolves into output. */
 type Resolution
   = | { readonly kind: 'literal', readonly text: string } // accumulate as literal text
-    | { readonly kind: 'emit', readonly text: string, readonly isToken?: boolean } // flush, then output verbatim; `isToken` when the text is itself a clean token
+    | { readonly kind: 'emit', readonly text: string } // flush, then output verbatim
     | { readonly kind: 'drop' } // omit entirely
 
 /**
@@ -99,7 +99,8 @@ type Resolution
  * Some syntax families need a separator between adjacent tokens so the output
  * does not re-tokenize as a different token. The target syntax provides that
  * separator. When it cannot, the second token is routed to the policy as
- * `unrepresentable-adjacency`.
+ * `unrepresentable-adjacency`, literalized by default like any other unsupported
+ * token.
  */
 export function render(segments: readonly Segment[], to: Dialect | Library, options?: RenderOptions): string {
   const { dialect, tokens, canonicals } = compileTarget(to)
@@ -129,7 +130,7 @@ export function render(segments: readonly Segment[], to: Dialect | Library, opti
       case 'emit':
         flush()
         output += resolution.text
-        last = resolution.isToken === true ? resolution.text : undefined
+        last = undefined
         break
       case 'drop':
         break // tail unchanged: a dropped token leaves its neighbours adjacent
@@ -141,8 +142,10 @@ export function render(segments: readonly Segment[], to: Dialect | Library, opti
     if (last !== undefined) {
       const separator = strategy.separator(last, token, rules)
       if (separator === undefined) {
-        // The token converts, but this dialect cannot separate it from `last`.
-        apply(resolveUnsupported(token, 'unrepresentable-adjacency', dialect, toLibrary, options, { kind: 'emit', text: token, isToken: true }))
+        // The token converts, but this dialect cannot separate it from `last`, so
+        // it routes to the policy like any other unrenderable token — literalized
+        // by default, never emitted into a silently merged token.
+        apply(resolveUnsupported(token, 'unrepresentable-adjacency', dialect, toLibrary, options))
         return
       }
       output += separator + token
@@ -188,12 +191,13 @@ function resolveUnsupported(
   to: Dialect,
   toLibrary: Library | undefined,
   options?: RenderOptions,
-  fallback: Resolution = { kind: 'literal', text: token },
 ): Resolution {
   const policy = options?.onUnsupportedToken
 
   if (policy === 'throw')
     throw new UnsupportedTokenError(token, reason)
+
+  const fallback: Resolution = { kind: 'literal', text: token }
 
   if (typeof policy === 'function' && options !== undefined) {
     const info: UnsupportedTokenInfo = { reason, from: options.from, to, fromLibrary: options.fromLibrary, toLibrary }

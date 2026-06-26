@@ -138,9 +138,9 @@ describe('unrepresentable adjacency (a quote-style target with no empty literal)
     ],
   }
 
-  it('emits the merged form by default (no empty literal to insert)', () => {
-    expect(convert('AB', { from: bracket, to: quote })).toBe('yyy') // y + yy
-    expect(convert('BA', { from: bracket, to: quote })).toBe('yyy') // yy + y
+  it('literalizes the second token by default (no empty literal to insert)', () => {
+    expect(convert('AB', { from: bracket, to: quote })).toBe('y\'yy\'') // y + literal yy
+    expect(convert('BA', { from: bracket, to: quote })).toBe('yy\'y\'') // yy + literal y
   })
 
   it('throws unrepresentable-adjacency when asked to', () => {
@@ -156,7 +156,7 @@ describe('unrepresentable adjacency (a quote-style target with no empty literal)
     expect((error as UnsupportedTokenError).token).toBe('yy')
   })
 
-  it('lets a handler decide, defaulting to the verbatim token', () => {
+  it('lets a handler decide, defaulting to a literal', () => {
     const reasons: string[] = []
     const out = convert('AB', {
       from: bracket,
@@ -166,7 +166,7 @@ describe('unrepresentable adjacency (a quote-style target with no empty literal)
         return undefined
       },
     })
-    expect(out).toBe('yyy')
+    expect(out).toBe('y\'yy\'')
     expect(reasons).toEqual(['unrepresentable-adjacency'])
   })
 })

@@ -45,7 +45,7 @@ A quote-style dialect like `ldml` has no empty literal — `''` is a literal apo
 so it **cannot** express such an adjacency. There the second token is routed through
 [`onUnsupportedToken`](/guides/unsupported-tokens) with reason `unrepresentable-adjacency`:
 
-- the **default** emits it anyway (matching the merged output), while
+- the **default** literalizes it, escaping it so it can never re-merge into a different token, while
 - `'throw'` lets a mass migration catch it.
 
 <Callout type="info">
