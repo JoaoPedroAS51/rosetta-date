@@ -62,6 +62,7 @@ compare across dialects, see [Token Mapping](/reference/token-mapping).
 | Weekday, narrow, stand-alone | `ccccc` |
 | Weekday, short, stand-alone | `cccccc` |
 | Weekday, number (locale) | `e` |
+| Weekday, number (locale), 2-digit | `ee` |
 | AM/PM | `a` |
 | AM/PM, wide | `aaaa` |
 | AM/PM, narrow | `aaaaa` |
@@ -85,6 +86,9 @@ Extra spellings that are **parsed** but normalize to the primary token above whe
 - `G` / `GG` → abbreviated era (like `GGG`).
 - `E` / `EE` → abbreviated weekday (like `EEE`).
 - `eee` … `eeeeee` → formatting weekday name (like `EEE` … `EEEEEE`).
+- `L` / `LL` → numeric month, stand-alone (like `M` / `MM`).
+- `q` / `qq` → numeric quarter, stand-alone (like `Q` / `QQ`).
+- `c` / `cc` → numeric weekday, stand-alone (like `e` / `ee`).
 - `aa` / `aaa` → AM/PM (like `a`).
 - `z` / `zz` → time-zone name (like `zzz`).
 

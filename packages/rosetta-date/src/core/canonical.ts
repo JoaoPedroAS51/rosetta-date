@@ -106,6 +106,7 @@ export const Canonical = {
 
   // Weekday as a number
   WeekdayNumeric: 'weekday/numeric',
+  WeekdayTwoDigit: 'weekday/2-digit',
   WeekdayNumericIso: 'weekday/numeric/iso',
 
   // Day period — AM/PM

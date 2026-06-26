@@ -11,6 +11,10 @@ import { Canonical } from '../core/canonical'
  *
  * Rendering: when aliases share a canonical token, the first mapping is emitted.
  *
+ * Stand-alone: the named forms (`LLL`/`qqq`/`ccc`) are distinct canonicals, but
+ * the numeric forms (`L`/`q`/`c`) alias the formatting numerics, since a number
+ * carries no stand-alone inflection.
+ *
  * Case sensitivity: `y` and `Y` are different fields, as are `d` and `D`.
  *
  * @see {@link https://unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table | Unicode UTS #35 Date Field Symbol Table}
@@ -44,6 +48,8 @@ export const ldml: Dialect = {
     { token: 'QQQ', canonical: Canonical.QuarterAbbreviated },
     { token: 'QQQQ', canonical: Canonical.QuarterWide },
     { token: 'QQQQQ', canonical: Canonical.QuarterNarrow },
+    { token: 'q', canonical: Canonical.QuarterNumeric },
+    { token: 'qq', canonical: Canonical.QuarterTwoDigit },
     { token: 'qqq', canonical: Canonical.QuarterAbbreviatedStandalone },
     { token: 'qqqq', canonical: Canonical.QuarterWideStandalone },
     { token: 'qqqqq', canonical: Canonical.QuarterNarrowStandalone },
@@ -54,6 +60,8 @@ export const ldml: Dialect = {
     { token: 'MMM', canonical: Canonical.MonthAbbreviated },
     { token: 'MMMM', canonical: Canonical.MonthWide },
     { token: 'MMMMM', canonical: Canonical.MonthNarrow },
+    { token: 'L', canonical: Canonical.MonthNumeric },
+    { token: 'LL', canonical: Canonical.MonthTwoDigit },
     { token: 'LLL', canonical: Canonical.MonthAbbreviatedStandalone },
     { token: 'LLLL', canonical: Canonical.MonthWideStandalone },
     { token: 'LLLLL', canonical: Canonical.MonthNarrowStandalone },
@@ -89,6 +97,9 @@ export const ldml: Dialect = {
 
     // Weekday number
     { token: 'e', canonical: Canonical.WeekdayNumeric },
+    { token: 'ee', canonical: Canonical.WeekdayTwoDigit },
+    { token: 'c', canonical: Canonical.WeekdayNumeric },
+    { token: 'cc', canonical: Canonical.WeekdayTwoDigit },
 
     // Day period (AM/PM)
     { token: 'a', canonical: Canonical.DayPeriodAbbreviated },
