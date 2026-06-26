@@ -202,10 +202,16 @@ export const aliases: Partial<Record<EndpointName, ReadonlyArray<readonly [token
   'ldml': [
     ['y', Canonical.YearNumeric],
     ['yyy', Canonical.YearNumeric],
+    ['Y', Canonical.WeekYearNumeric],
+    ['YYY', Canonical.WeekYearNumeric],
     ['G', Canonical.EraAbbreviated],
     ['GG', Canonical.EraAbbreviated],
     ['E', Canonical.WeekdayAbbreviated],
     ['EE', Canonical.WeekdayAbbreviated],
+    ['eee', Canonical.WeekdayAbbreviated],
+    ['eeee', Canonical.WeekdayWide],
+    ['eeeee', Canonical.WeekdayNarrow],
+    ['eeeeee', Canonical.WeekdayShort],
     ['aa', Canonical.DayPeriodAbbreviated],
     ['aaa', Canonical.DayPeriodAbbreviated],
     ['z', Canonical.TimezoneAbbreviated],
@@ -213,6 +219,7 @@ export const aliases: Partial<Record<EndpointName, ReadonlyArray<readonly [token
   ],
   'date-fns': [
     ['R', Canonical.WeekYearNumericIso],
+    ['RR', Canonical.WeekYearNumericIso],
   ],
   'strftime': [
     ['%h', Canonical.MonthAbbreviated],
@@ -316,7 +323,6 @@ export const libraryDeltas: Record<LibraryName, {
       [Canonical.DayOfYearOrdinal]: 'Do',
       [Canonical.WeekOfYearOrdinalIso]: 'Io',
       [Canonical.WeekYearNumericIso]: 'RRRR',
-      [Canonical.WeekYearTwoDigitIso]: 'RR',
       [Canonical.WeekOfYearNumericIso]: 'I',
       [Canonical.WeekOfYearTwoDigitIso]: 'II',
       [Canonical.WeekdayNumericIso]: 'i',

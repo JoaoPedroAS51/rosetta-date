@@ -35,7 +35,7 @@ export const dateFns: Library = defineLibrary({
     // ISO week-numbering year
     { token: 'RRRR', canonical: Canonical.WeekYearNumericIso },
     { token: 'R', canonical: Canonical.WeekYearNumericIso },
-    { token: 'RR', canonical: Canonical.WeekYearTwoDigitIso },
+    { token: 'RR', canonical: Canonical.WeekYearNumericIso },
 
     // ISO week of year
     { token: 'I', canonical: Canonical.WeekOfYearNumericIso },

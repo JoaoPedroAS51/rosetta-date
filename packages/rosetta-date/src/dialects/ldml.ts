@@ -34,6 +34,8 @@ export const ldml: Dialect = {
 
     // Week-numbering year
     { token: 'YYYY', canonical: Canonical.WeekYearNumeric },
+    { token: 'Y', canonical: Canonical.WeekYearNumeric },
+    { token: 'YYY', canonical: Canonical.WeekYearNumeric },
     { token: 'YY', canonical: Canonical.WeekYearTwoDigit },
 
     // Quarter
@@ -76,6 +78,10 @@ export const ldml: Dialect = {
     { token: 'EEEE', canonical: Canonical.WeekdayWide },
     { token: 'EEEEE', canonical: Canonical.WeekdayNarrow },
     { token: 'EEEEEE', canonical: Canonical.WeekdayShort },
+    { token: 'eee', canonical: Canonical.WeekdayAbbreviated },
+    { token: 'eeee', canonical: Canonical.WeekdayWide },
+    { token: 'eeeee', canonical: Canonical.WeekdayNarrow },
+    { token: 'eeeeee', canonical: Canonical.WeekdayShort },
     { token: 'ccc', canonical: Canonical.WeekdayAbbreviatedStandalone },
     { token: 'cccc', canonical: Canonical.WeekdayWideStandalone },
     { token: 'ccccc', canonical: Canonical.WeekdayNarrowStandalone },
