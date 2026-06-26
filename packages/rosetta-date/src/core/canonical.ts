@@ -156,6 +156,9 @@ export const Canonical = {
   // Time-zone offset, e.g. +05:00 / +0500
   OffsetWithColon: 'offset/with-colon',
   OffsetWithoutColon: 'offset/without-colon',
+  // `zulu` emits `Z` for the zero (UTC) offset instead of a numeric `+00:00`
+  OffsetWithColonZulu: 'offset/with-colon/zulu',
+  OffsetWithoutColonZulu: 'offset/without-colon/zulu',
 
   // Unix epoch
   EpochSeconds: 'epoch/seconds',

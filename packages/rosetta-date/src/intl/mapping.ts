@@ -121,17 +121,17 @@ const FORWARD: Record<string, (style: string, qualifiers: readonly string[]) => 
  * `undefined` when `Intl` has no equivalent.
  *
  * @remarks
- * `Intl` cannot express the standalone-vs-formatting distinction, nor can it
- * force a fill character, so the `standalone` and `space-padded` qualifiers are
- * unsupported. Other unsupported examples include quarter, week-year,
- * week-of-year, day-of-year, ordinals, ISO week fields, epoch, day period
- * markers, and numeric or short weekday forms.
+ * `Intl` cannot express the standalone-vs-formatting distinction, force a fill
+ * character, or emit `Z` for the zero offset, so the `standalone`,
+ * `space-padded`, and `zulu` qualifiers are unsupported. Other unsupported
+ * examples include quarter, week-year, week-of-year, day-of-year, ordinals, ISO
+ * week fields, epoch, day period markers, and numeric or short weekday forms.
  *
  * @internal
  */
 export function canonicalToIntl(token: CanonicalToken): Options | undefined {
   const { field, style, qualifiers } = decodeCanonical(token)
-  if (qualifiers.includes('standalone') || qualifiers.includes('space-padded'))
+  if (qualifiers.includes('standalone') || qualifiers.includes('space-padded') || qualifiers.includes('zulu'))
     return undefined
   return FORWARD[field]?.(style, qualifiers)
 }

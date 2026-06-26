@@ -110,6 +110,7 @@ toIntlOptions('Q', { from: moment, onUnsupportedToken: 'throw' }) // throws Unsu
 
 <Callout type="warning">
   `toIntlOptions` is a human-display tool: it yields options for `Intl.DateTimeFormat`, which renders
-  a `GMT`-prefixed offset (`GMT+05:00`), not a bare ISO `+05:00`. Keep machine-readable ISO timestamps
-  as a plain `convert` between dialects.
+  a `GMT`-prefixed offset (`GMT+05:00`), not a bare ISO `+05:00`. The ISO offsets that emit `Z` at zero
+  have no `Intl` equivalent at all. Keep machine-readable ISO timestamps as a plain `convert` between
+  dialects.
 </Callout>

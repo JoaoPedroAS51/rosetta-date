@@ -145,6 +145,8 @@ export const ldml: Dialect = {
     { token: 'zz', canonical: Canonical.TimezoneAbbreviated },
     { token: 'xxx', canonical: Canonical.OffsetWithColon },
     { token: 'xx', canonical: Canonical.OffsetWithoutColon },
+    { token: 'XXX', canonical: Canonical.OffsetWithColonZulu },
+    { token: 'XX', canonical: Canonical.OffsetWithoutColonZulu },
 
     // Epoch and localized presets are outside this UTS #35 subset.
   ],

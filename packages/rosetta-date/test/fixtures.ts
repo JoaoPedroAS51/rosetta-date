@@ -148,6 +148,8 @@ export const expectations: Record<DialectName, Partial<Record<CanonicalToken, st
     [Canonical.TimezoneAbbreviated]: 'zzz',
     [Canonical.OffsetWithColon]: 'xxx',
     [Canonical.OffsetWithoutColon]: 'xx',
+    [Canonical.OffsetWithColonZulu]: 'XXX',
+    [Canonical.OffsetWithoutColonZulu]: 'XX',
   },
   strftime: {
     [Canonical.YearNumeric]: '%Y',
