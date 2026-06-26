@@ -32,15 +32,15 @@ Although `YYYY-MM-DD` and `yyyy-MM-dd` look different, they express the same dat
 
 ## Documentation
 
-This README is a quick start. The **[full documentation](https://rosetta-date.vercel.app)** covers everything else:
+This README is a quick start. The **[full documentation](https://rosetta-date.dev)** covers everything else:
 
-- [How it works](https://rosetta-date.vercel.app/concepts/how-it-works) — the canonical model behind every conversion.
-- [Dialects & Libraries](https://rosetta-date.vercel.app/concepts/dialects-and-libraries) — when to use which.
-- [Custom dialects & libraries](https://rosetta-date.vercel.app/guides/custom-dialects) — teach it a new dialect or library.
-- [Unsupported tokens](https://rosetta-date.vercel.app/guides/unsupported-tokens) — what happens when a token has no clean target.
-- [Token mapping](https://rosetta-date.vercel.app/reference/token-mapping) — the full per-token grammar tables.
-- [Libraries](https://rosetta-date.vercel.app/reference/libraries) — tool-specific coverage and caveats.
-- [API reference](https://rosetta-date.vercel.app/reference/api) — every export, signature, and type.
+- [How it works](https://rosetta-date.dev/concepts/how-it-works) — the canonical model behind every conversion.
+- [Dialects & Libraries](https://rosetta-date.dev/concepts/dialects-and-libraries) — when to use which.
+- [Custom dialects & libraries](https://rosetta-date.dev/guides/custom-dialects) — teach it a new dialect or library.
+- [Unsupported tokens](https://rosetta-date.dev/guides/unsupported-tokens) — what happens when a token has no clean target.
+- [Token mapping](https://rosetta-date.dev/reference/token-mapping) — the full per-token grammar tables.
+- [Libraries](https://rosetta-date.dev/reference/libraries) — tool-specific coverage and caveats.
+- [API reference](https://rosetta-date.dev/reference/api) — every export, signature, and type.
 
 ## Install
 
@@ -127,8 +127,8 @@ explain('DDD', { from: moment, to: dayjs })
 // [ { kind: 'field', token: 'DDD', canonical: 'day-of-year/numeric', ..., status: 'unsupported', reason: 'unsupported-by-target' } ]
 ```
 
-See [Converting](https://rosetta-date.vercel.app/guides/converting), [Describing formats](https://rosetta-date.vercel.app/guides/describe), [Explaining conversions](https://rosetta-date.vercel.app/guides/explain), [Intl Options](https://rosetta-date.vercel.app/guides/intl), [Dialects & Libraries](https://rosetta-date.vercel.app/concepts/dialects-and-libraries),
-and [Custom dialects & libraries](https://rosetta-date.vercel.app/guides/custom-dialects) for the full guides.
+See [Converting](https://rosetta-date.dev/guides/converting), [Describing formats](https://rosetta-date.dev/guides/describe), [Explaining conversions](https://rosetta-date.dev/guides/explain), [Intl Options](https://rosetta-date.dev/guides/intl), [Dialects & Libraries](https://rosetta-date.dev/concepts/dialects-and-libraries),
+and [Custom dialects & libraries](https://rosetta-date.dev/guides/custom-dialects) for the full guides.
 
 ## Supported dialects & libraries
 
@@ -148,8 +148,8 @@ and [Custom dialects & libraries](https://rosetta-date.vercel.app/guides/custom-
 | `dayjs`    | [Day.js][dayjs-docs]       | `moment` | a core subset + the common plugins (AdvancedFormat, LocalizedFormat)                                              |
 | `dateFns`  | [date-fns][date-fns-docs]  | `ldml`   | the full grammar **+ its own extensions** (`P…`, `t`/`T`, `R`/`I`/`i`); some tokens gated behind date-fns options |
 
-The per-token grammar tables are in [Token mapping](https://rosetta-date.vercel.app/reference/token-mapping); tool-specific
-behaviour is in [Libraries](https://rosetta-date.vercel.app/reference/libraries).
+The per-token grammar tables are in [Token mapping](https://rosetta-date.dev/reference/token-mapping); tool-specific
+behaviour is in [Libraries](https://rosetta-date.dev/reference/libraries).
 
 ## How it works
 
@@ -166,7 +166,7 @@ the model extensible: a new dialect or library connects to the canonical hub, no
 
 ## Contributing
 
-Contributions are welcome. The [Contributing guide](https://rosetta-date.vercel.app/contributing) covers local setup, the
+Contributions are welcome. The [Contributing guide](https://rosetta-date.dev/contributing) covers local setup, the
 project scripts, the testing layout, and how to add a new dialect or library.
 
 ## License
