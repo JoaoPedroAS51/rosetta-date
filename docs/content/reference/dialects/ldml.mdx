@@ -66,6 +66,12 @@ compare across dialects, see [Token Mapping](/reference/token-mapping).
 | AM/PM | `a` |
 | AM/PM, wide | `aaaa` |
 | AM/PM, narrow | `aaaaa` |
+| Day period + noon/midnight | `b` |
+| Day period + noon/midnight, wide | `bbbb` |
+| Day period + noon/midnight, narrow | `bbbbb` |
+| Flexible day period | `B` |
+| Flexible day period, wide | `BBBB` |
+| Flexible day period, narrow | `BBBBB` |
 | Hour 1–12 | `h` `hh` |
 | Hour 0–23 | `H` `HH` |
 | Hour 1–24 | `k` `kk` |
@@ -90,6 +96,8 @@ Extra spellings that are **parsed** but normalize to the primary token above whe
 - `q` / `qq` → numeric quarter, stand-alone (like `Q` / `QQ`).
 - `c` / `cc` → numeric weekday, stand-alone (like `e` / `ee`).
 - `aa` / `aaa` → AM/PM (like `a`).
+- `bb` / `bbb` → day period + noon/midnight (like `b`).
+- `BB` / `BBB` → flexible day period (like `B`).
 - `z` / `zz` → time-zone name (like `zzz`).
 
 ## Caveats

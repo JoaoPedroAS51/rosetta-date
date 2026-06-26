@@ -107,6 +107,16 @@ export const ldml: Dialect = {
     { token: 'aaa', canonical: Canonical.DayPeriodAbbreviated },
     { token: 'aaaa', canonical: Canonical.DayPeriodWide },
     { token: 'aaaaa', canonical: Canonical.DayPeriodNarrow },
+    { token: 'b', canonical: Canonical.DayPeriodAbbreviatedExtended },
+    { token: 'bb', canonical: Canonical.DayPeriodAbbreviatedExtended },
+    { token: 'bbb', canonical: Canonical.DayPeriodAbbreviatedExtended },
+    { token: 'bbbb', canonical: Canonical.DayPeriodWideExtended },
+    { token: 'bbbbb', canonical: Canonical.DayPeriodNarrowExtended },
+    { token: 'B', canonical: Canonical.DayPeriodAbbreviatedFlexible },
+    { token: 'BB', canonical: Canonical.DayPeriodAbbreviatedFlexible },
+    { token: 'BBB', canonical: Canonical.DayPeriodAbbreviatedFlexible },
+    { token: 'BBBB', canonical: Canonical.DayPeriodWideFlexible },
+    { token: 'BBBBB', canonical: Canonical.DayPeriodNarrowFlexible },
 
     // Hour
     { token: 'h', canonical: Canonical.HourNumericH12 },

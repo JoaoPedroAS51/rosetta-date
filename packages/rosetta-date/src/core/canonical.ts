@@ -114,6 +114,13 @@ export const Canonical = {
   DayPeriodAbbreviatedLower: 'day-period/abbreviated/lower',
   DayPeriodWide: 'day-period/wide',
   DayPeriodNarrow: 'day-period/narrow',
+  // `extended` adds noon/midnight; `flexible` is locale day ranges
+  DayPeriodAbbreviatedExtended: 'day-period/abbreviated/extended',
+  DayPeriodWideExtended: 'day-period/wide/extended',
+  DayPeriodNarrowExtended: 'day-period/narrow/extended',
+  DayPeriodAbbreviatedFlexible: 'day-period/abbreviated/flexible',
+  DayPeriodWideFlexible: 'day-period/wide/flexible',
+  DayPeriodNarrowFlexible: 'day-period/narrow/flexible',
 
   // Hour — the `hX` qualifier is the cycle
   // h12 = 1–12, h23 = 0–23, h24 = 1–24, h11 = 0–11
