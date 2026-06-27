@@ -16,7 +16,7 @@
     "test": "pnpm --filter rosetta-date test",
     "test:watch": "pnpm --filter rosetta-date test:watch",
     "test:coverage": "pnpm --filter rosetta-date test:coverage",
-    "typecheck": "pnpm -r typecheck",
+    "typecheck": "pnpm --filter rosetta-date typecheck",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "playground": "pnpm --filter rosetta-date build && pnpm --filter @rosetta-date/playground dev",
