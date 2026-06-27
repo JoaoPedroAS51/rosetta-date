@@ -1,7 +1,7 @@
 {
   "name": "@rosetta-date/playground",
   "type": "module",
-  "version": "0.0.0",
+  "version": "0.0.0-internal",
   "private": true,
   "description": "Standalone playground for rosetta-date.",
   "scripts": {

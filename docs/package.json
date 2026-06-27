@@ -1,7 +1,7 @@
 {
   "name": "@rosetta-date/docs",
   "type": "module",
-  "version": "0.0.0",
+  "version": "0.0.0-internal",
   "private": true,
   "description": "Documentation site for rosetta-date, built with Nextra.",
   "scripts": {
