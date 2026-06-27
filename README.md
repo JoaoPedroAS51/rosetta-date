@@ -48,6 +48,9 @@ This README is a quick start. The **[full documentation](https://rosetta-date.de
 npm install rosetta-date
 ```
 
+> `rosetta-date` is in active development. Minor releases may include breaking changes. Pin an exact
+> version in your `package.json` and review the changelog before upgrading.
+
 <details><summary>pnpm / yarn / bun</summary>
 
 ```bash
