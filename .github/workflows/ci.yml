@@ -36,6 +36,7 @@ jobs:
       - run: pnpm test:coverage
 
       - uses: codecov/codecov-action@v7
+        if: matrix.node == 22
         with:
           files: ./packages/rosetta-date/coverage/lcov.info
           fail_ci_if_error: true
