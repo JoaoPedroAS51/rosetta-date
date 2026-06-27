@@ -1,7 +1,7 @@
 {
   "name": "rosetta-date",
   "type": "module",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A translation engine for date-formatting languages.",
   "author": "João Pedro Antunes Silva <hi@joaopedroas.com>",
   "license": "MIT",
