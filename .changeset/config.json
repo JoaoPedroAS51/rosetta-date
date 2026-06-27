@@ -11,5 +11,6 @@
   "privatePackages": {
     "version": false,
     "tag": false
-  }
+  },
+  "format": "auto"
 }
