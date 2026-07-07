@@ -1,0 +1,56 @@
+{
+  "$schema": "https://turborepo.dev/schema.json",
+  "ui": "stream",
+  "globalDependencies": ["tsconfig.base.json"],
+  "tasks": {
+    // Shared
+    "build": {
+      "outputs": ["dist/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "typecheck": {
+      "outputs": []
+    },
+    "test": {
+      "outputs": []
+    },
+    "test:watch": {
+      "cache": false,
+      "persistent": true
+    },
+    "test:coverage": {
+      "outputs": ["coverage/**"]
+    },
+
+    // Core
+    "rosetta-date#dev": {
+      "dependsOn": ["build"],
+      "cache": false,
+      "persistent": true
+    },
+
+    // Docs
+    "@rosetta-date/docs#build": {
+      "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**", "public/_pagefind/**"]
+    },
+
+    // Playground
+    "@rosetta-date/playground#build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "@rosetta-date/playground#dev": {
+      "dependsOn": ["^build"],
+      "with": ["rosetta-date#dev"],
+      "cache": false,
+      "persistent": true
+    },
+    "@rosetta-date/playground#typecheck": {
+      "dependsOn": ["^build"],
+      "outputs": []
+    }
+  }
+}

@@ -5,6 +5,14 @@ allowBuilds:
 catalogMode: prefer
 cleanupUnusedCatalogs: true
 
+minimumReleaseAgeExclude:
+  - '@turbo/darwin-64@2.10.4'
+  - '@turbo/darwin-arm64@2.10.4'
+  - '@turbo/linux-64@2.10.4'
+  - '@turbo/linux-arm64@2.10.4'
+  - '@turbo/windows-64@2.10.4'
+  - '@turbo/windows-arm64@2.10.4'
+  - turbo@2.10.4
 packages:
   - packages/*
   - playground
@@ -30,6 +38,7 @@ catalog:
   react: ^19.2.0
   react-dom: ^19.2.0
   tsdown: ^0.22.2
+  turbo: 2.10.4
   typescript: ^6.0.3
   vite: ^8.0.16
   vitest: ^4.1.8

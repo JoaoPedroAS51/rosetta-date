@@ -11,18 +11,18 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "pnpm --filter rosetta-date build",
-    "dev": "pnpm --filter rosetta-date dev",
-    "test": "pnpm --filter rosetta-date test",
-    "test:watch": "pnpm --filter rosetta-date test:watch",
-    "test:coverage": "pnpm --filter rosetta-date test:coverage",
-    "typecheck": "pnpm --filter rosetta-date typecheck",
+    "build": "turbo run build --filter=rosetta-date",
+    "dev": "turbo run dev --filter=rosetta-date",
+    "test": "turbo run test --filter=rosetta-date",
+    "test:watch": "turbo run test:watch --filter=rosetta-date",
+    "test:coverage": "turbo run test:coverage --filter=rosetta-date",
+    "typecheck": "turbo run typecheck --filter=rosetta-date",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "playground": "pnpm --filter rosetta-date build && pnpm --filter @rosetta-date/playground dev",
-    "playground:build": "pnpm --filter rosetta-date build && pnpm --filter @rosetta-date/playground build",
-    "docs:dev": "pnpm --filter rosetta-date build && pnpm --filter @rosetta-date/docs dev",
-    "docs:build": "pnpm --filter rosetta-date build && pnpm --filter @rosetta-date/docs build",
+    "playground": "turbo run dev --filter=@rosetta-date/playground",
+    "playground:build": "turbo run build --filter=@rosetta-date/playground",
+    "docs:dev": "turbo run dev --filter=@rosetta-date/docs",
+    "docs:build": "turbo run build --filter=@rosetta-date/docs",
     "release": "pnpm --filter rosetta-date build && changeset publish"
   },
   "devDependencies": {
@@ -31,6 +31,7 @@
     "@types/node": "catalog:",
     "eslint": "catalog:",
     "eslint-plugin-markdown-preferences": "catalog:",
+    "turbo": "catalog:",
     "typescript": "catalog:"
   }
 }

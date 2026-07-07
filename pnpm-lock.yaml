@@ -54,6 +54,9 @@ catalogs:
     tsdown:
       specifier: ^0.22.2
       version: 0.22.3
+    turbo:
+      specifier: 2.10.4
+      version: 2.10.4
     typescript:
       specifier: ^6.0.3
       version: 6.0.3
@@ -86,6 +89,9 @@ importers:
       eslint-plugin-markdown-preferences:
         specifier: 'catalog:'
         version: 0.41.1(@eslint/markdown@8.0.2)(eslint@10.5.0)
+      turbo:
+        specifier: 'catalog:'
+        version: 2.10.4
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -1324,6 +1330,36 @@ packages:
 
   '@ts-morph/common@0.28.1':
     resolution: {integrity: sha512-W74iWf7ILp1ZKNYXY5qbddNaml7e9Sedv5lvU1V8lftlitkc9Pq1A+jlH23ltDgWYeZFFEqGCD1Ies9hqu3O+g==}
+
+  '@turbo/darwin-64@2.10.4':
+    resolution: {integrity: sha512-m1MUEI4MJ69r5CwfMYxmHi0H0rrgiYCBOp0tgBZ9x/YVvOb5uu/lRIDyDwdtH054R2yWeQaIigUGu6aCX9f8cA==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@turbo/darwin-arm64@2.10.4':
+    resolution: {integrity: sha512-VQ1Yxs5zkPT+2z7t1P4mvn6JmcKLkOCAsPuK9XbOvuVj0DlTlETfIXNisX0771v/vTWHOQqiwoGi+TtAUq8efw==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@turbo/linux-64@2.10.4':
+    resolution: {integrity: sha512-IzV1QovmwX7mfGnVinmE++2IB8tbeo38weltiuH5zNqwCTBjLs/DytyRKx+bmnhHdXIq9SheR8p0Nip/LBUPHg==}
+    cpu: [x64]
+    os: [linux]
+
+  '@turbo/linux-arm64@2.10.4':
+    resolution: {integrity: sha512-rfujSQkP5aYiRn0PgTM7F00WkJCP/bKDVZbOx3WmrZwa/vHA0bplhCl328kpX7VI9HH2vI90ISGwuSVgJgoqTw==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@turbo/windows-64@2.10.4':
+    resolution: {integrity: sha512-NnspP7Wd5fa3Wwnqv9bKfhegqZzuHBgbPxdZU/idTLQcazx/vgKu95JlCx2YHY0hdvKCnPcARrDwM+KEUmaO7A==}
+    cpu: [x64]
+    os: [win32]
+
+  '@turbo/windows-arm64@2.10.4':
+    resolution: {integrity: sha512-Iv02YgOpaEShc2OkG7mgCJ2pEw1RUKiKbs0h8W5wAf4jZ5vpmraTEjuGTgHRuOORQnC1GN3KHo5WB+hu1abRMA==}
+    cpu: [arm64]
+    os: [win32]
 
   '@tybys/wasm-util@0.10.2':
     resolution: {integrity: sha512-RoBvJ2X0wuKlWFIjrwffGw1IqZHKQqzIchKaadZZfnNpsAYp2mM0h36JtPCjNDAHGgYez/15uMBpfGwchhiMgg==}
@@ -3906,6 +3942,10 @@ packages:
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
+  turbo@2.10.4:
+    resolution: {integrity: sha512-GQpduILaKjoaGljw097ScsSyKTtZSY7cZ3bJktzfTkPMyCf3ShKLuXK2IaOEN2Plziml+ArR7WJ1m+V4VbnaKQ==}
+    hasBin: true
+
   twoslash-protocol@0.3.8:
     resolution: {integrity: sha512-HmvAHoiEviK8LqvAQyc9/irkdvwTUiR1fHmNwH/0gq8EHxyBt4PWVPixjEXg6wJu1u6yBrILEWXGK9Kw58/8yQ==}
 
@@ -5338,6 +5378,24 @@ snapshots:
       minimatch: 10.2.5
       path-browserify: 1.0.1
       tinyglobby: 0.2.17
+
+  '@turbo/darwin-64@2.10.4':
+    optional: true
+
+  '@turbo/darwin-arm64@2.10.4':
+    optional: true
+
+  '@turbo/linux-64@2.10.4':
+    optional: true
+
+  '@turbo/linux-arm64@2.10.4':
+    optional: true
+
+  '@turbo/windows-64@2.10.4':
+    optional: true
+
+  '@turbo/windows-arm64@2.10.4':
+    optional: true
 
   '@tybys/wasm-util@0.10.2':
     dependencies:
@@ -8606,6 +8664,15 @@ snapshots:
       - vue-tsc
 
   tslib@2.8.1: {}
+
+  turbo@2.10.4:
+    optionalDependencies:
+      '@turbo/darwin-64': 2.10.4
+      '@turbo/darwin-arm64': 2.10.4
+      '@turbo/linux-64': 2.10.4
+      '@turbo/linux-arm64': 2.10.4
+      '@turbo/windows-64': 2.10.4
+      '@turbo/windows-arm64': 2.10.4
 
   twoslash-protocol@0.3.8: {}
 

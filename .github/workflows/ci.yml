@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   id-token: write
@@ -18,32 +22,45 @@ jobs:
       matrix:
         node: [22, 24]
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout
+        uses: actions/checkout@v6
 
-      - uses: pnpm/action-setup@v6
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v6
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
           cache: pnpm
 
-      - run: pnpm install --frozen-lockfile
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-      - run: pnpm lint
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-node${{ matrix.node }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-node${{ matrix.node }}-
 
-      - run: pnpm typecheck
+      - name: Lint
+        run: pnpm lint
 
-      - run: pnpm test:coverage
+      - name: Typecheck
+        run: pnpm typecheck
 
-      - uses: codecov/codecov-action@v7
+      - name: Test with coverage
+        run: pnpm test:coverage
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v7
         if: matrix.node == 24
         with:
           files: ./packages/rosetta-date/coverage/lcov.info
           fail_ci_if_error: true
           use_oidc: true
 
-      - run: pnpm build
-
-      - run: pnpm playground:build
-
-      - run: pnpm docs:build
+      - name: Build
+        run: pnpm build

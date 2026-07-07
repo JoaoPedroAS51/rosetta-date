@@ -3,22 +3,19 @@
 Documentation site for [rosetta-date](https://github.com/JoaoPedroAS51/rosetta-date), built with
 [Nextra 4](https://nextra.site) (App Router).
 
-This is an app in the workspace. It consumes the library via `rosetta-date` (`workspace:*`), so its
-examples exercise the real package.
-
 ## Develop
 
 From the repository root:
 
 ```bash
 pnpm install
-pnpm docs:dev      # builds the library, then http://localhost:3000
+pnpm docs:dev      # http://localhost:3000
 ```
 
 ## Build
 
 ```bash
-pnpm docs:build    # from the root: builds the library, then the production site
+pnpm docs:build    # builds the production site and search index
 ```
 
 ## Where content lives
