@@ -14,8 +14,8 @@ A **`Dialect`** represents a formatting *language*: its token grammar, the token
 [family](/reference/dialects#syntax-families) its `syntax` belongs to (letter tokens with `[…]`/`'…'`
 literals, or `%`-style directives), and the canonical meaning of each token. It is tool-agnostic.
 
-Use a dialect when you want **pure grammar conversion** — rewriting tokens from one language to
-another without caring which concrete tool will consume the result.
+Use a dialect for **pure grammar conversion**: rewriting tokens from one language to another without
+targeting a concrete tool.
 
 ```ts
 import { convert } from 'rosetta-date'
@@ -30,8 +30,8 @@ A **`Library`** builds on a dialect to model **one specific tool**: the subset o
 renders, the aliases it accepts, and the limitations it has. Several libraries can *speak* the same
 dialect (e.g. Day.js and Moment.js both speak `moment`) yet render different slices of it.
 
-Use a library when **tool-specific behavior matters** — most importantly, when you want unrenderable
-tokens to be flagged rather than emitted blindly.
+Use a library when **tool-specific behavior matters**, including when unrenderable tokens must be
+flagged instead of emitted.
 
 ```ts
 import { convert } from 'rosetta-date'
@@ -46,8 +46,8 @@ or `dateFns`) renders its whole dialect.
 
 ## Mixing them
 
-Because both endpoints accept either type, you can mix freely — e.g. convert from a bare dialect
-into a specific library:
+Because both endpoints accept either type, you can convert from a bare dialect into a specific
+library:
 
 ```ts
 import { convert } from 'rosetta-date'
@@ -79,9 +79,8 @@ convert(format, { from: getDialect(config.from), to: getLibrary(config.to) })
 ```
 
 <Callout type="warning">
-  By design, each reference pulls in every built-in, so reach for `getDialect` / `getLibrary` only
-  when the direction is genuinely dynamic. When the direction is known, import the specific dialect
-  or library directly to stay tree-shakeable.
+  Each registry function imports every built-in. Use `getDialect` or `getLibrary` only when the
+  direction is dynamic. Otherwise, import the specific dialect or library.
 </Callout>
 
 See the full list of built-ins under [Dialects](/reference/dialects) and [Libraries](/reference/libraries).

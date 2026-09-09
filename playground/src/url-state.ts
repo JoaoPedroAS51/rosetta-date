@@ -42,16 +42,16 @@ export function writeState(state: ConverterState, defaults: ConverterState): voi
   if (typeof window === 'undefined')
     return
   const params = new URLSearchParams(window.location.search)
-  const set = (key: string, value: string, fallback: string): void => {
+  const setParam = (key: string, value: string, fallback: string): void => {
     if (value === fallback)
       params.delete(key)
     else params.set(key, value)
   }
-  set('mode', state.mode, defaults.mode)
-  set('from', state.from, defaults.from)
-  set('to', state.to, defaults.to)
-  set('fmt', state.format, defaults.format)
-  set('policy', state.policy, defaults.policy)
+  setParam('mode', state.mode, defaults.mode)
+  setParam('from', state.from, defaults.from)
+  setParam('to', state.to, defaults.to)
+  setParam('fmt', state.format, defaults.format)
+  setParam('policy', state.policy, defaults.policy)
   const query = params.toString()
   const url = query ? `${window.location.pathname}?${query}` : window.location.pathname
   window.history.replaceState(null, '', url)

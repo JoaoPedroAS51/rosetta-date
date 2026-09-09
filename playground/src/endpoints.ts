@@ -9,16 +9,13 @@ export interface Endpoint {
   readonly label: string
   readonly kind: EndpointKind
   readonly value: Dialect | Library
-  /** The bare export name, used when generating a copy-as-code snippet. */
+  /** Export name used in generated snippets. */
   readonly importName: string
-  /** Which subpath the symbol is imported from. */
+  /** Package subpath that exports the endpoint. */
   readonly importFrom: 'rosetta-date/dialects' | 'rosetta-date/libraries'
 }
 
-/**
- * The endpoints the converter offers. Dialects are the pure grammars; libraries
- * are concrete tools (their extensions plus the subset of tokens they render).
- */
+/** Endpoints available in the playground. */
 export const endpoints: readonly Endpoint[] = [
   { id: 'moment', label: 'moment', kind: 'dialect', value: moment, importName: 'moment', importFrom: 'rosetta-date/dialects' },
   { id: 'ldml', label: 'ldml', kind: 'dialect', value: ldml, importName: 'ldml', importFrom: 'rosetta-date/dialects' },

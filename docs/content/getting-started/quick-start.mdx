@@ -11,7 +11,7 @@ own entrypoints and passed in.
 
 ## One-off conversions
 
-The direction travels with the call — `from` and `to` are part of the options:
+Pass `from` and `to` with each call:
 
 ```ts
 import { convert } from 'rosetta-date'
@@ -36,13 +36,12 @@ toLdml('YYYY-MM-DD') // 'yyyy-MM-dd'
 toLdml('hh:mm A') // 'hh:mm a'
 ```
 
-`createConverter` returns a `(format: string) => string`, handy to store or pass around as a
-callback.
+`createConverter` returns a `(format: string) => string` that you can store or pass as a callback.
 
 ## Dialects & Libraries
 
 You can convert between **dialects** (pure grammar) or **libraries** (tool-specific behavior). Both
-`from` and `to` accept a `Dialect` *or* a `Library`, so you can mix them freely:
+`from` and `to` accept a `Dialect` or a `Library`:
 
 ```ts
 import { convert } from 'rosetta-date'
@@ -67,12 +66,11 @@ safeForDayjs('Mo') // throws UnsupportedTokenError
 ```
 
 <Callout type="info">
-  Not sure whether to reach for a dialect or a library? See
-  [Dialects & Libraries](/concepts/dialects-and-libraries).
+  See [Dialects & Libraries](/concepts/dialects-and-libraries) to choose an endpoint type.
 </Callout>
 
 ## Next steps
 
-- [How it works](/concepts/how-it-works) — the canonical model behind every conversion.
-- [Unsupported tokens](/guides/unsupported-tokens) — what happens when a token has no clean target.
-- [Custom dialects & libraries](/guides/custom-dialects) — teach `rosetta-date` a new dialect or library.
+- [How it works](/concepts/how-it-works): the canonical model behind every conversion.
+- [Unsupported tokens](/guides/unsupported-tokens): what happens when a token has no clean target.
+- [Custom dialects & libraries](/guides/custom-dialects): define a new dialect or library.

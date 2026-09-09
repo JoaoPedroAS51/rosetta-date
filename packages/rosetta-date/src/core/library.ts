@@ -1,13 +1,7 @@
 import type { CanonicalToken } from './canonical'
 import type { Dialect, Library, LibraryDefinition } from './types'
 
-/**
- * A library's effective grammar: its base dialect with any
- * {@link LibraryDefinition.extends} tokens merged in. Computed once, at
- * definition time, so the resulting object identity is stable. This keeps the
- * parser's and renderer's per-grammar caches working and keeps the merge logic
- * reachable only through {@link defineLibrary}, never from a dialect-only render.
- */
+/** Merge a library's extension tokens into its base dialect. */
 function effectiveDialect(def: LibraryDefinition): Dialect {
   if (def.extends === undefined || def.extends.length === 0)
     return def.dialect
@@ -19,15 +13,7 @@ function effectiveDialect(def: LibraryDefinition): Dialect {
 }
 
 /**
- * Defines and validates a concrete date-format library.
- *
- * @remarks
- * Validation catches extension tokens that collide with the base dialect,
- * duplicate extension token spellings, and `supports` canonicals absent from the
- * effective grammar.
- *
- * The returned {@link Library} includes precomputed render metadata. Define it
- * once and reuse it so compiled token tables can be cached by object identity.
+ * Validate and resolve a concrete date-format library.
  *
  * @param definition - The library definition to validate and resolve.
  * @returns A {@link Library} with precomputed render metadata.

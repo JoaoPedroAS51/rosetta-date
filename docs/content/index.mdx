@@ -6,8 +6,8 @@ title: Introduction
 
 > A translation engine for date-formatting languages.
 
-`rosetta-date` translates date-format strings between formatting languages by routing every token
-through a canonical intermediate representation before rendering it into the target language.
+`rosetta-date` translates date-format strings between formatting languages by routing recognized
+tokens through a canonical intermediate representation before rendering them in the target language.
 
 ```ts
 import { convert } from 'rosetta-date'
@@ -17,8 +17,8 @@ convert('YYYY-MM-DD', { from: moment, to: ldml }) // 'yyyy-MM-dd'
 ```
 
 Although `YYYY-MM-DD` and `yyyy-MM-dd` look different, they express the same date format using
-different formatting languages. `rosetta-date` understands the difference and rewrites the tokens —
-not the date.
+different formatting languages. `rosetta-date` rewrites the token string while leaving date values
+untouched.
 
 ## Why it exists
 
@@ -34,24 +34,24 @@ import { dateFns, momentjs } from 'rosetta-date/libraries'
 convert('dddd, MMMM Do YYYY', { from: momentjs, to: dateFns }) // 'EEEE, MMMM do yyyy'
 ```
 
-`rosetta-date` encodes the full token grammar once, in one place. A token that converts cleanly
-round-trips faithfully; one with no clean counterpart is handled by a policy you control —
-preserved as a safe literal by default.
+Each grammar maps its tokens to canonical fields once. A token that converts cleanly round-trips
+faithfully. The unsupported-token policy handles tokens with no clean counterpart and preserves them
+as literals by default.
 
 ## Highlights
 
-- 🔁 **Bidirectional** — every mapping works in both directions.
-- 🧭 **Canonical semantic model** — tokens convert through a shared meaning, never dialect-to-dialect.
-- 🧩 **Extensible by design** — a new dialect or library connects to the hub with two mappings, not a fleet of pairwise converters.
-- 🛡️ **Escape-aware tokenizer** — literals round-trip intact across dialects.
-- 🌐 **Native `Intl` bridge** — turn a token pattern into `Intl.DateTimeFormat` options, and back.
-- 🔍 **Introspectable** — `describe` what a pattern means and `explain` what a conversion would do, without converting.
-- 🌳 **Tree-shakeable** — dialects and libraries ship from their own entrypoints.
-- 🪶 **Zero runtime dependencies**.
+- 🔁 **Bidirectional:** Each dialect parses tokens to canonical fields and renders canonical fields back to tokens.
+- 🧭 **Canonical semantic model:** Tokens convert through shared meanings instead of pairwise dialect mappings.
+- 🧩 **Extensible by design:** New dialects map to the canonical model; libraries extend or narrow a dialect.
+- 🛡️ **Escape-aware tokenizer:** Literals round-trip across dialects.
+- 🌐 **`Intl` adapter:** Convert a token pattern to `Intl.DateTimeFormat` options and back.
+- 🔍 **Introspectable:** `describe` reports what a pattern means, and `explain` reports what a conversion would do.
+- 🌳 **Tree-shakeable:** Dialects and libraries ship from their own entrypoints.
+- 🪶 **Zero runtime dependencies:** No runtime dependencies.
 
 ## Where to go next
 
-- New here? Start with [Installation](/getting-started/installation) and the
+- Start with [Installation](/getting-started/installation) and the
   [Quick start](/getting-started/quick-start).
-- Want to understand the design? Read [How it works](/concepts/how-it-works).
-- Looking for a specific token? Jump to the [Token mapping](/reference/token-mapping) reference.
+- Read [How it works](/concepts/how-it-works) for the canonical model.
+- Use [Token mapping](/reference/token-mapping) to look up a specific token.

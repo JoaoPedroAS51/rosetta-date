@@ -6,24 +6,21 @@ import { Callout } from 'nextra/components'
 
 # Canonical Vocabulary
 
-The canonical vocabulary is the dialect-agnostic set of date-field *meanings* every conversion routes
-through. It is the **join key** for the whole reference: a dialect maps each of its tokens to a
-canonical member ([Token Mapping](/reference/token-mapping)), and a library declares the canonical
-fields it renders ([Libraries](/reference/libraries)). Nothing here depends on how many
-dialects exist.
+The canonical vocabulary is the dialect-agnostic set of date-field meanings used by every
+conversion. A dialect maps each token to a canonical member ([Token Mapping](/reference/token-mapping)),
+and a library declares which canonical fields it renders ([Libraries](/reference/libraries)).
 
-Values are stable `field/style[/qualifier]` identifiers exported as the
-[`Canonical`](/reference/api#canonical) object — the optional `qualifier` (e.g. `iso`, the hour cycle
-`h12`, `standalone`, `space-padded`) refines a base field/style, and its absence is the default. When a
-value carries more than one qualifier, identity qualifiers (`iso`, the hour cycle) come before
-presentation ones (`space-padded`, `lower`). The order is fixed; see the
-[Contributing guide](/contributing#adding-a-canonical-field). Prefer the named members
-(`Canonical.YearNumeric`) over the raw strings. To split a symbol into those parts programmatically,
-see [`decodeCanonical`](/reference/api#decodecanonical).
+Values are stable `field/style[/qualifier]` identifiers exported through the
+[`Canonical`](/reference/api#canonical) object. An optional `qualifier`, such as `iso`, the `h12` hour
+cycle, `standalone`, or `space-padded`, refines a base field and style. When a value carries more than
+one qualifier, identity qualifiers (`iso`, the hour cycle) come before presentation qualifiers
+(`space-padded`, `lower`). See the [Contributing guide](/contributing#adding-a-canonical-field) for
+the fixed order. Prefer named members such as `Canonical.YearNumeric` over raw strings. Use
+[`decodeCanonical`](/reference/api#decodecanonical) to split a symbol programmatically.
 
 <Callout type="info">
-  Adding a member is a minor, additive change; renaming or removing one is breaking. A dialect or
-  library only ever references these members — it never references another dialect.
+  Adding a member is a minor, additive change; renaming or removing one is breaking. Dialects and
+  libraries reference canonical members rather than each other.
 </Callout>
 
 ## Era
@@ -51,7 +48,7 @@ The high-order two digits of the year, e.g. 2026 → `20`.
 
 ## Week-numbering year
 
-The year that owns a given week — local or ISO.
+The local or ISO year that contains a given week.
 
 | Member | Value | Meaning |
 | ------ | ----- | ------- |
@@ -204,8 +201,8 @@ The year that owns a given week — local or ISO.
 
 ## Localized presets
 
-Deferred to the library's locale at format time, so they map **preset ↔ preset** — never expanded to
-a concrete pattern (which would hardcode one locale). See
+These map **preset ↔ preset** and defer formatting to the library's locale instead of expanding to a
+fixed pattern. See
 [Libraries → Localized presets](/reference/libraries#localized-presets).
 
 | Member | Value | Meaning |

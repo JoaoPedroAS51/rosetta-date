@@ -1,13 +1,7 @@
 import type { CanonicalToken } from './canonical'
 
 /**
- * A {@link CanonicalToken} split into its grammar parts.
- *
- * @remarks
- * The canonical grammar is `field/style[/qualifier...]`. This is the structured
- * view of that string: `field` and `style` are always present, `qualifiers`
- * holds any trailing refinements, such as `iso`, hour-cycle qualifiers
- * (`h11`/`h12`/`h23`/`h24`), or `standalone`.
+ * Structured parts of a {@link CanonicalToken}.
  */
 export interface DecodedCanonical {
   /** The semantic field, e.g. `hour`, `day-of-month`, `localized-date-time`. */
@@ -19,12 +13,7 @@ export interface DecodedCanonical {
 }
 
 /**
- * Decode a {@link CanonicalToken} into its `field`, `style`, and `qualifiers`.
- *
- * @remarks
- * Use this when you already have a canonical symbol and need its structured
- * `field`, `style`, and `qualifiers` parts. The split is only on `/`: the field
- * keeps internal hyphens such as `day-of-month` or `fractional-second`.
+ * Split a {@link CanonicalToken} into its semantic parts.
  *
  * @param token - The canonical symbol to decode.
  * @returns The {@link DecodedCanonical} parts.

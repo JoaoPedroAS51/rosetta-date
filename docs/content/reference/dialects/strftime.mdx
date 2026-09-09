@@ -6,7 +6,7 @@ import { Callout } from 'nextra/components'
 
 # `strftime`
 
-The C / POSIX `strftime` token grammar — the `%`-directives shared by C, Python, Ruby, and PHP.
+The C / POSIX `strftime` token grammar consists of the `%`-directives shared by C, Python, Ruby, and PHP.
 Imported from `rosetta-date/dialects`:
 
 ```ts
@@ -18,16 +18,15 @@ convert('DD/MM/YYYY', { from: moment, to: strftime }) // '%d/%m/%Y'
 ```
 
 - **Spec:** [POSIX `strftime`](https://pubs.opengroup.org/onlinepubs/9699919799/functions/strftime.html)
-- **Family:** [`directive`](/reference/dialects#syntax-families) — every token is introduced by `%`
-- **Literals:** any non-directive text is literal verbatim; a literal `%` is `%%` — see [Literals & Adjacency](/guides/literals-and-adjacency)
+- **Family:** [`directive`](/reference/dialects#syntax-families); every token is introduced by `%`
+- **Literals:** any non-directive text is literal verbatim; a literal `%` is `%%`. See [Literals & Adjacency](/guides/literals-and-adjacency)
 
 ## A directive grammar
 
-`strftime` belongs to the **directive** family — the mirror image of the [**delimited**
-family](/reference/dialects#syntax-families): every token is introduced by the `%` marker, and *all
-other text — letters included — is literal*. So `Y` on its own is the literal letter `Y`; only `%Y` is
-the year. Because each directive is self-delimiting, adjacent directives never need a separator
-(`%H%M` is unambiguous).
+`strftime` belongs to the **directive** family. Every token starts with the `%` marker, while all
+other text, including letters, is literal. `Y` on its own is the literal letter `Y`; only `%Y` is the
+year. Each directive is self-delimiting, so adjacent directives need no separator (`%H%M` is
+unambiguous).
 
 ## Tokens
 
@@ -69,7 +68,7 @@ compare across dialects, see [Token Mapping](/reference/token-mapping).
 
 ## Composite directives
 
-A handful of directives are **composites** — a single spelling that stands for a whole sub-pattern.
+A handful of directives are **composites**: a single spelling that stands for a whole sub-pattern.
 They expand on parse, so converting one out yields the expanded fields:
 
 | Composite | Expands to |
@@ -82,11 +81,9 @@ They expand on parse, so converting one out yields the expanded fields:
 | `%n` | newline (`\n`) |
 | `%t` | tab (`\t`) |
 
-A composite is a parse-time macro, so **rendering produces its expansion, never the composite**:
-`%T` round-trips to `%H:%M:%S` (identical output, normalized spelling), the same way an alias
-normalizes — just across several tokens. `%n` and `%t` are the same mechanism applied to literal
-whitespace: they expand to a literal newline/tab, so they normalize to that raw character (the output
-is identical, only the `%n`/`%t` spelling is not preserved).
+A composite is a parse-time macro, so rendering produces its expansion. `%T` round-trips to
+`%H:%M:%S`, normalizing one spelling across several tokens. `%n` and `%t` apply the same mechanism to
+literal whitespace: they expand to a newline or tab and normalize to that raw character.
 
 ## Padding flags
 
@@ -117,10 +114,10 @@ so converting one out falls to the unsupported-token policy.
 
 <Callout type="warning">
   - **`%e` / `%k` / `%l` are blank-padded.** No other built-in dialect has a blank-padded form, so
-    converting one to a dialect that lacks it has no clean target — it falls to the unsupported-token
+    converting one to a dialect that lacks it has no clean target. It falls to the unsupported-token
     policy. A dialect that does define the blank-padded form round-trips cleanly.
   - **`%C` (century) has no built-in counterpart.** No other built-in dialect renders a century, so
-    converting `%C` out has no clean target — it falls to the unsupported-token policy. A dialect
+    converting `%C` out has no clean target. It falls to the unsupported-token policy. A dialect
     that defines the century round-trips cleanly.
   - **The locale presets (`%c` / `%x` / `%X`) map at a fixed width.** POSIX leaves their exact form to
     the locale, so the date/time-style mapping is a reasonable approximation, not an exact one.

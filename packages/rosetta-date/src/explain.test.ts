@@ -27,8 +27,8 @@ group('explain', () => {
   })
 
   it('converts to a bare dialect that defines the field, in its primary spelling', () => {
-    // A pure dialect has no `supports` gate, so the same era converts here —
-    // to ldml's primary `GGG` spelling, never the `G`/`GG` aliases.
+    // A pure dialect has no `supports` gate. LDML renders its primary `GGG`
+    // spelling rather than the `G` or `GG` aliases.
     expect(explain('N', { from: momentjs, to: ldml })).toEqual([
       { kind: 'field', token: 'N', canonical: Canonical.EraAbbreviated, field: 'era', style: 'abbreviated', qualifiers: [], status: 'converted', target: 'GGG' },
     ])

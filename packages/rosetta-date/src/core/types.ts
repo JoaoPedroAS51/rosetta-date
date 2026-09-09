@@ -1,15 +1,7 @@
 import type { CanonicalToken } from './canonical'
 
 /**
- * A grammar where ASCII letters are token characters and literal text is set off
- * by delimiters.
- *
- * @remarks
- * Two delimiter models:
- * - **Bracketed**: text between distinct `open` and `close` delimiters is
- *   literal. There is no in-band escape for the closing delimiter.
- * - **Quoted**: text between matching `open`/`close` delimiters is literal, and
- *   `escapedDelimiter` represents one literal delimiter character.
+ * A grammar with letter tokens and delimited literal text.
  */
 export interface DelimitedSyntax {
   readonly kind: 'delimited'
@@ -26,13 +18,7 @@ export interface DelimitedSyntax {
 
 /**
  * A grammar where every token is introduced by a `marker` prefix, such as `%Y`
- * or `%m`. Everything else, including letters, is literal. The marker is escaped
- * by doubling it, so `%%` represents a literal `%`.
- *
- * @remarks
- * Token spellings include the marker (`'%Y'`, not `'Y'`). Because each token is
- * self-delimiting, adjacent tokens never re-merge, so this family needs no
- * boundary between them.
+ * or `%m`.
  */
 export interface DirectiveSyntax {
   readonly kind: 'directive'
@@ -47,14 +33,7 @@ export interface DirectiveSyntax {
 export type TokenSyntax = DelimitedSyntax | DirectiveSyntax
 
 /**
- * One row of a dialect's token table.
- *
- * @remarks
- * A token rule pairs a concrete token spelling with the canonical symbol it
- * represents.
- *
- * A canonical symbol may appear on more than one row (aliases). Every row is
- * honored when parsing from this dialect.
+ * One token-to-canonical mapping in a dialect.
  */
 export interface TokenRule {
   /** The dialect's token spelling, e.g. `YYYY` or `yyyy`. */
@@ -64,17 +43,7 @@ export interface TokenRule {
 }
 
 /**
- * A composite token: a single spelling that expands to a whole sub-pattern.
- *
- * @remarks
- * A composite is a parse-time macro, not a field. On parse, it expands to the
- * segments of {@link CompositeRule.expandsTo}, written in the same dialect's
- * grammar. Rendering emits that expansion, never the composite spelling, so a
- * round trip normalizes the format string to the expansion.
- *
- * The expansion is a sub-pattern in this dialect's grammar. It may contain
- * literal text and atomic tokens, but never another composite. If it contains
- * only literal text, rendering normalizes the composite to that text.
+ * A token that expands to a sub-pattern while parsing.
  */
 export interface CompositeRule {
   /** The composite spelling. */
@@ -84,15 +53,7 @@ export interface CompositeRule {
 }
 
 /**
- * Defines a token grammar as immutable data.
- *
- * @remarks
- * Scope: a tokenization syntax, token-to-canonical mappings, and any composite
- * macros.
- *
- * Usage: define a dialect once and reuse that object. Compiled token tables are
- * cached by object identity, so rebuilding a dialect for every conversion misses
- * the cache.
+ * Immutable token grammar data.
  */
 export interface Dialect {
   /** Stable identifier for this dialect. */
@@ -106,23 +67,12 @@ export interface Dialect {
 }
 
 /**
- * Declarative input passed to {@link defineLibrary}.
- *
- * @remarks
- * Base grammar: {@link LibraryDefinition.dialect} defines the grammar the
- * library starts from.
- *
- * Extensions: {@link LibraryDefinition.extends} adds library-specific token
- * spellings on top of the base grammar.
- *
- * Support model: {@link LibraryDefinition.supports} narrows the effective
- * grammar to the canonical fields the library can render. Omit it when every
- * field in the effective grammar is renderable.
+ * Declarative input for {@link defineLibrary}.
  */
 export interface LibraryDefinition {
   /** Stable identifier for this library. */
   readonly name: string
-  /** The base grammar (a spec, or a reference implementation) this library speaks. */
+  /** The spec or reference grammar used by the library. */
   readonly dialect: Dialect
   /**
    * Tokens this library adds on top of {@link LibraryDefinition.dialect}.
@@ -149,11 +99,7 @@ export interface LibraryDefinition {
 }
 
 /**
- * Precomputed render metadata carried by a {@link Library}.
- *
- * @remarks
- * This is produced by {@link defineLibrary}. Consumers normally read it only
- * indirectly by passing a {@link Library} to conversion APIs.
+ * Resolved rendering data for a {@link Library}.
  */
 export interface ResolvedLibrary {
   /** Effective grammar: the base dialect with any {@link LibraryDefinition.extends} merged in. */
@@ -163,12 +109,7 @@ export interface ResolvedLibrary {
 }
 
 /**
- * Concrete date library metadata produced by {@link defineLibrary}.
- *
- * @remarks
- * A library is a {@link LibraryDefinition} plus its precomputed
- * {@link Library.resolved} render target. Pass it to conversion APIs when the
- * target should honor library-specific extensions or support subsets.
+ * Concrete date library metadata returned by {@link defineLibrary}.
  */
 export interface Library extends LibraryDefinition {
   /** Precomputed effective grammar and render predicate read by the engine. */
@@ -176,11 +117,7 @@ export interface Library extends LibraryDefinition {
 }
 
 /**
- * A single piece of a parsed format string.
- *
- * @remarks
- * This is the internal intermediate representation used between parsing and
- * rendering.
+ * A parsed format-string segment.
  */
 export type Segment
   /** Decoded literal text that must survive conversion as literal text. */

@@ -42,14 +42,14 @@ Example `moment` spellings are shown.
 
 Some fields Day.js renders **only with a plugin loaded**:
 
-- **AdvancedFormat** — quarter, day-of-month ordinal, week-of-year, ISO week-of-year, hour 1–24,
+- **AdvancedFormat:** quarter, day-of-month ordinal, week-of-year, ISO week-of-year, hour 1–24,
   week-numbering years, the Unix epoch, and time-zone name (`Q`, `Do`, `w` / `wo` / `ww`, `W` / `WW`,
   `k` / `kk`, `gggg` / `GGGG`, `X`, `x`, `z`).
-- **LocalizedFormat** — the `L…` presets.
+- **LocalizedFormat:** the `L…` presets.
 
 <Callout type="info">
-  `rosetta-date` emits these as-is; whether the plugin is actually loaded is the consumer's concern
-  (the same boundary `supports` draws between grammar and runtime configuration).
+  `rosetta-date` emits these tokens as-is. The `supports` set does not detect whether a plugin is
+  loaded at runtime.
 </Callout>
 
 ## Localized presets

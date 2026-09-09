@@ -27,7 +27,7 @@ export function resolveDark(theme: Theme): boolean {
   return theme === 'dark' || (theme === 'system' && systemPrefersDark())
 }
 
-/** Reflect the chosen theme onto the document (toggles the `.dark` class). */
+/** Apply the theme to the document root. */
 export function applyTheme(theme: Theme): void {
   document.documentElement.classList.toggle('dark', resolveDark(theme))
 }

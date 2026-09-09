@@ -1,7 +1,7 @@
 allowBuilds:
   sharp: true
 
-# Keep new deps flowing into the catalog and prune entries no package references.
+# Add new dependencies to the catalog and remove unused entries.
 catalogMode: prefer
 cleanupUnusedCatalogs: true
 

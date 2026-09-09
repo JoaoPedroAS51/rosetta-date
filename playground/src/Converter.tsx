@@ -21,7 +21,7 @@ export interface ConverterProps {
   readonly initialTo?: string
   readonly initialFormat?: string
   readonly initialPolicy?: PolicyChoice
-  /** Reflect state into the URL query string (shareable links). Off by default. */
+  /** Sync state to the URL query string. Defaults to `false`. */
   readonly syncUrl?: boolean
   /** Override the example chips. Pass `[]` to hide them. */
   readonly examples?: readonly Example[]

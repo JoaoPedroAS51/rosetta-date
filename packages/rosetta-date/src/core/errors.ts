@@ -14,12 +14,7 @@ function messageFor(token: string, reason: UnsupportedTokenReason): string {
 }
 
 /**
- * Thrown by a conversion when `onUnsupportedToken: 'throw'` is set and a token
- * cannot be converted cleanly.
- *
- * @remarks
- * Inspect {@link UnsupportedTokenError.token} and
- * {@link UnsupportedTokenError.reason} to react programmatically.
+ * Thrown when a conversion cannot represent a token.
  */
 export class UnsupportedTokenError extends Error {
   constructor(

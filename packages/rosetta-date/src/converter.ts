@@ -4,31 +4,19 @@ import { sourceDialect } from './core/endpoint'
 import { parse } from './core/parse'
 import { render } from './core/render'
 
-/**
- * A bound, single-direction converter: give it a format string, get the
- * translated one back. Produced by {@link createConverter}; handy to store once
- * and pass around (e.g. as a callback or injected dependency).
- */
+/** A reusable, single-direction converter created by {@link createConverter}. */
 export type Converter = (format: string) => string
 
-/**
- * Behavioural options shared by {@link convert} and {@link createConverter}.
- */
+/** Options shared by {@link convert} and {@link createConverter}. */
 export interface ConverterOptions {
   /**
-   * What to do with a token that has no clean conversion — `'literalize'`
+   * What to do with a token that has no clean conversion: `'literalize'`
    * (default), `'throw'`, or a handler. See {@link UnsupportedTokenPolicy}.
    */
   readonly onUnsupportedToken?: UnsupportedTokenPolicy
 }
 
-/**
- * Which endpoints to convert between, plus any {@link ConverterOptions}. Each
- * side is a {@link Dialect} (pure grammar) or a {@link Library} (a concrete tool,
- * built-in or user-defined) — mix them freely. Passing endpoints in keeps the
- * conversion functions free of a central registry, so unused tables are
- * tree-shaken from your bundle.
- */
+/** Source, target, and unsupported-token options for {@link convert}. */
 export interface ConvertOptions extends ConverterOptions {
   /** The dialect or library the input format string is written in. */
   readonly from: Dialect | Library
@@ -39,12 +27,9 @@ export interface ConvertOptions extends ConverterOptions {
 /**
  * Convert a date-format token string from one endpoint to another.
  *
- * Each side may be a {@link Dialect} (pure grammar) or a {@link Library}; mix
- * them freely. Converting *to* a `Library` additionally routes any token that
- * library cannot render through `onUnsupportedToken`. This is the primitive:
- * direction travels with every call, which suits data-driven cases where
- * `from`/`to` are chosen at runtime. For a fixed direction reused many times,
- * {@link createConverter} reads better.
+ * `from` and `to` may each be a {@link Dialect} or {@link Library}. When `to` is
+ * a library, tokens outside its supported subset follow `onUnsupportedToken`.
+ * Use {@link createConverter} to bind a fixed direction.
  *
  * @param format - The format string to convert, e.g. `'DD/MM/YYYY'`.
  * @param options - The {@link ConvertOptions} carrying the source and target ({@link Dialect} or {@link Library}).
@@ -69,12 +54,11 @@ export function convert(format: string, options: ConvertOptions): string {
 }
 
 /**
- * Build a reusable converter bound to a fixed `from` → `to` direction. Either
- * side may be a {@link Dialect} or a {@link Library} (see {@link convert}).
+ * Build a reusable converter bound to a fixed source and target. Either side
+ * may be a {@link Dialect} or a {@link Library} (see {@link convert}).
  *
- * The returned {@link Converter} is a clean `(format) => string` you can call
- * repeatedly or hand off as a callback. Compiled token tables are cached by
- * endpoint identity, so reusing endpoint objects keeps repeated calls cheap.
+ * Compiled token tables are cached by endpoint identity, so reuse the same
+ * endpoint objects across calls.
  *
  * @param from - The dialect or library inputs are written in.
  * @param to - The dialect or library to translate into.

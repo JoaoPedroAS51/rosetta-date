@@ -42,8 +42,8 @@ describe('moment → ldml', () => {
 
 describe('unsupported same-letter runs and adjacent literals', () => {
   it('treats an over-long run as one unrecognized token, not several short ones', () => {
-    // date-fns `QQQ` (abbreviated quarter) must not become moment `QQQ` (three
-    // quarter numbers) — the run has no moment token, so it literalizes whole.
+    // Moment has no `QQQ` token, so date-fns `QQQ` must remain one literal
+    // instead of becoming three numeric-quarter tokens.
     expect(u2m('QQQ')).toBe('[QQQ]')
     // moment caps months at `MMMM`; `MMMMM` must not remap to wide + numeric.
     expect(m2u('MMMMM')).toBe('\'MMMMM\'')
@@ -76,9 +76,8 @@ describe('tokenization and caching', () => {
 })
 
 describe('the pure ldml dialect excludes date-fns extensions', () => {
-  // The localized presets, epoch, and ISO helpers are date-fns additions, not
-  // UTS#35 — they live on the `dateFns` library, so the bare dialect lacks them.
-  // The full extension conversions are covered by the endpoint suites in `test/`.
+  // Localized presets, epoch tokens, and ISO helpers belong to `dateFns`, not the
+  // bare UTS #35 dialect.
   it('does not recognize date-fns-only tokens', () => {
     expect(u2m('t')).toBe('[t]') // epoch
     expect(u2m('I')).toBe('[I]') // ISO week
@@ -112,7 +111,7 @@ describe('malformed delimiters degrade to literal text, never throw', () => {
 
   it('treats an unterminated bracket open as a literal and keeps parsing', () => {
     // `[` cannot open a complete literal, so it is emitted as text; `Abc` parses on
-    // (moment `A` is am/pm, `bc` is an unknown run) — the engine never throws.
+    // (moment `A` is am/pm and `bc` is an unknown run) without throwing.
     expect(m2u('[Abc')).toBe('[a\'bc\'')
   })
 })

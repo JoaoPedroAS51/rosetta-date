@@ -6,16 +6,15 @@ import { moment } from '../dialects/moment'
 /**
  * Defines the `Day.js` rendering target.
  *
- * @remarks
  * Base grammar: `moment`.
  *
- * Extensions: none. Plugin-provided spellings are modeled as supported canonical
- * fields of the base grammar.
+ * Extensions: none. Plugin-provided spellings map to canonical fields already
+ * present in the base grammar.
  *
- * Support model: `supports` lists the canonical fields `Day.js` renders with the
- * core formatter plus `AdvancedFormat` and `LocalizedFormat`.
+ * Support model: `supports` lists the canonical fields rendered by the core
+ * formatter plus `AdvancedFormat` and `LocalizedFormat`.
  *
- * Unsupported fields include era, month ordinal, quarter ordinal, day-of-year,
+ * Unsupported fields: era, month ordinal, quarter ordinal, day-of-year,
  * ISO week ordinal, ISO weekday number, sub-`SSS` fractions, and two-digit
  * week-years.
  *

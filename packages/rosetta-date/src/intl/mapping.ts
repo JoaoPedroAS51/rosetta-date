@@ -7,17 +7,7 @@ type HourCycle = 'h11' | 'h12' | 'h23' | 'h24'
 type Numeric = 'numeric' | '2-digit'
 type Style = 'full' | 'long' | 'medium' | 'short'
 
-/**
- * Forward tables, canonical `field/style` to its Intl contribution.
- *
- * @remarks
- * Each table is keyed by the canonical *style* and stores the full options
- * fragment, so the mapping is plain data with no per-field branching. CLDR name
- * widths fold in here (`wide` maps to `long`, `abbreviated` maps to `short`,
- * `narrow` stays `narrow`), as does the `field/style/cycle` to `hour` +
- * `hourCycle` split. A style with no `Intl` equivalent, such as `ordinal`, is
- * absent.
- */
+/** Canonical-to-`Intl` mapping tables. */
 const ERA: Record<string, Options> = {
   wide: { era: 'long' },
   abbreviated: { era: 'short' },
@@ -94,7 +84,7 @@ const DATE_TIME_STYLE: Record<string, Options> = {
   full: { dateStyle: 'full', timeStyle: 'full' },
 }
 
-/** Re-join a canonical `style` with its `qualifiers` into a single table key. */
+/** Join a canonical `style` and its `qualifiers` into a table key. */
 function styleKey(style: string, qualifiers: readonly string[]): string {
   return [style, ...qualifiers].join('/')
 }
@@ -117,15 +107,7 @@ const FORWARD: Record<string, (style: string, qualifiers: readonly string[]) => 
 }
 
 /**
- * Map one canonical field to its contribution to an `Intl` options object, or
- * `undefined` when `Intl` has no equivalent.
- *
- * @remarks
- * `Intl` cannot express the standalone-vs-formatting distinction, force a fill
- * character, or emit `Z` for the zero offset, so the `standalone`,
- * `space-padded`, and `zulu` qualifiers are unsupported. Other unsupported
- * examples include quarter, week-year, week-of-year, day-of-year, ordinals, ISO
- * week fields, epoch, day period markers, and numeric or short weekday forms.
+ * Map a canonical field to an `Intl` options fragment.
  *
  * @internal
  */
@@ -215,25 +197,15 @@ const DATE_TIME_PRESET: Record<Style, CanonicalToken> = {
 }
 
 /**
- * The hour cycle Intl would otherwise resolve from the locale. Absent a locale,
- * default to `h23` (24-hour). This is deterministic and common worldwide.
+ * Resolve an explicit hour cycle, falling back to `h23` when no locale is
+ * available to choose one.
  */
 function hourCycleOf(options: Options): HourCycle {
   return options.hourCycle ?? (options.hour12 === true ? 'h12' : 'h23')
 }
 
 /**
- * Map an Intl options object to canonical symbols in CLDR canonical field order.
- *
- * @remarks
- * Style options (`dateStyle`/`timeStyle`) take the preset path. Intl forbids
- * mixing styles with component options, so the two are disjoint. A `dateStyle`
- * and `timeStyle` at different levels has no single locale-correct fused preset,
- * so it is reported unrepresentable.
- *
- * Component options follow CLDR canonical order, from era through zone. `Intl`
- * options are an unordered bag, so the result is a skeleton, not a localized
- * layout.
+ * Map `Intl` options to canonical tokens.
  *
  * @returns The mapped canonicals in order, and any Intl keys with no canonical.
  *
@@ -243,9 +215,7 @@ export function intlToCanonical(options: Options): { tokens: CanonicalToken[], u
   const tokens: CanonicalToken[] = []
   const unsupported: string[] = []
 
-  // The style axis takes the preset path. Intl forbids mixing `dateStyle` /
-  // `timeStyle` with component options, so when a style is set the component
-  // lookups below all miss — no early return needed to keep them disjoint.
+  // Intl forbids mixing `dateStyle` or `timeStyle` with component options.
   const date = options.dateStyle
   const time = options.timeStyle
   if (date !== undefined && time !== undefined) {

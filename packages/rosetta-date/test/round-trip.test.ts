@@ -32,16 +32,12 @@ describe('single-token round trips (canonicals shared by both endpoints)', () =>
 })
 
 describe('composite formats round-trip', () => {
-  // Composites test literal/adjacency mechanics — a dialect-level concern — so they
-  // round-trip across the literal-style boundary (dialect → other → dialect),
-  // including the directive↔delimited boundary that `strftime` adds.
   const dialectNames = Object.keys(composites) as DialectName[]
   const dialectPairs = dialectNames.flatMap(
     from => dialectNames.filter(to => to !== from).map(to => [from, to] as const),
   )
 
-  // A composite only round-trips through a partner that renders all of its fields:
-  // dialects do not fully overlap (e.g. `strftime` has no ordinal like `Do`).
+  // Only pair a composite with dialects that render all of its fields.
   function renderable(format: string, from: DialectName, to: DialectName): boolean {
     const oracle = renderOracle(to)
     return parse(format, grammarOf(from)).every(

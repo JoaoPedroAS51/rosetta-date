@@ -37,12 +37,11 @@ import { Callout, Tabs } from 'nextra/components'
 ## Requirements
 
 - **Node ≥ 22.**
-- **An ESM project.** `import` the package — it ships as ESM only and cannot be `require()`d.
+- **An ESM project.** Use `import`; the package does not support `require()`.
 
 <Callout type="info">
-  `rosetta-date` has **zero runtime dependencies** and is fully tree-shakeable. The conversion API
-  lives at the package root, while dialects and libraries are imported from their own entrypoints —
-  so a build only pulls in the dialects and libraries you actually reference.
+  `rosetta-date` has no runtime dependencies and declares no side effects. The conversion API lives
+  at the package root, while dialects and libraries have separate entrypoints.
 </Callout>
 
 ## Entrypoints
@@ -52,6 +51,6 @@ import { Callout, Tabs } from 'nextra/components'
 | `rosetta-date` | `convert`, `createConverter`, `describe`, `explain`, `defineDialect`, `defineLibrary`, `Canonical`, and the error/option types |
 | `rosetta-date/dialects` | The built-in dialects and `getDialect` |
 | `rosetta-date/libraries` | The built-in libraries and `getLibrary` |
-| `rosetta-date/intl` | The `Intl.DateTimeFormat` adapter — `toIntlOptions` / `fromIntlOptions` |
+| `rosetta-date/intl` | The `Intl.DateTimeFormat` adapter: `toIntlOptions` and `fromIntlOptions` |
 
 Continue to the [Quick start](/getting-started/quick-start) to make your first conversion.

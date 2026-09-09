@@ -4,14 +4,13 @@ import { Canonical } from '../core/canonical'
 /**
  * Defines the Unicode LDML date-token grammar.
  *
- * @remarks
- * Scope: supported non-ordinal date field symbols from UTS #35 / LDML.
+ * Scope: supported non-ordinal date fields from UTS #35.
  *
  * Literals: text is quoted with `'...'`. Use `''` to emit one apostrophe.
  *
  * Rendering: when aliases share a canonical token, the first mapping is emitted.
  *
- * Stand-alone: the named forms (`LLL`/`qqq`/`ccc`) are distinct canonicals, but
+ * Stand-alone forms: named forms (`LLL`/`qqq`/`ccc`) are distinct canonicals, but
  * the numeric forms (`L`/`q`/`c`) alias the formatting numerics, since a number
  * carries no stand-alone inflection.
  *

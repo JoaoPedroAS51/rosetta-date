@@ -16,7 +16,7 @@ describe('strftime dialect', () => {
     expect(convert('%Y-%m-%d', { from: strftime, to: ldml })).toBe('yyyy-MM-dd')
   })
 
-  it('keeps adjacent directives together — self-delimiting, no separator', () => {
+  it('keeps adjacent self-delimiting directives together', () => {
     expect(convert('YYYYMMDD', { from: moment, to: strftime })).toBe('%Y%m%d')
     expect(convert('%Y%m%d', { from: strftime, to: moment })).toBe('YYYYMMDD')
   })
@@ -127,8 +127,8 @@ describe('strftime dialect', () => {
     })
 
     it('surfaces an unrecognized token inside a composite expansion', () => {
-      // Built without `defineDialect`, so the malformed expansion is not rejected;
-      // parsing degrades gracefully and routes the unknown to the policy.
+      // Without `defineDialect`, parsing routes an unknown in the malformed
+      // expansion to the policy.
       const broken: Dialect = {
         name: 'broken',
         syntax: { kind: 'directive', marker: '%' },

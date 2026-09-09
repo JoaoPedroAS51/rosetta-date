@@ -1,6 +1,5 @@
 .rd {
-  /* Nextra's default palette: slate for text, gray-200/neutral-800 borders, and
-     the hsl(212/204 …) primary. Standalone — values are explicit, not inherited. */
+  /* Nextra's palette, defined locally because the playground does not inherit docs styles. */
   --rd-fg: #314158;
   --rd-muted: #62748e;
   --rd-faint: #90a1b9;
@@ -9,7 +8,7 @@
   --rd-primary: #006be6;
   --rd-ok: #15803d;
   --rd-err: #dc2626;
-  /* Shiki github-light tokens, matching Nextra's code blocks. */
+  /* Shiki's github-light tokens, matching Nextra's code blocks. */
   --rd-code-fg: #24292e;
   --rd-code-kw: #d73a49;
   --rd-code-str: #032f62;

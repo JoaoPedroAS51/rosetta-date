@@ -12,7 +12,7 @@ interface Props {
 
 export function ConvertView({ from, to, format, policy }: Props): React.JSX.Element {
   const outcome = useMemo(() => runConvert(from, to, format, policy), [from, to, format, policy])
-  const rt = useMemo(() => roundTrip(from, to, format), [from, to, format])
+  const roundTripResult = useMemo(() => roundTrip(from, to, format), [from, to, format])
   const segments = useMemo(() => explainConversion(from, to, format), [from, to, format])
   const snippet = useMemo(() => toSnippet(from, to, format, policy), [from, to, format, policy])
 
@@ -22,7 +22,7 @@ export function ConvertView({ from, to, format, policy }: Props): React.JSX.Elem
     <>
       <div className="rd-olabel-row">
         <span className="rd-olabel">Result</span>
-        {rt && <span className={`rd-badge ${rt.ok ? 'is-ok' : 'is-warn'}`}>{rt.ok ? 'round-trips' : 'lossy'}</span>}
+        {roundTripResult && <span className={`rd-badge ${roundTripResult.ok ? 'is-ok' : 'is-warn'}`}>{roundTripResult.ok ? 'round-trips' : 'lossy'}</span>}
       </div>
 
       {outcome.ok
@@ -69,8 +69,6 @@ export function ConvertView({ from, to, format, policy }: Props): React.JSX.Elem
   )
 }
 
-// Lightweight TS highlighter for the generated snippet, coloured to match
-// Nextra's github-light/github-dark Shiki theme.
 const TOKEN_RE = /(\/\/[^\n]*)|('(?:[^'\\]|\\.)*')|\b(?:import|from|const|return|new)\b(?!\s*:)|([a-z_$][\w$]*)(?=\s*\()/gi
 
 function highlightTs(code: string): React.ReactNode[] {
@@ -81,14 +79,14 @@ function highlightTs(code: string): React.ReactNode[] {
     if (start > last)
       nodes.push(code.slice(last, start))
     const [text, comment, str, fn] = match
-    let cls = 'rd-cw'
+    let className = 'rd-cw'
     if (comment)
-      cls = 'rd-cc'
+      className = 'rd-cc'
     else if (str)
-      cls = 'rd-cs'
+      className = 'rd-cs'
     else if (fn)
-      cls = 'rd-cf'
-    nodes.push(<span key={start} className={cls}>{text}</span>)
+      className = 'rd-cf'
+    nodes.push(<span key={start} className={className}>{text}</span>)
     last = start + text.length
   }
   if (last < code.length)

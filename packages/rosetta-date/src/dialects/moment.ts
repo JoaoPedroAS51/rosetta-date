@@ -4,7 +4,6 @@ import { Canonical } from '../core/canonical'
 /**
  * Defines the Moment.js-style date-token grammar.
  *
- * @remarks
  * Scope: supported format tokens from the Moment.js grammar family.
  *
  * Literals: text is wrapped with `[ ... ]`. The closing bracket has no in-band

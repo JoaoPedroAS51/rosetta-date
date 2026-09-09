@@ -11,9 +11,8 @@ interface LiteralRead {
 }
 
 /**
- * The delimited family reserves ASCII letters as pattern (token) characters;
- * everything else is literal. This single rule drives literal detection in the
- * scanner and minimal escaping in the renderer.
+ * The delimited family reserves ASCII letters for tokens. Everything else is
+ * literal.
  */
 function isPatternChar(char: string): boolean {
   return (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z')
@@ -70,11 +69,9 @@ function readLiteral(input: string, start: number, rules: DelimitedSyntax): Lite
 }
 
 /**
- * The empty literal: the zero-width sequence the family's own scanner consumes
- * as nothing, used to separate two adjacent tokens that would otherwise re-merge
- * (for example, `LL` + `LT` as `LL[]LT`). It is `open + close`, unless that
- * collides with `escapedDelimiter` and does not read as empty. In that case
- * there is no boundary.
+ * Return the empty literal used to separate tokens that would otherwise
+ * re-merge. For example, `LL` + `LT` becomes `LL[]LT`. Returns `undefined` when
+ * `open + close` is an escaped delimiter rather than an empty literal.
  */
 function boundaryFor(rules: DelimitedSyntax): string | undefined {
   const empty = rules.open + rules.close
@@ -134,11 +131,9 @@ function runExtendsBeyond(token: string, input: string, index: number): boolean 
 }
 
 /**
- * Whether emitting `cur` immediately after `prev` would re-tokenize wrongly: the
- * greedy matcher must consume exactly `prev` at the junction, then `cur` follows
- * cleanly. Both are dialect tokens, so the junction match is at least
- * `prev.length`; it is safe iff it is *exactly* `prev` and the run does not
- * extend past it (e.g. `YY` + `Y` → `YYY`, an over-long run).
+ * Whether `prev + cur` would re-tokenize differently. The first greedy match
+ * must consume exactly `prev`, and `prev` must not become part of an over-long
+ * same-letter run such as `YY` + `Y`.
  */
 function mergesAfter(tokens: readonly TokenRule[], prev: string, cur: string): boolean {
   const combined = prev + cur
@@ -172,8 +167,7 @@ export function delimitedStrategy(config: DelimitedSyntax): SyntaxStrategy {
       if (composite !== undefined && !runExtendsBeyond(composite.token, input, index))
         return { kind: 'composite', token: composite.token, expandsTo: composite.expandsTo, next: index + composite.token.length }
 
-      // A single-letter-run token that only matched a prefix of a longer run the
-      // dialect does not define: consume the whole run as one unrecognized token.
+      // Consume an undefined same-letter run as one unrecognized token.
       let end = index + 1
       while (end < input.length && input.charAt(end) === char)
         end += 1

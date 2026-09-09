@@ -13,7 +13,8 @@ libraries are exported from `rosetta-date/dialects` and `rosetta-date/libraries`
 function convert(format: string, options: ConvertOptions): string
 ```
 
-Convert a date-format token string from one endpoint to another. Direction travels with the call.
+Convert a date-format token string from one endpoint to another. Pass the source and target with each
+call.
 
 ```ts
 import { convert } from 'rosetta-date'
@@ -67,8 +68,7 @@ describe('DD/MM', moment)
 function decodeCanonical(token: CanonicalToken): DecodedCanonical
 ```
 
-Split a canonical symbol into its `field` / `style` / `qualifiers` parts — the same decoding
-`describe` applies, for when you already hold a `CanonicalToken`.
+Split a canonical symbol into the same `field`, `style`, and `qualifiers` parts returned by `describe`.
 
 ### `describe` types
 
@@ -130,7 +130,7 @@ type ExplainedSegment =
   | { readonly kind: 'unknown', readonly value: string }
 ```
 
-## `Intl` adapter — `rosetta-date/intl`
+## `Intl` adapter (`rosetta-date/intl`)
 
 Bridges token strings and native `Intl.DateTimeFormat` options. See the [Intl Options](/guides/intl)
 guide for behaviour.
@@ -141,8 +141,8 @@ guide for behaviour.
 function toIntlOptions(format: string, options: ToIntlOptions): Intl.DateTimeFormatOptions
 ```
 
-Read a format string into an `Intl.DateTimeFormatOptions` bag. Literals and field order are dropped —
-the locale decides layout.
+Read a format string into an `Intl.DateTimeFormatOptions` bag. Literals and field order are dropped
+because the locale decides layout.
 
 ```ts
 import { toIntlOptions } from 'rosetta-date/intl'
@@ -212,7 +212,7 @@ interface ConvertOptions extends ConverterOptions {
 }
 ```
 
-Each side may be a `Dialect` (pure grammar) or a `Library` (a concrete tool) — mix them freely.
+Each side may be a `Dialect` (pure grammar) or a `Library` (a concrete tool).
 
 ## Defining endpoints
 
@@ -230,9 +230,9 @@ function defineDialect(definition: {
 Validates the definition once and returns a stable, cacheable `Dialect`. See
 [Custom Dialects & Libraries](/guides/custom-dialects).
 
-A `CompositeRule` is a parse-time macro — one spelling that expands to a sub-pattern (e.g. strftime
-`%T` → `%H:%M:%S`). Rendering produces the expansion, never the composite, so a composite normalizes
-on a round trip.
+A `CompositeRule` is a parse-time macro: one spelling that expands to a sub-pattern (for example,
+strftime `%T` → `%H:%M:%S`). Rendering produces the expansion, so a composite normalizes on a round
+trip.
 
 ```ts
 interface CompositeRule {
@@ -283,8 +283,8 @@ interoperate with every dialect. The `CanonicalToken` type names the union of th
 const Unsupported: { readonly drop: unique symbol, readonly literalize: unique symbol }
 ```
 
-Two unique-symbol sentinels returned from an `onUnsupportedToken` handler — `Unsupported.drop`
-omits the token, `Unsupported.literalize` defers to the default. They are the named members of
+Two unique-symbol sentinels returned from an `onUnsupportedToken` handler. `Unsupported.drop` omits
+the token, while `Unsupported.literalize` defers to the default. They are the named members of
 `UnsupportedTokenResult`.
 
 ### `UnsupportedTokenError`
@@ -304,26 +304,23 @@ and `reason` fields.
 
 See [Unsupported Tokens](/guides/unsupported-tokens) for behaviour.
 
-## Built-in dialects — `rosetta-date/dialects`
+## Built-in dialects (`rosetta-date/dialects`)
 
-The importable surface. For what each dialect *is* — its grammar, literals, and examples — see
-[Dialects](/reference/dialects).
+For each dialect's grammar, literals, and examples, see [Dialects](/reference/dialects).
 
 | Export | Type |
 | ------ | ---- |
 | `moment` | `Dialect` |
 | `ldml` | `Dialect` |
 | `getDialect` | `(name: DialectName) => Dialect` |
-| `DialectName` | `type` — union of built-in dialect names |
+| `DialectName` | `type`: union of built-in dialect names |
 
-`getDialect` resolves a name string to its `Dialect` object for a name-driven path. By design it
-pulls in every built-in, so reach for it only when the direction is dynamic — otherwise import the
-specific dialect to stay tree-shakeable.
+`getDialect` resolves a name string to its `Dialect` object. It imports every built-in, so use it only
+when the direction is dynamic. Otherwise, import the specific dialect.
 
-## Built-in libraries — `rosetta-date/libraries`
+## Built-in libraries (`rosetta-date/libraries`)
 
-The importable surface. For each library's coverage and tool-specific behaviour, see
-[Libraries](/reference/libraries).
+For each library's coverage and tool-specific behaviour, see [Libraries](/reference/libraries).
 
 | Export | Type |
 | ------ | ---- |
@@ -331,6 +328,6 @@ The importable surface. For each library's coverage and tool-specific behaviour,
 | `dayjs` | `Library` |
 | `dateFns` | `Library` |
 | `getLibrary` | `(name: LibraryName) => Library` |
-| `LibraryName` | `type` — union of built-in library names |
+| `LibraryName` | `type`: union of built-in library names |
 
-`getLibrary` mirrors `getDialect` — name-driven resolution that pulls in every built-in.
+`getLibrary` resolves a library name and imports every built-in library.

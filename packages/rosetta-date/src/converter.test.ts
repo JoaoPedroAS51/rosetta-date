@@ -27,7 +27,7 @@ describe('createConverter', () => {
 })
 
 describe('getDialect', () => {
-  it('resolves a dialect by name for the dynamic, string-driven path', () => {
+  it('resolves a dialect by name', () => {
     expect(getDialect('moment')).toBe(moment)
     expect(getDialect('ldml')).toBe(ldml)
   })
@@ -71,9 +71,8 @@ describe('onUnsupportedToken policy', () => {
   })
 
   it('hands an adjacent unrecognized run to the handler as one token', () => {
-    // `J` and `b` are both unknown to moment and adjacent, so they coalesce into
-    // a single `unknown` — the handler fires once with `Jb`, matching how a
-    // same-letter run like `JJ` already behaves. A separator keeps them apart.
+    // Adjacent unknown characters coalesce into one handler call. A separator
+    // keeps them apart.
     const tokens: string[] = []
     const record = (token: string): undefined => {
       tokens.push(token)

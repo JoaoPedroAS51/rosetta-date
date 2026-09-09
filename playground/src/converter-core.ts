@@ -14,11 +14,10 @@ export interface ConvertOutcome {
   readonly ok: boolean
   readonly output: string
   readonly errorMessage?: string
-  /** Every token with no clean conversion, gathered regardless of the active policy. */
+  /** Tokens that cannot be converted, regardless of the active policy. */
   readonly unsupported: readonly UnsupportedHit[]
 }
 
-/** Human-readable, one-line explanation for each unsupported reason. */
 export const reasonText: Record<UnsupportedTokenReason, string> = {
   'unrecognized': 'the source grammar does not define this token',
   'unmappable': 'no counterpart in the target grammar',
@@ -32,12 +31,7 @@ function policyValue(policy: PolicyChoice): UnsupportedTokenPolicy {
   return policy
 }
 
-/**
- * Run a conversion and, in the same call, surface every token that had no clean
- * conversion. The breakdown is gathered with a collector pass (always under
- * `literalize`, so it never stops early), independent of the policy the user
- * picked for the visible result.
- */
+/** Convert a format and collect every unsupported token without changing the selected policy's result. */
 export function runConvert(from: Endpoint, to: Endpoint, format: string, policy: PolicyChoice): ConvertOutcome {
   const unsupported: UnsupportedHit[] = []
   try {
@@ -51,7 +45,7 @@ export function runConvert(from: Endpoint, to: Endpoint, format: string, policy:
     })
   }
   catch {
-    // A non-token parse failure surfaces below through the result pass.
+    // The policy-aware pass below returns non-token parse errors.
   }
 
   try {
@@ -64,10 +58,7 @@ export function runConvert(from: Endpoint, to: Endpoint, format: string, policy:
   }
 }
 
-/**
- * Whether converting `from → to` and back reproduces the input verbatim. Returns
- * `null` when either leg cannot be computed.
- */
+/** Return whether a round trip reproduces the input, or `null` if either conversion fails. */
 export function roundTrip(from: Endpoint, to: Endpoint, format: string): { ok: boolean, back: string } | null {
   try {
     const forward = convert(format, { from: from.value, to: to.value })
@@ -79,7 +70,7 @@ export function roundTrip(from: Endpoint, to: Endpoint, format: string): { ok: b
   }
 }
 
-/** A token-by-token dry run of the conversion, for the inspect view. */
+/** Explain each token in the conversion. */
 export function explainConversion(from: Endpoint, to: Endpoint, format: string): ExplainedSegment[] {
   try {
     return explain(format, { from: from.value, to: to.value })
@@ -92,14 +83,14 @@ export function explainConversion(from: Endpoint, to: Endpoint, format: string):
 export interface IntlOutcome {
   readonly ok: boolean
   readonly options: Intl.DateTimeFormatOptions
-  /** The sample date rendered through the derived options, when they format. */
+  /** The sample date rendered with the derived options. */
   readonly sample: string
   readonly errorMessage?: string
 }
 
 const SAMPLE_DATE = new Date(Date.UTC(2026, 5, 19, 14, 30, 0))
 
-/** Read a format string into `Intl.DateTimeFormatOptions`, plus a live sample. */
+/** Build `Intl.DateTimeFormatOptions` and render the sample date. */
 export function toIntl(from: Endpoint, format: string): IntlOutcome {
   try {
     const options = toIntlOptions(format, { from: from.value })
@@ -108,7 +99,7 @@ export function toIntl(from: Endpoint, format: string): IntlOutcome {
       sample = new Intl.DateTimeFormat(undefined, options).format(SAMPLE_DATE)
     }
     catch {
-      // Leave the sample empty if the derived options can't format.
+      // Invalid option combinations have no sample.
     }
     return { ok: true, options, sample }
   }
@@ -117,29 +108,29 @@ export function toIntl(from: Endpoint, format: string): IntlOutcome {
   }
 }
 
-/** Generate the equivalent `convert(...)` call as copy-pasteable source. */
+/** Generate a copyable `convert(...)` call. */
 export function toSnippet(from: Endpoint, to: Endpoint, format: string, policy: PolicyChoice): string {
   const imports = new Map<string, Set<string>>([['rosetta-date', new Set(['convert'])]])
-  const add = (endpoint: Endpoint): void => {
-    const set = imports.get(endpoint.importFrom) ?? new Set<string>()
-    set.add(endpoint.importName)
-    imports.set(endpoint.importFrom, set)
+  const addEndpointImport = (endpoint: Endpoint): void => {
+    const names = imports.get(endpoint.importFrom) ?? new Set<string>()
+    names.add(endpoint.importName)
+    imports.set(endpoint.importFrom, names)
   }
-  add(from)
-  add(to)
+  addEndpointImport(from)
+  addEndpointImport(to)
 
-  const opts = [`from: ${from.importName}`, `to: ${to.importName}`]
+  const options = [`from: ${from.importName}`, `to: ${to.importName}`]
   if (policy === 'throw') {
-    opts.push(`onUnsupportedToken: 'throw'`)
+    options.push(`onUnsupportedToken: 'throw'`)
   }
   else if (policy === 'drop') {
     imports.get('rosetta-date')!.add('Unsupported')
-    opts.push(`onUnsupportedToken: () => Unsupported.drop`)
+    options.push(`onUnsupportedToken: () => Unsupported.drop`)
   }
 
   const importLines = [...imports]
     .map(([source, names]) => `import { ${[...names].sort().join(', ')} } from '${source}'`)
     .join('\n')
 
-  return `${importLines}\n\nconvert(${JSON.stringify(format)}, { ${opts.join(', ')} })`
+  return `${importLines}\n\nconvert(${JSON.stringify(format)}, { ${options.join(', ')} })`
 }

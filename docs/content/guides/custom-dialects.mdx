@@ -6,14 +6,15 @@ import { Callout } from 'nextra/components'
 
 # Custom Dialects & Libraries
 
-You can teach `rosetta-date` a new formatting language with `defineDialect`, or model a new tool on
-top of an existing dialect with `defineLibrary`.
+Define a formatting language with `defineDialect`, or model a tool on an existing dialect with
+`defineLibrary`.
 
-## The key idea: map to *meaning*
+## Map tokens to canonical meanings
 
-Map each token to a **canonical symbol** — what it *means* (year, 2-digit month, …), **not** another
-dialect's spelling. `Canonical` is the neutral vocabulary every built-in dialect routes through, so
-a token you map to `Canonical.YearNumeric` converts to and from every other dialect for free.
+Map each token to a **canonical symbol** that represents its meaning, such as year or 2-digit month.
+Do not map it to another dialect's spelling. `Canonical` is the neutral vocabulary every built-in
+dialect uses, so a token mapped to `Canonical.YearNumeric` converts to and from every other dialect
+without pairwise mappings.
 
 ## `defineDialect`
 
@@ -34,9 +35,9 @@ const custom = defineDialect({
 convert('yr-mo-dy', { from: custom, to: ldml }) // 'yyyy-MM-dd'
 ```
 
-The `syntax` chooses a tokenization **family**. The example above is `delimited` (letter tokens, with
-`{...}` literals). For a `%`-directive grammar like strftime, use the `directive` family — token
-spellings include the marker, and a literal marker is the marker doubled:
+The `syntax` chooses a tokenization **family**. The example above is `delimited` (letter tokens with
+`{...}` literals). For a `%`-directive grammar like strftime, use the `directive` family. Token
+spellings include the marker, and doubling the marker produces a literal marker:
 
 ```ts
 const percent = defineDialect({
@@ -52,9 +53,8 @@ const percent = defineDialect({
 convert('%Y-%m-%d', { from: percent, to: ldml }) // 'yyyy-MM-dd'
 ```
 
-A dialect can also declare **composites** — parse-time macros where one spelling expands to a
-sub-pattern. They render as their expansion (never the composite), so a composite normalizes on a
-round trip:
+A dialect can also declare **composites**: parse-time macros where one spelling expands to a
+sub-pattern. Rendering uses the expansion, so a composite normalizes on a round trip:
 
 ```ts
 const withComposites = defineDialect({
@@ -69,8 +69,8 @@ convert('%T', { from: withComposites, to: ldml }) // 'HH:mm:ss'
 
 ## `defineLibrary`
 
-A library extends a dialect — adding a tool's own tokens via `extends` (and, in the built-ins,
-declaring a `supports` set). Here we add an LDML-flavoured tool that understands the Unix epoch:
+A library can add a tool's tokens to a dialect through `extends`. Built-in libraries can also declare
+a `supports` set. This example adds an LDML-flavoured tool that understands the Unix epoch:
 
 ```ts
 import { Canonical, convert, defineLibrary } from 'rosetta-date'
@@ -83,7 +83,7 @@ const ldmlPlus = defineLibrary({
   extends: [{ token: 'u', canonical: Canonical.EpochSeconds }],
 })
 
-convert('u', { from: ldmlPlus, to: dateFns }) // 't' — bridged by the canonical symbol
+convert('u', { from: ldmlPlus, to: dateFns }) // 't', bridged by the canonical symbol
 ```
 
 The token `u` is not in the bare `ldml` dialect, but because it maps to `Canonical.EpochSeconds`, it
@@ -91,9 +91,9 @@ bridges straight to date-fns's `t`.
 
 ### Narrowing what a tool renders with `supports`
 
-Where `extends` *adds* tokens, `supports` *narrows* a tool to a subset of the grammar. It is keyed
-by **canonical field**, not spelling: you list the fields the tool renders, and each is emitted with
-the dialect's primary spelling. Omit it (as `ldmlPlus` does) to render the whole grammar.
+`extends` adds tokens, while `supports` narrows a tool to a subset of the grammar. `supports` is keyed
+by **canonical field**, not spelling. List the fields the tool renders, and each is emitted with the
+dialect's primary spelling. Omit `supports`, as `ldmlPlus` does, to render the whole grammar.
 
 ```ts
 import { Canonical, convert, defineLibrary } from 'rosetta-date'
@@ -105,18 +105,17 @@ const dayjsLike = defineLibrary({
   supports: new Set([Canonical.YearNumeric, Canonical.MonthTwoDigit, Canonical.DayOfMonthTwoDigit]),
 })
 
-convert('MM', { from: moment, to: dayjsLike }) // 'MM' — a supported field
-convert('Mo', { from: moment, to: dayjsLike }) // '[Mo]' — month ordinal isn't in `supports`, so it's flagged
+convert('MM', { from: moment, to: dayjsLike }) // 'MM', a supported field
+convert('Mo', { from: moment, to: dayjsLike }) // '[Mo]', because month ordinal is not in `supports`
 ```
 
 ## Validation happens once
 
 <Callout type="warning">
-  `defineDialect` and `defineLibrary` validate a definition **once, at definition time** — they
-  throw on an incoherent token table or syntax (including a directive token that omits its marker) — and return a stable object you reuse across
-  conversions. That object identity matters: per-dialect compilation is cached by object, so
-  constructing a fresh definition on every `convert` call silently misses the cache and recompiles
-  each time. **Define once, reuse everywhere.**
+  `defineDialect` and `defineLibrary` validate a definition once. They reject an incoherent token
+  table or syntax, including a directive token that omits its marker, and return a stable object.
+  Per-dialect compilation is cached by object identity, so define the object once and reuse it across
+  conversions.
 </Callout>
 
 ## Canonical symbols

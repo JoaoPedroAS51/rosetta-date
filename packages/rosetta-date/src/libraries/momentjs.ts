@@ -5,16 +5,11 @@ import { moment } from '../dialects/moment'
 /**
  * Defines the `Moment.js` rendering target.
  *
- * @remarks
  * Base grammar: `moment`.
  *
  * Extensions: none.
  *
- * Support model: every token in the base grammar is considered renderable, so
- * `supports` is omitted.
- *
- * Runtime behavior: some tokens still require `Moment.js` plugins or companion
- * packages at runtime, such as timezone-name tokens with `moment-timezone`.
+ * Runtime behavior: timezone-name tokens require `moment-timezone`.
  *
  * @see {@link https://momentjs.com/docs/#/displaying/format/ | `Moment.js` format tokens}
  * @see {@link https://momentjs.com/timezone/docs/ | `Moment Timezone` documentation}

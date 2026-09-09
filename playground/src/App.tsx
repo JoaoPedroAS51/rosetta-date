@@ -44,10 +44,10 @@ export function App(): React.JSX.Element {
     storeTheme(theme)
     if (theme !== 'system')
       return
-    const mq = matchMedia('(prefers-color-scheme: dark)')
+    const mediaQuery = matchMedia('(prefers-color-scheme: dark)')
     const onChange = (): void => applyTheme('system')
-    mq.addEventListener('change', onChange)
-    return () => mq.removeEventListener('change', onChange)
+    mediaQuery.addEventListener('change', onChange)
+    return () => mediaQuery.removeEventListener('change', onChange)
   }, [theme])
 
   return (

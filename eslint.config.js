@@ -28,8 +28,8 @@ export default antfu({
       'ts/explicit-module-boundary-types': 'off',
     },
   })
-  // `trustPolicy: no-downgrade` rejects transitive deps (e.g. semver@6.3.1) and
-  // breaks `pnpm install`, so we don't enforce the pnpm-workspace settings.
+  // Disable enforcement because `trustPolicy: no-downgrade` rejects transitive
+  // dependencies such as `semver@6.3.1` and breaks `pnpm install`.
   .append({
     files: ['pnpm-workspace.yaml'],
     rules: {

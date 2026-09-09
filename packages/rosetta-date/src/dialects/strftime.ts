@@ -4,14 +4,12 @@ import { Canonical } from '../core/canonical'
 /**
  * Defines the C / POSIX `strftime` date-token grammar.
  *
- * @remarks
- * Scope: the single-field `%` directives plus composites. `%T`, `%R`, `%F`,
- * `%D`, and `%r` expand to sub-patterns of atomic directives; `%n` and `%t` to a
- * literal newline and tab. Every composite expands on parse and normalizes to
- * that expansion on render.
+ * Scope: supported single-field `%` directives and composites.
  *
- * Syntax: a `directive` family. Every token is introduced by `%`, and all other
- * text, including letters, is literal. A literal `%` is written `%%`.
+ * Literals: all non-directive text is literal. Use `%%` for a literal `%`.
+ *
+ * Rendering: composites expand to their atomic directives. `%n` and `%t` expand
+ * to a literal newline and tab.
  *
  * Padding: numeric fields zero-pad by default (`%d`, `%H`). The `space-padded`
  * qualifier marks blank fill instead (`%e`, `%k`, `%l`). The glibc flags set the
@@ -107,10 +105,7 @@ export const strftime: Dialect = {
     { token: '%0g', canonical: Canonical.WeekYearTwoDigitIso },
     { token: '%0C', canonical: Canonical.CenturyTwoDigit },
   ],
-  // Composite directives: parse-time macros that expand to a sub-pattern on parse.
-  // Rendering produces the expansion, never the composite, so `%T` normalizes to
-  // `%H:%M:%S` on a round trip. `%n`/`%t` normalize to literal newline/tab
-  // characters.
+  // Composite directives expand during parsing and render in expanded form.
   composites: [
     { token: '%T', expandsTo: '%H:%M:%S' },
     { token: '%R', expandsTo: '%H:%M' },

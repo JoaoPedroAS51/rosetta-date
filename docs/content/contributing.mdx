@@ -4,8 +4,8 @@ title: Contributing
 
 # Contributing
 
-Adding a dialect or library is two mappings, not a fleet of pairwise converters — the engine stays
-dialect-agnostic, and every dialect maps to and from the shared canonical model.
+The engine stays dialect-agnostic because every dialect maps to and from the shared canonical model.
+Adding an endpoint does not require pairwise converters for existing dialects.
 
 ## Local setup
 
@@ -31,7 +31,7 @@ pnpm install
 
 To add a dialect, register it in `src/dialects/registry.ts`; to add a library, register it in
 `src/libraries/registry.ts` and give it a `libraryDeltas` entry in `test/fixtures.ts`. A dialect in an
-existing **syntax family** (`delimited` or `directive`) is pure data — pick its `syntax` and map its
+existing **syntax family** (`delimited` or `directive`) is pure data: pick its `syntax` and map its
 tokens. A grammar that needs a *new* family adds one strategy module under `src/core/syntax/` and one
 member to the `TokenSyntax` union; the parser and renderer stay untouched.
 
@@ -40,30 +40,30 @@ shape currently fits the delimited dialects). A `delimited` dialect joins it wit
 entry; a `directive` dialect like `strftime` is exercised by its own focused test
 (`src/dialects/strftime.test.ts`) until that oracle is extended.
 
-Then update the documentation so the new dialect or library is discoverable. The generic suites
-cover the code automatically, but the docs do not — keep these pages in sync by hand:
+Then update the documentation so the new dialect or library is discoverable. Keep these pages in
+sync by hand:
 
-- [Canonical Vocabulary](/reference/canonical-vocabulary) — only if the new dialect or library needs a canonical
+- [Canonical Vocabulary](/reference/canonical-vocabulary): only if the new dialect or library needs a canonical
   field that does not exist yet; add the new member here, following the
   [naming grammar](#adding-a-canonical-field) below.
-- [Dialects](/reference/dialects) — add a row to the index and a page for the new dialect (grammar,
+- [Dialects](/reference/dialects): add a row to the index and a page for the new dialect (grammar,
   literals, aliases, caveats), plus a column in [Token Mapping](/reference/token-mapping).
-- [Libraries](/reference/libraries) — add a row to the index and a page for the new library (its
+- [Libraries](/reference/libraries): add a row to the index and a page for the new library (its
   `supports` subset and any `extends` tokens).
-- [API Reference](/reference/api) — list the new export under its entrypoint.
+- [API Reference](/reference/api): list the new export under its entrypoint.
 
 ### Adding a canonical field
 
-Most dialects and libraries reuse existing canonical fields — you add one only when a token expresses a meaning
-no member covers yet. Canonical values follow a small grammar:
+Most dialects and libraries reuse existing canonical fields. Add one only when a token expresses a
+meaning no member covers. Canonical values follow this grammar:
 
 ```text
 field/style[/qualifier...]
 ```
 
-- **`field`** — the date component (`month`, `hour`, `week-of-year`, …).
-- **`style`** — how it is represented (`numeric`, `2-digit`, `ordinal`, `wide`, …).
-- **`qualifier`** (optional, repeatable) — refines the base `field/style`; its absence is the default
+- **`field`:** the date component (`month`, `hour`, `week-of-year`, …).
+- **`style`:** how it is represented (`numeric`, `2-digit`, `ordinal`, `wide`, …).
+- **`qualifier`** (optional, repeatable): refines the base `field/style`; its absence is the default
   form. Examples: `iso` (ISO week rules), the hour cycle `h11` / `h12` / `h23` / `h24`,
   `standalone` (grammatical context), and presentation refinements such as `space-padded` (fill) and
   `lower` (case).
@@ -77,9 +77,9 @@ the rendered value (`iso`, the hour cycle, `standalone`) come first, then **pres
 that only change its surface (`space-padded`, `lower`). A blank-padded 24-hour is
 `hour/2-digit/h23/space-padded`, never `hour/2-digit/space-padded/h23`.
 
-Prefer refining an existing `field/style` with a qualifier over inventing a parallel field — it keeps
-related meanings grouped and lets conversions share the base. Adding a member is a minor (additive)
-change; renaming or removing one is breaking.
+Prefer refining an existing `field/style` with a qualifier over inventing a parallel field. This
+keeps related meanings grouped and lets conversions share the base. Adding a member is a minor,
+additive change; renaming or removing one is breaking.
 
 ### TSDoc conventions
 
@@ -122,12 +122,12 @@ Where a test lives signals what it covers.
 | Beside the module (`src/`) | One module's units, plus the mechanics the oracle cannot express | `syntax/delimited.test.ts`, `dialects/strftime.test.ts`; the unsupported-token reasons in `libraries.test.ts` |
 | `test/` | Systematic behaviour across the curated endpoints | `matrix.test.ts`, `round-trip.test.ts` |
 
-Unit tests sit next to the code they exercise, so they travel with it on a refactor. The
-cross-cutting suites span every pair of curated endpoints and derive from one shared oracle,
-`test/fixtures.ts` (each dialect's `expectations`, plus each library's `libraryDeltas`). A delimited
-endpoint with an oracle entry earns conformance, the matrix, round-trip, and totality automatically;
-the colocated tests carry the per-tool mechanics (unsupported-token reasons, handler context,
-adjacency) and any endpoint not yet in the matrix oracle (such as the `strftime` dialect).
+Unit tests sit next to the code they exercise. The cross-cutting suites span every pair of curated
+endpoints and derive from one shared oracle, `test/fixtures.ts` (each dialect's `expectations`, plus
+each library's `libraryDeltas`). An oracle entry gives a delimited endpoint conformance, matrix,
+round-trip, and totality coverage. Colocated tests cover per-tool mechanics such as unsupported-token
+reasons, handler context, and adjacency, plus endpoints not yet in the matrix oracle such as
+`strftime`.
 
 Run `pnpm test` for both, or `pnpm test:coverage` to enforce the 100% threshold.
 

@@ -15,18 +15,18 @@ safety at the token boundary**.
 Literal (verbatim) text is preserved across dialects, though each
 [`syntax` family](/reference/dialects#syntax-families) marks it differently:
 
-- **Delimited** dialects (e.g. `moment` `[...]`, `ldml` `'...'`) wrap literal text in delimiters. Only
-  the **letter-bearing span** is escaped, so separators stay clean (`DD/MM` ↔ `dd/MM`, not `dd'/'MM`);
-  a literal apostrophe is `''` in `ldml` (`'o''clock'` → `o'clock`), and a literal `]` — which has no
-  in-band escape inside a `moment` `[...]` run — is emitted between bracketed spans (`a]b` → `[a]][b]`).
-- **Directive** dialects (e.g. `strftime`) treat all non-directive text as literal verbatim — no
-  wrapping needed — and escape only the marker by doubling it (`%%` → `%`).
+- **Delimited** dialects (for example, `moment` `[...]` and `ldml` `'...'`) wrap literal text in
+  delimiters. Only the **letter-bearing span** is escaped, so separators stay clean (`DD/MM` ↔
+  `dd/MM`, not `dd'/'MM`). A literal apostrophe is `''` in `ldml` (`'o''clock'` → `o'clock`). A
+  literal `]` has no in-band escape inside a `moment` `[...]` run, so it is emitted between bracketed
+  spans (`a]b` → `[a]][b]`).
+- **Directive** dialects (for example, `strftime`) treat all non-directive text as literal verbatim.
+  They escape only the marker by doubling it (`%%` → `%`).
 
 ## Adjacent tokens
 
-When a conversion would place two tokens that **collide** — i.e. reading the output back would lex
-them as one different token — `rosetta-date` separates them with the target dialect's **empty
-literal**.
+When reading two adjacent output tokens would parse them as one different token, `rosetta-date`
+separates them with the target dialect's **empty literal**.
 
 For example, date-fns `PPPp` (a long date next to a short time) becomes moment `LL` + `LT`. But
 gluing them as `LLLT` would re-read as `LLL` (the long localized date preset) + `T`, a different
@@ -36,19 +36,19 @@ parse. So the converter inserts `[]`:
 import { convert } from 'rosetta-date'
 import { dateFns, momentjs } from 'rosetta-date/libraries'
 
-convert('PPPp', { from: dateFns, to: momentjs }) // 'LL[]LT' — '[]' keeps LL and LT apart
+convert('PPPp', { from: dateFns, to: momentjs }) // 'LL[]LT'; '[]' keeps LL and LT apart
 ```
 
 ## When a dialect has no empty literal
 
-A quote-style dialect like `ldml` has no empty literal — `''` is a literal apostrophe, not nothing —
-so it **cannot** express such an adjacency. There the second token is routed through
+A quote-style dialect like `ldml` has no empty literal because `''` represents a literal apostrophe.
+It cannot express such an adjacency, so the second token is routed through
 [`onUnsupportedToken`](/guides/unsupported-tokens) with reason `unrepresentable-adjacency`:
 
-- the **default** literalizes it, escaping it so it can never re-merge into a different token, while
-- `'throw'` lets a mass migration catch it.
+- The default literalizes and escapes the token so it cannot merge into a different token.
+- `'throw'` reports the token during validation or a mass migration.
 
 <Callout type="info">
-  This is why adjacency is one of the four unsupported-token reasons rather than a silent fix-up: in
-  a quote-style target the merge is genuinely unrepresentable, and you may want to know.
+  In a quote-style target, the adjacency cannot be represented. The unsupported-token policy reports
+  it as `unrepresentable-adjacency` instead of changing the output silently.
 </Callout>

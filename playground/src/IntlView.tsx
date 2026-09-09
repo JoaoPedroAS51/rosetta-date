@@ -22,7 +22,7 @@ export function IntlView({ from, format }: Props): React.JSX.Element {
       </div>
 
       {entries.length === 0
-        ? <div className="rd-empty">No Intl-expressible fields — order and literals are dropped by design.</div>
+        ? <div className="rd-empty">No fields can be expressed as Intl options. Conversion drops token order and literals.</div>
         : (
             <div className="rd-intl">
               {entries.map(([key, value]) => (

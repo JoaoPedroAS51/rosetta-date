@@ -4,9 +4,9 @@ title: Dialects
 
 # Dialects
 
-A **`Dialect`** is a formatting *language* — its token grammar, the [`syntax`
+A **`Dialect`** is a formatting language: its token grammar, the [`syntax`
 family](#syntax-families) that separates tokens from literal text, and the [canonical
-meaning](/reference/canonical-vocabulary) of each token. It is tool-agnostic; a
+meaning](/reference/canonical-vocabulary) of each token. It is tool-agnostic. A
 [`Library`](/reference/libraries) builds on one to model a concrete tool.
 
 Built-in dialects are imported from `rosetta-date/dialects`:
@@ -26,9 +26,9 @@ import { ldml, moment, strftime } from 'rosetta-date/dialects'
 A dialect's `syntax` belongs to a tokenization **family**, which decides how tokens are told apart
 from literal text:
 
-- **`delimited`** (`moment`, `ldml`) — ASCII letters are token characters; literal text is set off by
+- **`delimited`** (`moment`, `ldml`): ASCII letters are token characters; literal text is set off by
   delimiters (`[...]`, `'...'`).
-- **`directive`** (`strftime`) — every token is introduced by a marker (`%`); all other text,
+- **`directive`** (`strftime`): every token is introduced by a marker (`%`); all other text,
   letters included, is literal, and the marker is escaped by doubling it (`%%`).
 
 The parser and renderer are generic over the family, so a new grammar is a new strategy rather than an

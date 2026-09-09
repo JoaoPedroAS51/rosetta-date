@@ -6,15 +6,14 @@ import { Callout } from 'nextra/components'
 
 # Token Mapping
 
-This is the **grammar layer** — how each dialect spells every [canonical
-field](/reference/canonical-vocabulary). Each row is one canonical field; each column is a dialect.
-This is the side-by-side comparison view; for one dialect's full grammar, literals, aliases, and
-caveats, see its page under [Dialects](/reference/dialects).
+This table shows how each dialect spells every [canonical field](/reference/canonical-vocabulary).
+Each row is one canonical field, and each column is a dialect. For a dialect's full grammar,
+literals, aliases, and caveats, see its page under [Dialects](/reference/dialects).
 
 <Callout type="info">
-  A **—** means the dialect has no token for that field. Converting that field *into* the dialect
+  An em dash means the dialect has no token for that field. Converting that field *into* the dialect
   has no clean target, so it is routed through [`onUnsupportedToken`](/guides/unsupported-tokens)
-  (default: escaped as a literal). Adding a dialect adds a column — no row is pairwise.
+  (default: escaped as a literal). Each new dialect adds one column rather than a pairwise table.
 </Callout>
 
 Behaviour specific to a concrete tool (e.g. extensions, unrenderable tokens, option-gated tokens)
@@ -141,9 +140,9 @@ lives in [Libraries](/reference/libraries); the tokens below are the dialect gra
 | Unix timestamp, milliseconds | `x` | — | — |
 
 <Callout type="info">
-  The `ldml` dialect itself defines no Unix-epoch tokens, ISO week fields, or ordinals — those are
-  library extensions (e.g. date-fns adds `t` / `T` for the epoch), not part of the bare dialect, so a
-  `dialect → dialect` conversion literalizes them. See [Libraries](/reference/libraries).
+  The `ldml` dialect itself defines no Unix-epoch tokens, ISO week fields, or ordinals. Libraries can
+  add them; for example, date-fns adds `t` and `T` for the epoch. A `dialect → dialect` conversion
+  literalizes those fields. See [Libraries](/reference/libraries).
 </Callout>
 
 ## Localized presets
@@ -166,8 +165,8 @@ them: where a column shows `—` here, the presets are supplied by a *library* l
 
 ## Aliases & caveats
 
-Extra spellings that parse but normalize to a primary token, plus dialect-specific quirks (numbering,
-casing), are documented per dialect — they are properties of one grammar, not of a pair:
+Each dialect page documents its extra spellings and grammar-specific quirks such as numbering and
+casing:
 
 - [`moment`](/reference/dialects/moment)
 - [`ldml`](/reference/dialects/ldml)

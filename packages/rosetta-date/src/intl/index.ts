@@ -7,15 +7,7 @@ import { render, renderedTokens } from '../core/render'
 import { canonicalToIntl, intlToCanonical } from './mapping'
 
 /**
- * What to do with a field that has no clean conversion across the `Intl`
- * boundary.
- *
- * @remarks
- * `drop` omits the field. `throw` raises an {@link UnsupportedTokenError}.
- *
- * Narrower than the dialect-to-dialect `UnsupportedTokenPolicy`: `'literalize'`
- * and per-token handlers are pattern-string concepts. The `Intl` side is an
- * unordered options bag with no literals.
+ * How to handle a field that `Intl` cannot represent.
  *
  * @see {@link https://tc39.es/ecma402/#datetimeformat-objects | ECMA-402 `Intl.DateTimeFormat`}
  */
@@ -41,9 +33,8 @@ export interface FromIntlOptions {
  * Extract the locale-agnostic intent of a format string as an
  * {@link Intl.DateTimeFormatOptions} object, ready for `new Intl.DateTimeFormat`.
  *
- * The format's literals and field order are dropped by design: an Intl options
- * object is an unordered component bag. The locale decides layout at format
- * time, so `'DD/MM/YYYY'` and `'YYYY-MM-DD'` yield the same options.
+ * Intl options do not encode literals or field order. The locale decides layout
+ * at format time, so `'DD/MM/YYYY'` and `'YYYY-MM-DD'` yield the same options.
  *
  * Fields with no clean `Intl.DateTimeFormatOptions` equivalent, such as quarter,
  * ordinals, day-of-year, ISO week fields, epoch, and stand-alone names, are
@@ -106,11 +97,11 @@ export function toIntlOptions(format: string, options: ToIntlOptions): Intl.Date
  * Translate an {@link Intl.DateTimeFormatOptions} object into a format string for
  * `to`.
  *
- * The style axis is the locale-correct path: `dateStyle`/`timeStyle` map to the
- * target's localized presets (`L`/`P`), which the library resolves per locale at
- * format time. No locale argument is needed. Component options map to explicit
- * tokens in CLDR canonical order. Since `Intl` options carry neither order nor
- * separators, that output is a skeleton, not a localized layout.
+ * `dateStyle` and `timeStyle` map to the target's localized presets (`L`/`P`),
+ * which the library resolves per locale at format time. Component options map
+ * to explicit tokens in CLDR canonical order. Because `Intl` options carry
+ * neither order nor separators, component output is a skeleton rather than a
+ * localized layout.
  *
  * Options the target cannot render, such as presets against a pure dialect or a
  * `dateStyle`/`timeStyle` mismatch with no fused preset, are handled by
@@ -138,7 +129,7 @@ export function fromIntlOptions(intlOptions: Intl.DateTimeFormatOptions, options
   }
 
   const { tokens, unsupported } = intlToCanonical(intlOptions)
-  // Intl keys with no canonical at all (e.g. `dayPeriod`, an Intl-only zone style).
+  // Intl keys with no canonical mapping, such as `dayPeriod` or Intl-only zone styles.
   for (const key of unsupported)
     reject(key, 'unmappable')
 
@@ -148,14 +139,11 @@ export function fromIntlOptions(intlOptions: Intl.DateTimeFormatOptions, options
     if (rendered.has(canonical))
       segments.push({ kind: 'field', canonical, raw: canonical })
     else
-      // A token the grammar defines but the library gates is `unsupported-by-target`;
-      // one the grammar has no spelling for at all is `unmappable`.
+      // Distinguish library exclusions from fields absent from the target grammar.
       reject(canonical, definesCanonical(to, canonical) ? 'unsupported-by-target' : 'unmappable')
   }
 
-  // No `onUnsupportedToken` is threaded into `render`: `rendered` pre-filters to
-  // tokens the target can spell, and an Intl options bag holds at most one value
-  // per field group, so no two emitted tokens share a base character — the
-  // unrepresentable-adjacency path is unreachable here.
+  // `rendered` excludes unsupported tokens. Intl options also hold at most one
+  // value per field group, so rendered tokens cannot hit the adjacency policy.
   return render(segments, to)
 }

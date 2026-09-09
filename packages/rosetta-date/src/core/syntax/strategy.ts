@@ -15,9 +15,7 @@ export type Scan
     | { readonly kind: 'unknown', readonly value: string, readonly next: number }
 
 /**
- * The tokenization behavior of one syntax family. Resolved from a
- * {@link TokenSyntax} config; the parser and renderer are generic over it, so a
- * new family is a new strategy, not an edit to either.
+ * The tokenization behavior resolved from a {@link TokenSyntax} configuration.
  *
  * @internal
  */

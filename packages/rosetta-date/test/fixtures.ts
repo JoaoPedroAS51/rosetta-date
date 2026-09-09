@@ -7,14 +7,11 @@ import { dialects } from '../src/dialects/registry'
 import { libraries } from '../src/libraries/registry'
 
 /**
- * Each dialect's primary spelling for every canonical symbol it can express —
- * a hand-written oracle, independent of the dialect tables, so the tests catch
- * a table that drifts from intent.
+ * Each dialect's primary spelling for every canonical symbol it can express.
+ * This hand-written oracle is independent of the dialect tables.
  *
- * This is the single source the generic suites derive from: dialect↔canonical
- * conformance, the cross-dialect conversion matrix, one-sided (non-bijective)
- * behaviour, and round trips. Adding a dialect to the registry makes TypeScript
- * require its entry here, so coverage of the new dialect is not forgotten.
+ * The generic conformance, conversion-matrix, and round-trip suites use this
+ * map. Its `Record` type requires an entry for every registered dialect.
  */
 export const expectations: Record<DialectName, Partial<Record<CanonicalToken, string>>> = {
   moment: {
@@ -199,9 +196,8 @@ export const expectations: Record<DialectName, Partial<Record<CanonicalToken, st
 }
 
 /**
- * Extra (non-primary) spellings an endpoint accepts when parsing — including a
- * library's `extends` aliases. They normalize to the primary token on render, so
- * they are only checked for parse mapping (through the endpoint's grammar).
+ * Non-primary spellings accepted while parsing, including aliases from a
+ * library's `extends`. Rendering normalizes them to the primary token.
  */
 export const aliases: Partial<Record<EndpointName, ReadonlyArray<readonly [token: string, canonical: CanonicalToken]>>> = {
   'moment': [
@@ -260,11 +256,8 @@ export const aliases: Partial<Record<EndpointName, ReadonlyArray<readonly [token
 }
 
 /**
- * Real-world composite formats per dialect, round-tripped across the literal-style
- * boundary (dialect → other → dialect). Composites exercise literal escaping and
- * token adjacency — a dialect-level concern — so they are keyed by dialect, not
- * endpoint: a library inherits its dialect's literal rules and adds nothing here
- * (extension-token adjacency lives in the preset tests in `libraries.test.ts`).
+ * Composite formats used to test literal escaping and token adjacency across
+ * dialects. Libraries inherit these rules from their dialects.
  */
 export const composites: Partial<Record<DialectName, readonly string[]>> = {
   moment: [
@@ -291,21 +284,15 @@ export const composites: Partial<Record<DialectName, readonly string[]>> = {
 }
 
 /**
- * Every conversion endpoint — dialects and libraries — keyed by name. The generic
- * suites iterate this, so adding either kind earns conformance, matrix, round-trip,
- * and totality coverage with no new test code: TypeScript requires an `expectations`
- * entry for a new dialect and a `libraryDeltas` entry for a new library, since
- * `test/` is type-checked.
+ * Every conversion endpoint, keyed by name. Generic suites iterate this object.
  */
 export const endpoints = { ...dialects, ...libraries }
 export type EndpointName = keyof typeof endpoints
 
 /**
- * Per-library delta over its base dialect's oracle, authored **independently** of
- * the library's own `supports`/`extends` so the two cross-check: `excludes` are the
- * base fields the library does NOT render — the opposite polarity of the library's
- * positive `supports`, which is what makes the check non-circular — and `extends`
- * are the fields it adds on top, each with the spelling it renders them as.
+ * Per-library delta over its base dialect oracle. These entries are independent
+ * of the library's `supports` and `extends` values. `excludes` lists base fields
+ * the library does not render; `extends` maps added fields to their output token.
  */
 export const libraryDeltas: Record<LibraryName, {
   readonly base: DialectName
@@ -364,9 +351,7 @@ export const libraryDeltas: Record<LibraryName, {
 }
 
 /**
- * The canonical → primary-spelling map an endpoint renders: a dialect's oracle as
- * written, or a library's base oracle transformed by its delta (drop `excludes`,
- * add `extends`). The keys are exactly the fields the endpoint renders.
+ * Return the canonical-to-primary-spelling map rendered by an endpoint.
  */
 export function renderOracle(name: EndpointName): Partial<Record<CanonicalToken, string>> {
   if (!(name in libraryDeltas))
@@ -378,7 +363,7 @@ export function renderOracle(name: EndpointName): Partial<Record<CanonicalToken,
   return { ...oracle, ...delta.extends }
 }
 
-/** The grammar an endpoint parses through — a library resolves to its effective dialect. */
+/** Return the grammar used to parse an endpoint. */
 export function grammarOf(name: EndpointName): Dialect {
   const endpoint = endpoints[name]
   return 'resolved' in endpoint ? endpoint.resolved.dialect : endpoint

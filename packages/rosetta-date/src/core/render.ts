@@ -6,18 +6,15 @@ import { resolveSyntax } from './syntax'
 import { compile as compileRules } from './tokenize'
 import { Unsupported } from './unsupported'
 
-/** A bare dialect renders every token; only a library narrows the set. */
 const renderAll = (): true => true
 
-/** Resolve a target inline — no dependency on the library merge logic. */
 function resolve(target: Dialect | Library): ResolvedLibrary {
   return 'resolved' in target ? target.resolved : { dialect: target, renders: renderAll }
 }
 
 /**
- * A compiled render target. The `canonicals` set tells "the library does not
- * render this canonical field" (`unsupported-by-target`) apart from "the
- * grammar has no such field" (`unmappable`).
+ * A compiled target. `canonicals` distinguishes fields excluded by a library
+ * from fields absent from the target grammar.
  */
 interface CompiledTarget {
   /** The dialect tokens are rendered into (a {@link Library} resolves to its dialect). */
@@ -77,9 +74,9 @@ export interface RenderOptions {
 
 /** How an unsupported token resolves into output. */
 type Resolution
-  = | { readonly kind: 'literal', readonly text: string } // accumulate as literal text
-    | { readonly kind: 'emit', readonly text: string } // flush, then output verbatim
-    | { readonly kind: 'drop' } // omit entirely
+  = | { readonly kind: 'literal', readonly text: string }
+    | { readonly kind: 'emit', readonly text: string }
+    | { readonly kind: 'drop' }
 
 /**
  * Render canonical segments into a format string for `to`.
@@ -142,9 +139,8 @@ export function render(segments: readonly Segment[], to: Dialect | Library, opti
     if (last !== undefined) {
       const separator = strategy.separator(last, token, rules)
       if (separator === undefined) {
-        // The token converts, but this dialect cannot separate it from `last`, so
-        // it routes to the policy like any other unrenderable token — literalized
-        // by default, never emitted into a silently merged token.
+        // Route a token that cannot be separated from `last` through the
+        // unsupported-token policy.
         apply(resolveUnsupported(token, 'unrepresentable-adjacency', dialect, toLibrary, options))
         return
       }

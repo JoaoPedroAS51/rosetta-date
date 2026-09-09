@@ -6,9 +6,9 @@ import { Callout } from 'nextra/components'
 
 # Intl Options
 
-The adapter at `rosetta-date/intl` bridges token strings and the native
+The `rosetta-date/intl` adapter converts between token strings and native
 [`Intl.DateTimeFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat)
-API. It is the path from a hardcoded pattern to native, locale-aware formatting.
+options for locale-aware formatting.
 
 ```ts
 import { toIntlOptions } from 'rosetta-date/intl'
@@ -22,18 +22,18 @@ new Intl.DateTimeFormat('pt-BR', options).format(new Date())
 
 ## Why a separate surface
 
-Every other endpoint is a token string. `Intl.DateTimeFormat` is not — it takes an unordered
-**options bag** and lets the *locale* decide layout at format time:
+Unlike the other endpoints, `Intl.DateTimeFormat` takes an unordered **options bag**. The locale
+decides the layout at format time:
 
 | Model | Carries order? | Carries separators / literals? | Examples |
 | ----- | -------------- | ------------------------------ | -------- |
 | **Pattern** | yes | yes | `DD/MM/YYYY`, every dialect and library |
 | **Field bag** | no | no | `Intl` options |
 
-Crossing that boundary is a deliberate, lossy projection — so the adapter is its own pair of
-functions rather than another endpoint for `convert`.
+Converting between these models loses order and literal separators. The adapter therefore uses its
+own pair of functions instead of acting as an endpoint for `convert`.
 
-## `toIntlOptions` — pattern → options
+## `toIntlOptions`: pattern to options
 
 `toIntlOptions(format, { from })` reads the locale-agnostic *intent* out of a format string.
 
@@ -45,22 +45,20 @@ toIntlOptions('h:mm A', { from: moment })
 // { hour: 'numeric', minute: '2-digit', hourCycle: 'h12' }
 ```
 
-Literals and field order are dropped **by design** — the locale, not the format, decides where the
-slashes go and whether the day leads. `'DD/MM/YYYY'` and `'YYYY-MM-DD'` produce the same options;
-hand them to a `pt-BR` formatter and you get the Brazilian layout back, to an `en-US` one the American
-layout.
+Literals and field order are dropped because the locale decides where separators go and whether the
+day leads. `'DD/MM/YYYY'` and `'YYYY-MM-DD'` produce the same options. A `pt-BR` formatter renders
+those options in the Brazilian layout, while an `en-US` formatter uses the American layout.
 
 <Callout type="info">
-  The AM/PM markers — uppercase `A` and lowercase `a` — have no Intl option, so on their own they are
-  dropped (or throw under `'throw'`). In practice the marker is redundant: an `h11` / `h12` hour
-  already carries the 12-hour cycle via `hourCycle`, so dropping it loses nothing.
+  The AM/PM markers `A` and `a` have no Intl option, so on their own they are dropped or throw under
+  `'throw'`. An `h11` or `h12` hour already carries the 12-hour cycle through `hourCycle`.
 </Callout>
 
-## `fromIntlOptions` — options → pattern
+## `fromIntlOptions`: options to pattern
 
-`fromIntlOptions(intlOptions, { to })` goes the other way. Its locale-correct path is the **style
-axis**: `dateStyle` / `timeStyle` map to the target's localized presets, which the library resolves
-per locale at format time — so no locale argument is needed.
+`fromIntlOptions(intlOptions, { to })` converts options to a token pattern. `dateStyle` and
+`timeStyle` map to the target's localized presets, which the library resolves for its locale at
+format time. The conversion therefore needs no locale argument.
 
 ```ts
 import { fromIntlOptions } from 'rosetta-date/intl'
@@ -70,23 +68,22 @@ fromIntlOptions({ dateStyle: 'short' }, { to: dayjs }) // 'L'
 fromIntlOptions({ dateStyle: 'long', timeStyle: 'long' }, { to: dayjs }) // 'LLL'
 ```
 
-Targeting a library returns its preset (e.g. `L` for Moment.js / Day.js, `P` for date-fns) precisely
-because that preset stays locale-aware — freezing it to a fixed pattern would defeat the library's own
-locale machinery. See [Localized presets](/reference/libraries#localized-presets).
+Targeting a library returns its preset, such as `L` for Moment.js or Day.js and `P` for date-fns.
+Presets let the target library apply its own locale. See
+[Localized presets](/reference/libraries#localized-presets).
 
 ### Components reconstruct a skeleton
 
 When the options are a component bag rather than a style, there is no order or separator to recover
-without a locale, so the output is a **skeleton** — the fields in CLDR canonical order, no separators:
+without a locale. The output is a **skeleton** with fields in CLDR canonical order and no separators:
 
 ```ts
 fromIntlOptions({ year: 'numeric', month: '2-digit', day: '2-digit' }, { to: ldml }) // 'yyyyMMdd'
 ```
 
 <Callout type="info">
-  A round trip preserves the **field set**, not the layout: `toIntlOptions` then `fromIntlOptions`
-  recovers the components, but the slashes and ordering are gone — they live in the locale, not the
-  format.
+  A round trip preserves the **field set**, not the layout. Calling `toIntlOptions` and then
+  `fromIntlOptions` recovers the components, but not the separators or ordering.
 </Callout>
 
 ## Unsupported fields
@@ -94,9 +91,9 @@ fromIntlOptions({ year: 'numeric', month: '2-digit', day: '2-digit' }, { to: ldm
 The canonical vocabulary is a strict superset of what `Intl.DateTimeFormat` can express. Fields with
 no equivalent are routed to `onUnsupportedToken`:
 
-- **`toIntlOptions`** — quarter, week-numbering year, week of year, day-of-year, ordinals, epoch, the
+- **`toIntlOptions`:** quarter, week-numbering year, week of year, day-of-year, ordinals, epoch, the
   AM/PM marker, stand-alone names, and the numeric / short weekday forms.
-- **`fromIntlOptions`** — a preset against a pure dialect that has no preset token, a `dateStyle` /
+- **`fromIntlOptions`:** a preset against a pure dialect that has no preset token, a `dateStyle` /
   `timeStyle` mismatch with no single fused preset, an Intl-only zone style (`long`, `*Generic`), and
   the flexible `dayPeriod`.
 
@@ -104,12 +101,12 @@ The policy is narrower than the dialect-to-dialect one: only `'throw'` and `'dro
 apply, since there is no output string to literalize and no target dialect for a handler.
 
 ```ts
-toIntlOptions('[Q]Q YYYY', { from: moment }) // { year: 'numeric' } — quarter dropped
+toIntlOptions('[Q]Q YYYY', { from: moment }) // { year: 'numeric' }; quarter dropped
 toIntlOptions('Q', { from: moment, onUnsupportedToken: 'throw' }) // throws UnsupportedTokenError
 ```
 
 <Callout type="warning">
-  `toIntlOptions` is a human-display tool: it yields options for `Intl.DateTimeFormat`, which renders
+  `toIntlOptions` produces options for human-readable output. `Intl.DateTimeFormat` renders
   a `GMT`-prefixed offset (`GMT+05:00`), not a bare ISO `+05:00`. The ISO offsets that emit `Z` at zero
   have no `Intl` equivalent at all. Keep machine-readable ISO timestamps as a plain `convert` between
   dialects.

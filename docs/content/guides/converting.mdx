@@ -8,7 +8,7 @@ import { Callout } from 'nextra/components'
 
 There are two ways to run a conversion. Both live at the package root.
 
-## `convert` — one-off
+## `convert`: one-off conversions
 
 `convert(format, options)` takes the format string and an options object carrying the direction:
 
@@ -20,9 +20,9 @@ convert('DD/MM/YYYY', { from: moment, to: ldml }) // 'dd/MM/yyyy'
 convert('yyyy-MM-dd', { from: ldml, to: moment }) // 'YYYY-MM-DD'
 ```
 
-The direction travels with each call, so `convert` is ideal when the source and target vary.
+Use `convert` when the source and target vary between calls.
 
-## `createConverter` — fixed direction
+## `createConverter`: fixed direction
 
 When you convert repeatedly in the same direction, bind it once. `createConverter(from, to, options?)`
 returns a plain `(format: string) => string`:
@@ -37,7 +37,7 @@ toLdml('YYYY-MM-DD') // 'yyyy-MM-dd'
 toLdml('hh:mm A') // 'hh:mm a'
 ```
 
-The returned function is easy to store on an object or pass as a callback. Per-dialect compilation is
+The returned function can be stored on an object or passed as a callback. Per-dialect compilation is
 cached, so a bound converter avoids recompiling the dialects on every call.
 
 ## Options
@@ -47,7 +47,7 @@ Both APIs accept the same options (`convert` merges them into its options object
 
 | Option | Type | Default | Purpose |
 | ------ | ---- | ------- | ------- |
-| `onUnsupportedToken` | `'literalize'` \| `'throw'` \| handler | `'literalize'` | What to do when a token has no clean target — see [Unsupported tokens](/guides/unsupported-tokens). |
+| `onUnsupportedToken` | `'literalize'` \| `'throw'` \| handler | `'literalize'` | What to do when a token has no clean target. See [Unsupported tokens](/guides/unsupported-tokens). |
 
 ```ts
 import { createConverter } from 'rosetta-date'
@@ -57,13 +57,13 @@ const safe = createConverter(momentjs, dayjs, { onUnsupportedToken: 'throw' })
 ```
 
 <Callout type="info">
-  The default policy never throws — every token is preserved, escaped as a literal at worst. Opt
-  into `'throw'` when you are validating or running a mass migration and want failures to surface.
+  The default policy preserves every token and escapes unsupported tokens as literals. Use `'throw'`
+  when validation or a mass migration must report unsupported tokens.
 </Callout>
 
 ## Performance: reuse dialect objects
 
-Per-dialect compilation is cached by object identity, so reuse the same `Dialect` / `Library`
-instances across calls rather than rebuilding them. The built-in dialects and libraries are already
-shared singletons, so importing them is free. If you define your own, see
-[Validation happens once](/guides/custom-dialects#validation-happens-once) for the full rationale.
+Per-dialect compilation is cached by object identity, so reuse the same `Dialect` or `Library`
+instances across calls rather than rebuilding them. The built-in dialects and libraries are shared
+objects. If you define your own, see
+[Validation happens once](/guides/custom-dialects#validation-happens-once).

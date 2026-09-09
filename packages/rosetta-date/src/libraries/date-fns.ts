@@ -6,16 +6,12 @@ import { ldml } from '../dialects/ldml'
 /**
  * Defines the `date-fns` rendering target.
  *
- * @remarks
  * Base grammar: `ldml`.
  *
- * Extensions: adds ordinal forms specific to `date-fns`
+ * Extensions: ordinal forms specific to `date-fns`
  * (`Qo`/`Mo`/`wo`/`do`/`Do`/`Io`), ISO week-year/week/weekday tokens
  * (`R`/`I`/`i`), epoch tokens (`t`/`T`), and localized preset tokens
  * (`P`/`p`/`Pp...`).
- *
- * Support model: every token in the effective grammar is considered renderable,
- * so `supports` is omitted.
  *
  * @see {@link https://date-fns.org/docs/format | `date-fns` format documentation}
  * @see {@link https://github.com/date-fns/date-fns/blob/main/docs/unicodeTokens.md | `date-fns` Unicode token notes}

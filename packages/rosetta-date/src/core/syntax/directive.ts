@@ -3,13 +3,7 @@ import type { Scan, SyntaxStrategy } from './strategy'
 import { matchToken } from '../tokenize'
 
 /**
- * Build the strategy for a {@link DirectiveSyntax} dialect.
- *
- * @remarks
- * Tokens are marker-prefixed and self-delimiting, so escaping only has to double
- * the marker, and adjacent tokens never need a separator. A marker followed by
- * an undefined directive is an `unknown` run (surfaced to the policy), never a
- * silent literal.
+ * Build the tokenizer for a {@link DirectiveSyntax} dialect.
  */
 export function directiveStrategy(config: DirectiveSyntax): SyntaxStrategy {
   const { marker } = config
@@ -31,8 +25,7 @@ export function directiveStrategy(config: DirectiveSyntax): SyntaxStrategy {
       if (composite !== undefined)
         return { kind: 'composite', token: composite.token, expandsTo: composite.expandsTo, next: index + composite.token.length }
 
-      // Marker + an unrecognized directive: consume the marker and the next
-      // character as one unrecognized token.
+      // Consume the marker and following character as one unrecognized token.
       const end = Math.min(index + marker.length + 1, input.length)
       return { kind: 'unknown', value: input.slice(index, end), next: end }
     },

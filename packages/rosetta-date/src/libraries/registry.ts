@@ -3,25 +3,17 @@ import { dateFns } from './date-fns'
 import { dayjs } from './dayjs'
 import { momentjs } from './momentjs'
 
-/**
- * Every built-in library, keyed by name. Adding a library means adding one entry
- * here (and its file) — the engine needs nothing else.
- */
+/** Every built-in library, keyed by name. */
 export const libraries = {
   'momentjs': momentjs,
   'dayjs': dayjs,
   'date-fns': dateFns,
 } satisfies Record<string, Library>
 
-/**
- * The name of a supported library. Derived from {@link libraries} so it stays in
- * sync automatically.
- */
+/** The name of a built-in library. */
 export type LibraryName = keyof typeof libraries
 
-/**
- * Resolve a library by name for the dynamic, string-driven path.
- */
+/** Resolve a built-in library by name. */
 export function getLibrary(name: LibraryName): Library {
   return libraries[name]
 }

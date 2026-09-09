@@ -2,7 +2,6 @@ import type { CompositeRule, Dialect, DirectiveSyntax, TokenRule, TokenSyntax } 
 import { assertNever } from './assert'
 import { parse } from './parse'
 
-/** Validate a directive family's marker and that every spelling carries it. */
 function validateDirective(name: string, syntax: DirectiveSyntax, tokens: readonly TokenRule[], composites: readonly CompositeRule[]): void {
   if (syntax.marker.length === 0)
     throw new Error(`Dialect "${name}" must have a non-empty directive "marker"`)
@@ -16,7 +15,6 @@ function validateDirective(name: string, syntax: DirectiveSyntax, tokens: readon
   }
 }
 
-/** Validate a delimited family's open/close/escape coherence. */
 function validateDelimited(name: string, open: string, close: string, escapedDelimiter: string | undefined): void {
   if (open.length === 0 || close.length === 0)
     throw new Error(`Dialect "${name}" must have non-empty literal "open" and "close" delimiters`)
@@ -32,12 +30,11 @@ function validateDelimited(name: string, open: string, close: string, escapedDel
   }
   else if (open === close) {
     throw new Error(
-      `Dialect "${name}" has matching "open"/"close" but no "escapedDelimiter" — a bracketed dialect cannot escape its delimiter, so they must differ`,
+      `Dialect "${name}" has matching "open"/"close" but no "escapedDelimiter". A bracketed dialect cannot escape its delimiter, so they must differ`,
     )
   }
 }
 
-/** Validate a dialect's tokenization syntax, branching exhaustively on its family. */
 function validateSyntax(name: string, syntax: TokenSyntax, tokens: readonly TokenRule[], composites: readonly CompositeRule[]): void {
   switch (syntax.kind) {
     case 'directive':
@@ -51,7 +48,6 @@ function validateSyntax(name: string, syntax: TokenSyntax, tokens: readonly Toke
   }
 }
 
-/** Validate composite spellings, token collisions, and parseable expansions. */
 function validateComposites(definition: Dialect, tokens: readonly TokenRule[], composites: readonly CompositeRule[]): void {
   const spellings = new Set(tokens.map(rule => rule.token))
   const seen = new Set<string>()
@@ -71,15 +67,7 @@ function validateComposites(definition: Dialect, tokens: readonly TokenRule[], c
 }
 
 /**
- * Defines and validates a {@link Dialect}.
- *
- * @remarks
- * Validation catches an incoherent {@link Dialect.syntax}, empty or duplicate
- * token spellings, and invalid composite rules at definition time. Aliases are
- * valid: multiple token spellings may map to the same canonical symbol.
- *
- * The returned object is the same object passed in. Define it once and reuse it
- * so compiled token tables can be cached by object identity.
+ * Validate and return a {@link Dialect}.
  *
  * @param definition - The dialect data to validate.
  * @returns The same {@link Dialect} object passed as `definition`.

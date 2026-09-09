@@ -6,9 +6,8 @@ import { Callout } from 'nextra/components'
 
 # Describing Formats
 
-`describe(format, endpoint)` is the read-only counterpart to [`convert`](/guides/converting): instead
-of translating a pattern, it tells you what the pattern *means*, token by token. It surfaces the
-canonical semantics that conversion normally keeps internal.
+`describe(format, endpoint)` parses a pattern and reports what each token means without converting
+it. It returns the canonical semantics used by [`convert`](/guides/converting).
 
 ```ts
 import { describe } from 'rosetta-date'
@@ -23,7 +22,7 @@ describe('DD/MM', moment)
 ```
 
 It reuses the same parser as `convert`, so the result mirrors the input in order and covers every
-character — fields, literals, and unrecognized runs alike.
+character: fields, literals, and unrecognized runs.
 
 ## The segments
 
@@ -35,9 +34,9 @@ Each entry is one of three kinds:
 | `literal` | `{ kind, value }` | Verbatim text (the dialect's quoted/bracketed literals, and any non-token characters). |
 | `unknown` | `{ kind, value }` | A run the dialect does not recognize. |
 
-A `field` carries both its raw `token` (the spelling, e.g. `'DD'`) and its stable `canonical` symbol
-(e.g. `'day-of-month/2-digit'`), plus the decoded parts. Qualifiers surface refinements that would
-otherwise be invisible — the ISO rule, the hour cycle, the stand-alone form:
+A `field` carries its raw `token` (for example, `'DD'`), stable `canonical` symbol (for example,
+`'day-of-month/2-digit'`), and decoded parts. Qualifiers record refinements such as the ISO rule, hour
+cycle, and stand-alone form:
 
 ```ts
 import { ldml } from 'rosetta-date/dialects'
@@ -51,8 +50,8 @@ its extensions (e.g. date-fns ISO tokens) describe correctly.
 
 ## Decoding a canonical symbol directly
 
-When you already hold a `CanonicalToken` — say, while iterating `Canonical` — `decodeCanonical` gives
-you the same `field` / `style` / `qualifiers` split without a format string:
+When you already have a `CanonicalToken`, `decodeCanonical` returns the same `field`, `style`, and
+`qualifiers` split without a format string:
 
 ```ts
 import { Canonical, decodeCanonical } from 'rosetta-date'
@@ -62,7 +61,7 @@ decodeCanonical(Canonical.WeekOfYearOrdinalIso)
 ```
 
 <Callout type="info">
-  `describe` is pure introspection: no rendering, no locale, no unsupported-token policy. To learn what
-  a token becomes in another endpoint — and what a conversion would lose — pair it with
-  [`convert`](/guides/converting).
+  `describe` parses without rendering and does not apply locale or unsupported-token policy. Use
+  [`explain`](/guides/explain) to inspect target mappings and [`convert`](/guides/converting) to
+  produce the final string.
 </Callout>

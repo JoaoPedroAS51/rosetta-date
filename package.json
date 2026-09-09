@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "private": true,
   "packageManager": "pnpm@11.5.3",
-  "description": "Workspace root for rosetta-date — the library, its playground, and the docs site.",
+  "description": "rosetta-date workspace for the library, playground, and documentation site.",
   "author": "João Pedro Antunes Silva <hi@joaopedroas.com>",
   "license": "MIT",
   "engines": {

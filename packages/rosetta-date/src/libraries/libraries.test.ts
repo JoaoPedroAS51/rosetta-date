@@ -6,9 +6,8 @@ import { ldml, moment } from '../dialects'
 import { convert, createConverter, defineLibrary, UnsupportedTokenError } from '../index'
 import { dateFns, dayjs, getLibrary, momentjs } from './index'
 
-// What each library renders (its `supports`/`extends`) is covered systematically by
-// the endpoint conformance, matrix, round-trip, and totality suites in `test/`. The
-// tests here cover the library-level *mechanics* the oracle cannot express.
+// Library output is covered by the generic suites in `test/`. These tests cover
+// behavior not represented by the fixture oracle.
 
 describe('output spelling is a dialect concern, not a library choice', () => {
   it('renders an aliased field via the dialect primary spelling', () => {
@@ -23,7 +22,7 @@ describe('output spelling is a dialect concern, not a library choice', () => {
 describe('mismatched-width localized presets (via dateFns)', () => {
   const d2m = (format: string): string => convert(format, { from: dateFns, to: momentjs })
 
-  it('is clean for matched-width compounds and separated presets', () => {
+  it('preserves matched-width compounds and separated presets', () => {
     expect(d2m('PPpp')).toBe('lll')
     expect(d2m('PPPppp')).toBe('LLL')
     expect(d2m('PP p')).toBe('ll LT')
@@ -75,7 +74,7 @@ describe('unsupported-token reasons & policy for library targets', () => {
 
     // `Mo` (month ordinal) maps to moment's `Mo`, which Day.js does not render.
     expect(reasonFor('Mo')).toBe('unsupported-by-target')
-    // `MMMMM` (narrow month) has no token in the moment grammar at all.
+    // `MMMMM` (narrow month) has no token in the moment grammar.
     expect(reasonFor('MMMMM')).toBe('unmappable')
   })
 
@@ -173,7 +172,7 @@ describe('defineLibrary validation', () => {
 })
 
 describe('getLibrary', () => {
-  it('resolves a library by name for the dynamic, string-driven path', () => {
+  it('resolves a library by name', () => {
     expect(getLibrary('dayjs')).toBe(dayjs)
     expect(getLibrary('date-fns')).toBe(dateFns)
     expect(getLibrary('momentjs')).toBe(momentjs)

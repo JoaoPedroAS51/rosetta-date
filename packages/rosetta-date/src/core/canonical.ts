@@ -1,15 +1,9 @@
 /**
  * Defines the canonical date-field vocabulary used between dialects.
  *
- * @remarks
- * Purpose: each member names a date-field semantic plus its representation,
- * independent of any concrete token grammar.
- *
- * Usage: dialects and library extensions map each token spelling to one
- * of these members through `TokenRule.canonical`. Prefer named members over raw
- * string values.
- *
- * Grammar: values use `field/style[/qualifier...]`.
+ * Each value uses `field/style[/qualifier...]` and identifies a date-field
+ * representation independently of any token grammar. Dialects and library
+ * extensions map token spellings to these values through `TokenRule.canonical`.
  *
  * A `qualifier` refines a base `field/style` pair. Examples include `iso` for
  * week-numbering rules, hour-cycle qualifiers such as `h11`/`h12`/`h23`/`h24`,
@@ -19,19 +13,18 @@
  * Qualifier order is part of a value's identity, so it follows a fixed
  * precedence: identity qualifiers that change the rendered value (`iso`, the hour
  * cycle, `standalone`) come before presentation qualifiers that only change its
- * surface (`space-padded`, `lower`) — e.g. `hour/2-digit/h23/space-padded`, never
- * `hour/2-digit/space-padded/h23`. This keeps each meaning a single canonical
- * string, so dialects never disagree on a value's spelling.
+ * surface (`space-padded`, `lower`). For example,
+ * `hour/2-digit/h23/space-padded` is valid but
+ * `hour/2-digit/space-padded/h23` is not.
  *
- * Member names are PascalCase names derived from their value segments, so names
- * and values stay aligned: `week-of-year/ordinal/iso` maps to
+ * Member names are PascalCase versions of their value segments:
+ * `week-of-year/ordinal/iso` maps to
  * `WeekOfYearOrdinalIso`.
  *
- * Stability: values are stable identifiers. Adding a member is a minor, additive
- * change. Renaming or removing a member is breaking.
+ * Values are stable identifiers. Renaming or removing one is a breaking change.
  */
 export const Canonical = {
-  // Era — e.g. AD / Anno Domini
+  // Era (e.g. AD / Anno Domini)
   EraAbbreviated: 'era/abbreviated',
   EraWide: 'era/wide',
   EraNarrow: 'era/narrow',
@@ -109,7 +102,7 @@ export const Canonical = {
   WeekdayTwoDigit: 'weekday/2-digit',
   WeekdayNumericIso: 'weekday/numeric/iso',
 
-  // Day period — AM/PM
+  // Day period (AM/PM)
   DayPeriodAbbreviated: 'day-period/abbreviated',
   DayPeriodAbbreviatedLower: 'day-period/abbreviated/lower',
   DayPeriodWide: 'day-period/wide',
@@ -122,7 +115,7 @@ export const Canonical = {
   DayPeriodWideFlexible: 'day-period/wide/flexible',
   DayPeriodNarrowFlexible: 'day-period/narrow/flexible',
 
-  // Hour — the `hX` qualifier is the cycle
+  // Hour (`hX` is the cycle)
   // h12 = 1–12, h23 = 0–23, h24 = 1–24, h11 = 0–11
   HourNumericH12: 'hour/numeric/h12',
   HourTwoDigitH12: 'hour/2-digit/h12',
@@ -145,7 +138,7 @@ export const Canonical = {
   SecondTwoDigit: 'second/2-digit',
   SecondTwoDigitSpacePadded: 'second/2-digit/space-padded',
 
-  // Fractional second — value carries the number of fraction digits (S, SS, SSS…)
+  // Fractional second (value is the number of digits: S, SS, SSS…)
   FractionalSecond1: 'fractional-second/1',
   FractionalSecond2: 'fractional-second/2',
   FractionalSecond3: 'fractional-second/3',
@@ -164,9 +157,7 @@ export const Canonical = {
   EpochSeconds: 'epoch/seconds',
   EpochMilliseconds: 'epoch/milliseconds',
 
-  // Localized presets — deferred to the library's locale at format time, so they
-  // are mapped preset ↔ preset (never expanded to a concrete pattern, which would
-  // hardcode one locale). Date-only, time-only, and date+time, each short→full.
+  // Localized presets are mapped without expanding a locale-specific pattern.
   LocalizedDateShort: 'localized-date/short',
   LocalizedDateMedium: 'localized-date/medium',
   LocalizedDateLong: 'localized-date/long',
@@ -184,10 +175,6 @@ export const Canonical = {
 } as const
 
 /**
- * Union of all stable canonical identifier values in {@link Canonical}.
- *
- * @remarks
- * Use this when defining APIs that accept or return canonical symbols directly,
- * especially `TokenRule.canonical`.
+ * Union of the canonical identifiers in {@link Canonical}.
  */
 export type CanonicalToken = (typeof Canonical)[keyof typeof Canonical]

@@ -126,7 +126,7 @@ describe('defineDialect', () => {
   })
 })
 
-describe('defineDialect — composites', () => {
+describe('defineDialect composites', () => {
   const time = [
     { token: '%H', canonical: Canonical.HourTwoDigitH23 },
     { token: '%M', canonical: Canonical.MinuteTwoDigit },

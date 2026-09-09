@@ -70,7 +70,7 @@ describe('toIntlOptions', () => {
     expect(toIntlOptions('LLLL', { from: momentjs })).toEqual({ dateStyle: 'full', timeStyle: 'full' })
   })
 
-  it('drops literals and field order — the locale decides layout', () => {
+  it('drops literals and field order so the locale decides layout', () => {
     const slashes = toIntlOptions('DD/MM/YYYY', { from: moment })
     const dashes = toIntlOptions('YYYY-MM-DD', { from: moment })
     expect(slashes).toEqual({ year: 'numeric', month: '2-digit', day: '2-digit' })
@@ -81,7 +81,7 @@ describe('toIntlOptions', () => {
     expect(toIntlOptions('[Q]Q YYYY', { from: moment })).toEqual({ year: 'numeric' })
   })
 
-  it('drops the AM/PM marker — it is implied by an h11/h12 hour cycle', () => {
+  it('drops the AM/PM marker implied by an h11/h12 hour cycle', () => {
     expect(toIntlOptions('h:mm A', { from: moment })).toEqual({ hour: 'numeric', minute: '2-digit', hourCycle: 'h12' })
   })
 
@@ -187,10 +187,10 @@ describe('fromIntlOptions', () => {
     })
 
     it('distinguishes unsupported-by-target from unmappable in the thrown reason', () => {
-      // A dialect-defined field the library gates → "not rendered by the target library".
+      // A dialect-defined field excluded by the library reports "not rendered".
       expect(() => fromIntlOptions({ era: 'short' }, { to: dayjs, onUnsupportedToken: 'throw' }))
         .toThrow(/not rendered by the target library/)
-      // A field with no token in the target dialect at all → "no equivalent".
+      // A field absent from the target dialect reports "no equivalent".
       expect(() => fromIntlOptions({ dateStyle: 'short' }, { to: ldml, onUnsupportedToken: 'throw' }))
         .toThrow(/no equivalent in the target dialect/)
     })

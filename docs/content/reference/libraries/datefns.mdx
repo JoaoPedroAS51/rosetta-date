@@ -18,9 +18,9 @@ import { dateFns } from 'rosetta-date/libraries'
   it renders the whole effective grammar, so it carries no `supports` set.
 
 <Callout type="info">
-  The extensions below are **not** part of the bare `ldml` dialect — they convert only through the
-  `dateFns` library (`from: momentjs, to: dateFns`). A `dialect → dialect` conversion literalizes
-  them instead.
+  The extensions below belong to the `dateFns` library, not the bare `ldml` dialect. Use the library
+  endpoint to convert them (`from: momentjs, to: dateFns`). A `dialect → dialect` conversion
+  literalizes them.
 </Callout>
 
 ## Ordinals
@@ -66,7 +66,5 @@ date-fns guards a few tokens behind options you must enable in its `format()` ca
 - Day of year (`D`, `DD`) requires `useAdditionalDayOfYearTokens: true`.
 - Local week-year (`YY`, `YYYY`) requires `useAdditionalWeekYearTokens: true`.
 
-`rosetta-date` produces the standards-correct token; enabling these options is the caller's
-responsibility. The converter does not track which options you enabled — if a token needs one you did
-not pass, date-fns throws at `format()` time, which is the authoritative signal for your exact
-version.
+`rosetta-date` emits the mapped token, but does not track which date-fns options are enabled. If a
+token needs an option you did not pass, date-fns throws at `format()` time.

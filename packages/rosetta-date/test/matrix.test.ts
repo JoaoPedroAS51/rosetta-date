@@ -16,7 +16,7 @@ function canonicalsOf(name: EndpointName): CanonicalToken[] {
   return Object.keys(renderOracle(name)) as CanonicalToken[]
 }
 
-describe('endpoint conformance (each endpoint ↔ the canonical hub)', () => {
+describe('endpoint conformance', () => {
   for (const name of names) {
     const entries = Object.entries(renderOracle(name)) as Array<[CanonicalToken, string]>
     const grammar = grammarOf(name)
@@ -24,9 +24,7 @@ describe('endpoint conformance (each endpoint ↔ the canonical hub)', () => {
 
     describe(name, () => {
       it.each(entries)('%s ↔ token "%s"', (canonical, token) => {
-        // The primary token parses (through the effective grammar) to its symbol...
         expect(parse(token, grammar)).toEqual([{ kind: 'field', canonical, raw: token }])
-        // ...and that symbol renders back to the primary token through the endpoint.
         expect(render([{ kind: 'field', canonical, raw: token }], endpoint)).toBe(token)
       })
     })
@@ -48,11 +46,7 @@ describe('aliases parse to their canonical symbol', () => {
   }
 })
 
-describe('endpoint totality (what it renders matches its oracle exactly)', () => {
-  // Independent cross-check: the engine's rendered set (driven by the library's
-  // `supports`/`extends`) must equal the oracle's keys (driven by the delta). They
-  // are authored from opposite sides, so any drift — or a field added to the
-  // vocabulary that a library silently starts/keeps claiming — breaks this.
+describe('endpoint totality', () => {
   it.each(names)('%s', (name) => {
     expect(new Set(renderedTokens(endpoints[name]).keys())).toEqual(new Set(Object.keys(renderOracle(name))))
   })
@@ -69,8 +63,6 @@ describe('cross-endpoint conversion matrix', () => {
         expect(convert(fromMap[canonical]!, { from: endpoints[from], to: endpoints[to] })).toBe(toMap[canonical])
       })
 
-      // Fields the source can express but the target cannot render must become
-      // escaped literals — never a wrong guess or a silently re-readable token.
       const oneSided = canonicalsOf(from).filter(canonical => toMap[canonical] === undefined)
       if (oneSided.length > 0) {
         it.each(oneSided)('%s has no %s token → escaped literal', (canonical) => {

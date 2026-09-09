@@ -5,8 +5,8 @@ import { renderedTokens } from './core/render'
 import { describe } from './describe'
 
 /**
- * Why a field has no clean conversion. This is the subset of
- * `UnsupportedTokenReason` a per-token, static `explain` can produce:
+ * Why a field has no clean conversion. This subset of `UnsupportedTokenReason`
+ * covers the outcomes that `explain` can determine for one token:
  * `unmappable` when the target grammar has no token for the field, and
  * `unsupported-by-target` when the grammar has one but the target library does
  * not render it.
@@ -14,11 +14,7 @@ import { describe } from './describe'
 export type ExplainedReason = 'unmappable' | 'unsupported-by-target'
 
 /**
- * A described field plus the outcome of converting it to the target.
- *
- * @remarks
- * `converted` carries the `target` token the field becomes; `unsupported`
- * carries the {@link ExplainedReason}.
+ * A described field and its target-conversion outcome.
  */
 export type ExplainedField
   = DescribedField & (
@@ -44,28 +40,13 @@ export interface ExplainOptions {
 }
 
 /**
- * Explain what a conversion would do to a format, token by token, without
- * producing the converted string.
- *
- * @remarks
- * A read-only dry run of `convert`: it reports, per field, whether the target
- * can render it and as which token, or why it cannot. It builds on
- * {@link describe}: every field carries the same decoded semantics plus the
- * per-field conversion outcome. Literals are decoded per the source dialect's
- * literal rules, and unrecognized runs keep their source text.
- *
- * When `from` is a {@link Library}, parsing uses its effective grammar,
- * including library extensions. When `to` is a {@link Library}, its support
- * subset is applied to decide whether a field is `converted` or
- * `unsupported-by-target`.
- *
- * Each field is classified on its own. Whole-string rendering effects, such as
- * `unrepresentable-adjacency`, belong to the rendered output and are surfaced by
- * `convert`, not here.
+ * Explain a conversion without producing the converted format string.
  *
  * @param format - The format string to explain, e.g. `'Mo/YYYY'`.
  * @param options - The source and target endpoints.
  * @returns The explained segments, in source order.
+ *
+ * @see {@link describe} to inspect a format without a target endpoint.
  *
  * @example
  * ```ts

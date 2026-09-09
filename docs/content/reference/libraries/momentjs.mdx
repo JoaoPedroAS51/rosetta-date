@@ -14,7 +14,7 @@ import { momentjs } from 'rosetta-date/libraries'
 
 - **Base grammar:** [`moment`](/reference/dialects/moment).
 - **Extensions:** none.
-- **Support model:** the reference implementation of the `moment` grammar — it renders every token,
+- **Support model:** the reference implementation of the `moment` grammar. It renders every token,
   so it carries no `supports` set and converting *to* it never flags a grammar token.
 
 ## Localized presets
@@ -32,7 +32,7 @@ The `moment` grammar has no full-date, time-with-zone, or short date-time preset
 `PPPP` / `ppp` / `pppp` / `Pp` have no `momentjs` counterpart and literalize when converted to it.
 
 <Callout type="info">
-  **Runtime:** some tokens need a Moment.js companion at runtime even though `momentjs` renders them
-  — e.g. time-zone-name tokens require `moment-timezone`. That is the consumer's concern, not a
-  conversion limit.
+  **Runtime:** some tokens need a Moment.js companion at runtime even though `momentjs` renders them.
+  For example, time-zone-name tokens require `moment-timezone`. The requirement applies when the
+  target library formats the date.
 </Callout>

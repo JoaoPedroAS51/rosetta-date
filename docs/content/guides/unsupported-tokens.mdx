@@ -17,13 +17,13 @@ A token can lack a clean conversion. The `onUnsupportedToken` option decides wha
 import { convert, Unsupported, UnsupportedTokenError } from 'rosetta-date'
 import { ldml, moment } from 'rosetta-date/dialects'
 
-// 'literalize' (default) — escape it as a literal, so it can never be re-read as a token:
+// 'literalize' (default): escape it as a literal, so it cannot be re-read as a token.
 convert('K', { from: ldml, to: moment }) // '[K]'
 
-// 'throw' — fail fast (handy for migrations / validation):
+// 'throw': fail on unsupported tokens during migrations or validation.
 convert('K', { from: ldml, to: moment, onUnsupportedToken: 'throw' }) // throws UnsupportedTokenError
 
-// handler — decide per token, keyed on `info.reason` (the reasons are listed below):
+// handler: decide per token using `info.reason` (listed below).
 convert('K', {
   from: ldml,
   to: moment,
@@ -34,11 +34,10 @@ convert('K', {
 
 ## Handler return values
 
-A handler's return value is emitted **verbatim** — return a string to substitute your own text. Or
-use a sentinel to express intent:
+A handler's string return value is emitted **verbatim**. Use a sentinel for the built-in behaviors:
 
-- `Unsupported.drop` — omit the token entirely.
-- `Unsupported.literalize` — defer to the default (escape it as a literal).
+- `Unsupported.drop`: omit the token entirely.
+- `Unsupported.literalize`: defer to the default and escape the token as a literal.
 - `''` and `undefined` are accepted as shorthands: `''` drops, `undefined` literalizes.
 
 ## The four reasons
@@ -56,22 +55,21 @@ use a sentinel to express intent:
 
 The second handler argument carries:
 
-- `reason` — one of the four reasons above.
-- `from` / `to` — the resolved **dialects**.
-- `fromLibrary` / `toLibrary` — present when an endpoint was a `Library`.
+- `reason`: one of the four reasons above.
+- `from` / `to`: the resolved **dialects**.
+- `fromLibrary` / `toLibrary`: present when an endpoint was a `Library`.
 
 Because libraries that share a dialect (e.g. Day.js and Moment.js both speak `moment`) resolve to the
 same `to` dialect, `toLibrary` is how a handler distinguishes libraries built on the same dialect.
 
 <Callout type="default">
-  The default policy never throws — every token is preserved, as a literal at worst.
+  The default policy preserves unsupported tokens as literals instead of throwing.
 </Callout>
 
 ## What the `supports` set does *not* cover
 
-A `Library`'s `supports` set models which canonical fields this tool renders — it is what flags
+A `Library`'s `supports` set lists which canonical fields the tool renders and flags
 `unsupported-by-target`. It does **not** model the consumer's runtime configuration. A token a
 library renders only with a plugin or option loaded (Day.js's `Q`, date-fns's `D`) is emitted
-as-is. Whether that plugin or option is actually enabled is the target library's concern, and it
-signals the problem itself at format time — date-fns throws, Day.js mangles. See the
-[Libraries](/reference/libraries) for the specifics per tool.
+as-is. The target library reports missing runtime configuration at format time: date-fns throws,
+while Day.js mis-renders the token. See [Libraries](/reference/libraries) for details by tool.

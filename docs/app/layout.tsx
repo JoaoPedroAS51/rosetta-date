@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     template: '%s – rosetta-date',
   },
   description:
-    'A translation engine for date-formatting languages. Bidirectionally convert date-format token strings between moment/dayjs and Unicode/LDML (date-fns) dialects.',
+    'A translation engine for date-formatting languages.',
   metadataBase: new URL('https://github.com/JoaoPedroAS51/rosetta-date'),
 }
 
