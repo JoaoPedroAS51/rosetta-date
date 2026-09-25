@@ -3,12 +3,12 @@
   "type": "module",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "pnpm@11.5.3",
+  "packageManager": "pnpm@11.27.1",
   "description": "rosetta-date workspace for the library, playground, and documentation site.",
   "author": "João Pedro Antunes Silva <hi@joaopedroas.com>",
   "license": "MIT",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.12.0"
   },
   "scripts": {
     "build": "turbo run build --filter=rosetta-date",

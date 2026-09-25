@@ -61,7 +61,7 @@ bun add rosetta-date
 
 </details>
 
-**Requirements:** Node ≥ 22 and an ESM project. Use `import`; the package does not support `require()`.
+**Requirements:** Node ≥ 22.12 and an ESM project. Use `import`; the package does not support `require()`.
 
 ## Usage
 
