@@ -1,6 +1,12 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "paths": {
+      "rosetta-date": ["./src/index.ts"],
+      "rosetta-date/dialects": ["./src/dialects/index.ts"],
+      "rosetta-date/intl": ["./src/intl/index.ts"],
+      "rosetta-date/libraries": ["./src/libraries/index.ts"]
+    },
     "outDir": "dist"
   },
   "include": ["src", "test", "tsdown.config.ts", "vitest.config.ts"],

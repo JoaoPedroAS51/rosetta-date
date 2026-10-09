@@ -51,6 +51,9 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      - name: Test types
+        run: pnpm test:types
+
       - name: Test with coverage
         run: pnpm test:coverage
 
@@ -62,5 +65,5 @@ jobs:
           fail_ci_if_error: true
           use_oidc: true
 
-      - name: Build
-        run: pnpm build
+      - name: Test built package and types
+        run: pnpm test:package

@@ -11,9 +11,6 @@
       "cache": false,
       "persistent": true
     },
-    "typecheck": {
-      "outputs": []
-    },
     "test": {
       "outputs": []
     },
@@ -21,8 +18,16 @@
       "cache": false,
       "persistent": true
     },
+    "test:unit": {},
+    "test:endpoints": {},
+    "test:types": {},
     "test:coverage": {
       "outputs": ["coverage/**"]
+    },
+    "test:dist": {},
+    "test:types:dist": {},
+    "typecheck": {
+      "outputs": []
     },
 
     // Core
@@ -30,6 +35,12 @@
       "dependsOn": ["build"],
       "cache": false,
       "persistent": true
+    },
+    "rosetta-date#test:dist": {
+      "dependsOn": ["build"]
+    },
+    "rosetta-date#test:types:dist": {
+      "dependsOn": ["build"]
     },
 
     // Docs

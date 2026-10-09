@@ -19,26 +19,35 @@ pnpm install
 
 | Script | Purpose |
 | ------ | ------- |
-| `pnpm dev` | Rebuild on change (`tsdown --watch`). |
+| `pnpm dev` | Build the library, then rebuild on source changes. |
 | `pnpm build` | Emit the ESM bundle and types to `dist/`. |
-| `pnpm playground` | Serve the interactive playground from `playground/`. |
+| `pnpm playground` | Build the library, then serve the playground and watch library changes. |
+| `pnpm playground:build` | Build the library and playground. |
+| `pnpm docs:dev` | Serve the documentation site. |
+| `pnpm docs:build` | Build the documentation site and search index. |
 | `pnpm typecheck` | Type-check the package without emitting. |
 | `pnpm lint` / `pnpm lint:fix` | Lint, and autofix, with the antfu config. |
 | `pnpm test` | Run the suite once. |
-| `pnpm test:coverage` | Run with coverage, gated at 100%. |
+| `pnpm test:watch` | Watch the source suites. |
+| `pnpm test:unit` | Run unit tests. |
+| `pnpm test:endpoints` | Run endpoint conformance, matrix, and round-trip tests. |
+| `pnpm test:types` | Check source type assertions. |
+| `pnpm test:coverage` | Run unit and endpoint tests with coverage, gated at 100%. |
+| `pnpm test:dist` | Build, then check plain-Node imports and `exports` resolution. |
+| `pnpm test:types:dist` | Build, then check the published declarations. |
+| `pnpm test:package` | Build, then run both artifact checks in parallel. |
 
 ## Adding a dialect or library
 
 To add a dialect, register it in `src/dialects/registry.ts`; to add a library, register it in
-`src/libraries/registry.ts` and give it a `libraryDeltas` entry in `test/fixtures.ts`. A dialect in an
+`src/libraries/registry.ts` and give it a `libraryDeltas` entry in `test/fixtures/oracle.ts`. A dialect in an
 existing **syntax family** (`delimited` or `directive`) is pure data: pick its `syntax` and map its
 tokens. A grammar that needs a *new* family adds one strategy module under `src/core/syntax/` and one
 member to the `TokenSyntax` union; the parser and renderer stay untouched.
 
-The cross-endpoint matrix in `test/fixtures.ts` is a curated oracle (its flat `canonical → spelling`
-shape currently fits the delimited dialects). A `delimited` dialect joins it with an `expectations`
-entry; a `directive` dialect like `strftime` is exercised by its own focused test
-(`src/dialects/strftime.test.ts`) until that oracle is extended.
+The cross-endpoint suites read a hand-written oracle, `test/fixtures/oracle.ts`, that maps each
+canonical to the endpoint's primary spelling. A new dialect joins them with an `expectations` entry;
+TypeScript requires one for every registered dialect.
 
 Then update the documentation so the new dialect or library is discoverable. Keep these pages in
 sync by hand:
@@ -106,7 +115,7 @@ Library TSDoc documents the rendering target:
 
 Wrap code identifiers, plugin names, token names, and package names in backticks.
 
-CI runs `lint`, `typecheck`, `test:coverage`, and `build` on every pull request. Record user-facing
+CI runs `lint`, `typecheck`, `test:types`, `test:coverage`, and `test:package` on every pull request. Record user-facing
 changes with a changeset:
 
 ```bash
@@ -115,21 +124,30 @@ pnpm changeset
 
 ## Testing
 
-Where a test lives signals what it covers.
+Tests live in `packages/rosetta-date/test/`, outside `src/`, and import the package by name
+(`rosetta-date`, `rosetta-date/dialects`, …), which Vitest and TypeScript alias to the source. Each
+folder is a Vitest project:
 
-| Location | Scope | Examples |
-| -------- | ----- | -------- |
-| Beside the module (`src/`) | One module's units, plus the mechanics the oracle cannot express | `syntax/delimited.test.ts`, `dialects/strftime.test.ts`; the unsupported-token reasons in `libraries.test.ts` |
-| `test/` | Systematic behaviour across the curated endpoints | `matrix.test.ts`, `round-trip.test.ts` |
+| Folder | Project | Scope |
+| ------ | ------- | ----- |
+| `unit/` | `unit` | One unit's behavior, in a tree that mirrors `src/`, plus mechanics the oracle cannot express (unsupported-token reasons, handler context, adjacency) |
+| `endpoints/` | `endpoints` | Conformance, the conversion matrix, and round trips across every built-in dialect and library |
+| `types/` | `types` | `*.test-d.ts` type tests of the public API, grouped by subject |
 
-Unit tests sit next to the code they exercise. The cross-cutting suites span every pair of curated
-endpoints and derive from one shared oracle, `test/fixtures.ts` (each dialect's `expectations`, plus
-each library's `libraryDeltas`). An oracle entry gives a delimited endpoint conformance, matrix,
-round-trip, and totality coverage. Colocated tests cover per-tool mechanics such as unsupported-token
-reasons, handler context, and adjacency, plus endpoints not yet in the matrix oracle such as
-`strftime`.
+The `endpoints` suites derive from the oracle in `test/fixtures/oracle.ts` (each dialect's
+`expectations`, plus each library's `libraryDeltas`). An oracle entry gives an endpoint conformance,
+totality, matrix, and round-trip coverage. Tests reach internals by relative path only when the
+public API has no equivalent.
 
-Run `pnpm test` for both, or `pnpm test:coverage` to enforce the 100% threshold.
+Run `pnpm test` for all three projects, or select `pnpm test:unit`, `pnpm test:endpoints`, or
+`pnpm test:types`. `pnpm test:coverage` enforces the 100% threshold for unit and endpoint tests;
+type assertions do not contribute to runtime coverage.
+
+`pnpm test:package` builds the library, then runs two checks in parallel: `test:types:dist` checks
+type assertions against the published declarations, and `test:dist` checks a plain-Node import of
+every entrypoint (`test/artifact/smoke.mjs`) and `exports` resolution with
+[Are the Types Wrong?](https://github.com/arethetypeswrong/arethetypeswrong.github.io). Both commands
+can also be run separately from the repository root; Turbo builds the library first.
 
 ## License
 

@@ -1,10 +1,9 @@
-import type { CanonicalToken } from '../src/core/canonical'
-import type { Dialect } from '../src/core/types'
-import type { DialectName } from '../src/dialects/registry'
-import type { LibraryName } from '../src/libraries/registry'
-import { Canonical } from '../src/core/canonical'
-import { dialects } from '../src/dialects/registry'
-import { libraries } from '../src/libraries/registry'
+import type { CanonicalToken, Dialect } from 'rosetta-date'
+import type { DialectName } from 'rosetta-date/dialects'
+import type { LibraryName } from 'rosetta-date/libraries'
+import { Canonical } from 'rosetta-date'
+import { dialects } from '../../src/dialects/registry'
+import { libraries } from '../../src/libraries/registry'
 
 /**
  * Each dialect's primary spelling for every canonical symbol it can express.
