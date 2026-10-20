@@ -3,7 +3,12 @@ import { defineConfig } from 'tsdown'
 export default defineConfig({
   entry: ['src/index.ts', 'src/dialects/index.ts', 'src/libraries/index.ts', 'src/intl/index.ts'],
   format: ['esm'],
-  dts: true,
+  dts: {
+    generator: 'tsgo',
+  },
+  suppressWarnings: [
+    /^TypeScript 7\.0 does not yet have a stable API and is experimental\. Some options will be unavailable\.$/,
+  ],
   clean: true,
   treeshake: true,
   target: 'es2022',
