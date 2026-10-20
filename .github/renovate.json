@@ -1,0 +1,72 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "helpers:pinGitHubActionDigests",
+    "group:allNonMajor",
+    "schedule:weekly",
+    "security:minimumReleaseAgeNpm",
+    ":approveMajorUpdates",
+    ":disablePeerDependencies",
+    ":maintainLockFilesMonthly",
+    ":semanticCommits",
+    ":semanticCommitTypeAll(chore)",
+    ":semanticCommitScope(deps)"
+  ],
+  "timezone": "America/Sao_Paulo",
+  "labels": [
+    "dependencies"
+  ],
+  "rangeStrategy": "bump",
+  "prConcurrentLimit": 5,
+  "automerge": false,
+  "postUpdateOptions": [
+    "pnpmDedupe"
+  ],
+  "packageRules": [
+    {
+      "groupName": "docs",
+      "matchPackageNames": [
+        "next",
+        "nextra",
+        "nextra-theme-docs",
+        "pagefind",
+        "react",
+        "react-dom",
+        "@types/react",
+        "@types/react-dom"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ]
+    },
+    {
+      "description": "Keep the library's minimum Node.js version unchanged",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchDepTypes": [
+        "engines"
+      ],
+      "matchPackageNames": [
+        "node"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Match the Node.js 22 compatibility target",
+      "matchPackageNames": [
+        "@types/node"
+      ],
+      "allowedVersions": "<23"
+    },
+    {
+      "description": "Preserve the Zod override required by Nextra 4.6",
+      "matchPackageNames": [
+        "zod"
+      ],
+      "enabled": false
+    }
+  ]
+}
