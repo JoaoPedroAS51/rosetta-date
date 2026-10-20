@@ -20,7 +20,7 @@ pnpm install
 | Script | Purpose |
 | ------ | ------- |
 | `pnpm dev` | Build the library, then rebuild on source changes. |
-| `pnpm build` | Emit the ESM bundle and types to `dist/`. |
+| `pnpm build` | Emit ESM modules, types, and source maps to `dist/`. |
 | `pnpm playground` | Build the library, then serve the playground and watch library changes. |
 | `pnpm playground:build` | Build the library and playground. |
 | `pnpm docs:dev` | Serve the documentation site. |
@@ -33,7 +33,7 @@ pnpm install
 | `pnpm test:endpoints` | Run endpoint conformance, matrix, and round-trip tests. |
 | `pnpm test:types` | Check source type assertions. |
 | `pnpm test:coverage` | Run unit and endpoint tests with coverage, gated at 100%. |
-| `pnpm test:dist` | Build, then check plain-Node imports and `exports` resolution. |
+| `pnpm test:dist` | Build, then check plain-Node imports, package metadata, and `exports` resolution. |
 | `pnpm test:types:dist` | Build, then check the published declarations. |
 | `pnpm test:package` | Build, then run both artifact checks in parallel. |
 
@@ -145,7 +145,8 @@ type assertions do not contribute to runtime coverage.
 
 `pnpm test:package` builds the library, then runs two checks in parallel: `test:types:dist` checks
 type assertions against the published declarations, and `test:dist` checks a plain-Node import of
-every entrypoint (`test/artifact/smoke.mjs`) and `exports` resolution with
+every entrypoint (`test/artifact/smoke.mjs`), package metadata with
+[publint](https://publint.dev/) in strict mode, and `exports` resolution with
 [Are the Types Wrong?](https://github.com/arethetypeswrong/arethetypeswrong.github.io). Both commands
 can also be run separately from the repository root; Turbo builds the library first.
 

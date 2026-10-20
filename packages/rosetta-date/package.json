@@ -49,7 +49,8 @@
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "engines": {
     "node": ">=22.12.0"
@@ -64,7 +65,7 @@
     "test:endpoints": "vitest run --project endpoints",
     "test:types": "vitest run --project types --typecheck.only",
     "test:coverage": "vitest run --project unit --project endpoints --coverage",
-    "test:dist": "node test/artifact/smoke.mjs && attw --pack . --profile esm-only",
+    "test:dist": "node test/artifact/smoke.mjs && publint --strict && attw --pack . --profile esm-only",
     "test:types:dist": "tsc -p test/types/tsconfig.dist.json",
     "test:package": "turbo run test:dist test:types:dist --filter=rosetta-date",
     "prepublishOnly": "pnpm build && cp ../../README.md README.md"
@@ -74,6 +75,7 @@
     "@types/node": "catalog:",
     "@typescript/native-preview": "catalog:",
     "@vitest/coverage-v8": "catalog:",
+    "publint": "catalog:",
     "tsdown": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
